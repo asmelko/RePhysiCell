@@ -108,14 +108,8 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 		std::cout << std::endl << "Using method " << __FUNCTION__ << " (implicit 3-D LOD with Thomas Algorithm) ... " 
 		<< std::endl << std::endl;  
 		
-		M.thomas_denomx.resize( M.mesh.x_coordinates.size() , M.zero );
-		M.thomas_cx.resize( M.mesh.x_coordinates.size() , M.zero );
-
-		M.thomas_denomy.resize( M.mesh.y_coordinates.size() , M.zero );
-		M.thomas_cy.resize( M.mesh.y_coordinates.size() , M.zero );
-		
-		M.thomas_denomz.resize( M.mesh.z_coordinates.size() , M.zero );
-		M.thomas_cz.resize( M.mesh.z_coordinates.size() , M.zero );
+		M.thomas_denom.resize( M.mesh.x_coordinates.size() , M.zero );
+		M.thomas_c.resize( M.mesh.x_coordinates.size() , M.zero );
 
 		M.thomas_i_jump = 1; 
 		M.thomas_j_jump = M.mesh.x_coordinates.size(); 
@@ -146,47 +140,22 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 
 		// Thomas solver coefficients 
 
-		M.thomas_cx.assign( M.mesh.x_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomx.assign( M.mesh.x_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomx[0] = M.thomas_constant3a; 
-		M.thomas_denomx[ M.mesh.x_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.x_coordinates.size() == 1 )
-		{ M.thomas_denomx[0] = M.one; M.thomas_denomx[0] += M.thomas_constant2; } 
+		std::size_t max_coord_size = std::max(M.mesh.x_coordinates.size(), M.mesh.y_coordinates.size());
+		max_coord_size = std::max(max_coord_size, M.mesh.z_coordinates.size());
 
-		M.thomas_cx[0] /= M.thomas_denomx[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.x_coordinates.size()-1 ; i++ )
+		M.thomas_c.assign( max_coord_size , M.thomas_constant1a ); 
+		M.thomas_denom.assign( max_coord_size  , M.thomas_constant3 ); 
+		M.thomas_denom[0] = M.thomas_constant3a; 
+		M.thomas_denom[ max_coord_size-1 ] = M.thomas_constant3a; 
+		if( max_coord_size == 1 )
+		{ M.thomas_denom[0] = M.one; M.thomas_denom[0] += M.thomas_constant2; } 
+
+		M.thomas_c[0] /= M.thomas_denom[0]; 
+		for( unsigned int i=1 ; i < max_coord_size ; i++ )
 		{ 
-			axpy( &M.thomas_denomx[i] , M.thomas_constant1 , M.thomas_cx[i-1] ); 
-			M.thomas_cx[i] /= M.thomas_denomx[i]; // the value at  size-1 is not actually used  
+			axpy( &M.thomas_denom[i] , M.thomas_constant1 , M.thomas_c[i-1] ); 
+			M.thomas_c[i] /= M.thomas_denom[i]; // the value at  size-1 is not actually used  
 		}
-
-		M.thomas_cy.assign( M.mesh.y_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomy.assign( M.mesh.y_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomy[0] = M.thomas_constant3a; 
-		M.thomas_denomy[ M.mesh.y_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.y_coordinates.size() == 1 )
-		{ M.thomas_denomy[0] = M.one; M.thomas_denomy[0] += M.thomas_constant2; } 
-
-		M.thomas_cy[0] /= M.thomas_denomy[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.y_coordinates.size()-1 ; i++ )
-		{ 
-			axpy( &M.thomas_denomy[i] , M.thomas_constant1 , M.thomas_cy[i-1] ); 
-			M.thomas_cy[i] /= M.thomas_denomy[i]; // the value at  size-1 is not actually used  
-		}
-
-		M.thomas_cz.assign( M.mesh.z_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomz.assign( M.mesh.z_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomz[0] = M.thomas_constant3a; 
-		M.thomas_denomz[ M.mesh.z_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.z_coordinates.size() == 1 )
-		{ M.thomas_denomz[0] = M.one; M.thomas_denomz[0] += M.thomas_constant2; } 
-
-		M.thomas_cz[0] /= M.thomas_denomz[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.z_coordinates.size()-1 ; i++ )
-		{ 
-			axpy( &M.thomas_denomz[i] , M.thomas_constant1 , M.thomas_cz[i-1] ); 
-			M.thomas_cz[i] /= M.thomas_denomz[i]; // the value at  size-1 is not actually used  
-		}	
 
 		M.diffusion_solver_setup_done = true; 
 	}
@@ -204,7 +173,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 			// remaining part of forward elimination, using pre-computed quantities 
 			int n = M.voxel_index(0,j,k);
 			for (int d = 0; d < M.number_of_densities(); d++)
-				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 			for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
 			{
@@ -214,7 +183,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 					M.p_density_vectors[n * M.number_of_densities() + d] = 
 						(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
-						 M.thomas_denomx[i][d];
+						 M.thomas_denom[i][d];
 			}
 
 			for( int i = M.mesh.x_coordinates.size()-2 ; i >= 0 ; i-- )
@@ -222,7 +191,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 				n = M.voxel_index(i,j,k); 
 				for (int d = 0; d < M.number_of_densities(); d++)
 					M.p_density_vectors[n * M.number_of_densities() + d] += 
-						M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
+						M.thomas_c[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			}
 
 		}
@@ -241,7 +210,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 			// remaining part of forward elimination, using pre-computed quantities 
 			int n = M.voxel_index(i,0,k);
 			for (int d = 0; d < M.number_of_densities(); d++)
-				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomy[0][d]; 
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 			for( unsigned int j=1; j < M.mesh.y_coordinates.size() ; j++ )
 			{
@@ -251,7 +220,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 					M.p_density_vectors[n * M.number_of_densities() + d] = 
 						(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_j_jump) * M.number_of_densities() + d]) /
-						 M.thomas_denomy[j][d];
+						 M.thomas_denom[j][d];
 			}
 
 			for( int j = M.mesh.y_coordinates.size()-2 ; j >= 0 ; j-- )
@@ -259,7 +228,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 				n = M.voxel_index(i,j,k); 
 				for (int d = 0; d < M.number_of_densities(); d++)
 					M.p_density_vectors[n * M.number_of_densities() + d] += 
-						M.thomas_cy[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
+						M.thomas_c[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
 			}
 
 		}
@@ -278,7 +247,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 			// remaining part of forward elimination, using pre-computed quantities 
 			int n = M.voxel_index(i,j,0);
 			for (int d = 0; d < M.number_of_densities(); d++)
-				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomz[0][d]; 
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 			for( unsigned int k=1; k < M.mesh.z_coordinates.size() ; k++ )
 			{
@@ -288,7 +257,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 					M.p_density_vectors[n * M.number_of_densities() + d] = 
 						(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_k_jump) * M.number_of_densities() + d]) /
-						 M.thomas_denomx[k][d];
+						 M.thomas_denom[k][d];
 			}
 
 			for( int k = M.mesh.z_coordinates.size()-2 ; k >= 0 ; k-- )
@@ -296,7 +265,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 				n = M.voxel_index(i,j,k); 
 				for (int d = 0; d < M.number_of_densities(); d++)
 					M.p_density_vectors[n * M.number_of_densities() + d] += 
-						M.thomas_cz[k][d] * M.p_density_vectors[(n+M.thomas_k_jump) * M.number_of_densities() + d];
+						M.thomas_c[k][d] * M.p_density_vectors[(n+M.thomas_k_jump) * M.number_of_densities() + d];
 			}
 
 		}
@@ -324,12 +293,9 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 	{
 		std::cout << std::endl << "Using method " << __FUNCTION__ << " (2D LOD with Thomas Algorithm) ... " << std::endl << std::endl;  
 		
-		M.thomas_denomx.resize( M.mesh.x_coordinates.size() , M.zero );
-		M.thomas_cx.resize( M.mesh.x_coordinates.size() , M.zero );
+		M.thomas_denom.resize( M.mesh.x_coordinates.size() , M.zero );
+		M.thomas_c.resize( M.mesh.x_coordinates.size() , M.zero );
 
-		M.thomas_denomy.resize( M.mesh.y_coordinates.size() , M.zero );
-		M.thomas_cy.resize( M.mesh.y_coordinates.size() , M.zero );
-		
 		// define constants and pre-computed quantities 
 
 		M.thomas_i_jump = 1; 
@@ -360,32 +326,21 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 		
 		// Thomas solver coefficients 
 
-		M.thomas_cx.assign( M.mesh.x_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomx.assign( M.mesh.x_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomx[0] = M.thomas_constant3a; 
-		M.thomas_denomx[ M.mesh.x_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.x_coordinates.size() == 1 )
-		{ M.thomas_denomx[0] = M.one; M.thomas_denomx[0] += M.thomas_constant2; } 
+		std::size_t max_coord_size = std::max(M.mesh.x_coordinates.size(), M.mesh.y_coordinates.size());
+		max_coord_size = std::max(max_coord_size, M.mesh.z_coordinates.size());
 
-		M.thomas_cx[0] /= M.thomas_denomx[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.x_coordinates.size()-1 ; i++ )
+		M.thomas_c.assign( max_coord_size , M.thomas_constant1a ); 
+		M.thomas_denom.assign( max_coord_size  , M.thomas_constant3 ); 
+		M.thomas_denom[0] = M.thomas_constant3a; 
+		M.thomas_denom[ max_coord_size-1 ] = M.thomas_constant3a; 
+		if( max_coord_size == 1 )
+		{ M.thomas_denom[0] = M.one; M.thomas_denom[0] += M.thomas_constant2; } 
+
+		M.thomas_c[0] /= M.thomas_denom[0]; 
+		for( unsigned int i=1 ; i < max_coord_size ; i++ )
 		{ 
-			axpy( &M.thomas_denomx[i] , M.thomas_constant1 , M.thomas_cx[i-1] ); 
-			M.thomas_cx[i] /= M.thomas_denomx[i]; // the value at  size-1 is not actually used  
-		}
-
-		M.thomas_cy.assign( M.mesh.y_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomy.assign( M.mesh.y_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomy[0] = M.thomas_constant3a; 
-		M.thomas_denomy[ M.mesh.y_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.y_coordinates.size() == 1 )
-		{ M.thomas_denomy[0] = M.one; M.thomas_denomy[0] += M.thomas_constant2; } 
-
-		M.thomas_cy[0] /= M.thomas_denomy[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.y_coordinates.size()-1 ; i++ )
-		{ 
-			axpy( &M.thomas_denomy[i] , M.thomas_constant1 , M.thomas_cy[i-1] ); 
-			M.thomas_cy[i] /= M.thomas_denomy[i]; // the value at  size-1 is not actually used  
+			axpy( &M.thomas_denom[i] , M.thomas_constant1 , M.thomas_c[i-1] ); 
+			M.thomas_c[i] /= M.thomas_denom[i]; // the value at  size-1 is not actually used  
 		}
 
 		M.diffusion_solver_setup_done = true; 
@@ -404,7 +359,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 		// remaining part of forward elimination, using pre-computed quantities 
 		unsigned int n = M.voxel_index(0,j,0);
 		for (int d = 0; d < M.number_of_densities(); d++)
-			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 		n += M.thomas_i_jump; 
 		for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
@@ -413,7 +368,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 				M.p_density_vectors[n * M.number_of_densities() + d] = 
 					(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
-						M.thomas_denomx[i][d];
+						M.thomas_denom[i][d];
 			n += M.thomas_i_jump; 
 		}
 
@@ -424,7 +379,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 		{
 			for (int d = 0; d < M.number_of_densities(); d++)
 				M.p_density_vectors[n * M.number_of_densities() + d] += 
-					M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
+					M.thomas_c[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			n -= M.thomas_i_jump; 
 		}
 	}
@@ -441,7 +396,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 
 		int n = M.voxel_index(i,0,0);
 		for (int d = 0; d < M.number_of_densities(); d++)
-			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomy[0][d]; 
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 		n += M.thomas_j_jump; 
 		for( unsigned int j=1; j < M.mesh.y_coordinates.size() ; j++ )
@@ -450,7 +405,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 				M.p_density_vectors[n * M.number_of_densities() + d] = 
 					(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_j_jump) * M.number_of_densities() + d]) /
-						M.thomas_denomy[j][d];
+						M.thomas_denom[j][d];
 			n += M.thomas_j_jump; 
 		}
 
@@ -461,7 +416,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 		{
 			for (int d = 0; d < M.number_of_densities(); d++)
 				M.p_density_vectors[n * M.number_of_densities() + d] += 
-					M.thomas_cy[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
+					M.thomas_c[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
 			n -= M.thomas_j_jump; 
 		}
 	}
@@ -561,8 +516,8 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 	{
 		std::cout << std::endl << "Using method " << __FUNCTION__ << " (2D LOD with Thomas Algorithm) ... " << std::endl << std::endl;  
 		
-		M.thomas_denomx.resize( M.mesh.x_coordinates.size() , M.zero );
-		M.thomas_cx.resize( M.mesh.x_coordinates.size() , M.zero );
+		M.thomas_denom.resize( M.mesh.x_coordinates.size() , M.zero );
+		M.thomas_c.resize( M.mesh.x_coordinates.size() , M.zero );
 
 		// define constants and pre-computed quantities 
 
@@ -594,18 +549,21 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 		
 		// Thomas solver coefficients 
 
-		M.thomas_cx.assign( M.mesh.x_coordinates.size() , M.thomas_constant1a ); 
-		M.thomas_denomx.assign( M.mesh.x_coordinates.size()  , M.thomas_constant3 ); 
-		M.thomas_denomx[0] = M.thomas_constant3a; 
-		M.thomas_denomx[ M.mesh.x_coordinates.size()-1 ] = M.thomas_constant3a; 
-		if( M.mesh.x_coordinates.size() == 1 )
-		{ M.thomas_denomx[0] = M.one; M.thomas_denomx[0] += M.thomas_constant2; } 
+		std::size_t max_coord_size = std::max(M.mesh.x_coordinates.size(), M.mesh.y_coordinates.size());
+		max_coord_size = std::max(max_coord_size, M.mesh.z_coordinates.size());
 
-		M.thomas_cx[0] /= M.thomas_denomx[0]; 
-		for( unsigned int i=1 ; i <= M.mesh.x_coordinates.size()-1 ; i++ )
+		M.thomas_c.assign( max_coord_size , M.thomas_constant1a ); 
+		M.thomas_denom.assign( max_coord_size  , M.thomas_constant3 ); 
+		M.thomas_denom[0] = M.thomas_constant3a; 
+		M.thomas_denom[ max_coord_size-1 ] = M.thomas_constant3a; 
+		if( max_coord_size == 1 )
+		{ M.thomas_denom[0] = M.one; M.thomas_denom[0] += M.thomas_constant2; } 
+
+		M.thomas_c[0] /= M.thomas_denom[0]; 
+		for( unsigned int i=1 ; i < max_coord_size ; i++ )
 		{ 
-			axpy( &M.thomas_denomx[i] , M.thomas_constant1 , M.thomas_cx[i-1] ); 
-			M.thomas_cx[i] /= M.thomas_denomx[i]; // the value at  size-1 is not actually used  
+			axpy( &M.thomas_denom[i] , M.thomas_constant1 , M.thomas_c[i-1] ); 
+			M.thomas_c[i] /= M.thomas_denom[i]; // the value at  size-1 is not actually used  
 		}
 
 		M.diffusion_solver_setup_done = true; 
@@ -624,7 +582,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 		// remaining part of forward elimination, using pre-computed quantities 
 		unsigned int n = M.voxel_index(0,j,0);
 		for (int d = 0; d < M.number_of_densities(); d++)
-			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denom[0][d]; 
 
 		n += M.thomas_i_jump; 
 		for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
@@ -633,7 +591,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 				M.p_density_vectors[n * M.number_of_densities() + d] = 
 					(M.p_density_vectors[n * M.number_of_densities() + d] + 
 						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
-						M.thomas_denomx[i][d];
+						M.thomas_denom[i][d];
 			n += M.thomas_i_jump; 
 		}
 
@@ -644,7 +602,7 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 		{
 			for (int d = 0; d < M.number_of_densities(); d++)
 				M.p_density_vectors[n * M.number_of_densities() + d] += 
-					M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
+					M.thomas_c[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			n -= M.thomas_i_jump; 
 		}
 	}

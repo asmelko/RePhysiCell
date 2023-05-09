@@ -93,14 +93,6 @@ class Microenvironment
 	std::vector<double> one_third; 
 	
 	/*! for internal use in diffusion solvers : these make the solvers safe across microenvironments ""*/ 
-	std::vector< std::vector<double> > thomas_temp1; 
-	std::vector< std::vector<double> > thomas_temp2; 
-	std::vector<double> thomas_constant1x; 
-	std::vector<double> thomas_constant1y; 
-	std::vector<double> thomas_constant1z; 
-	std::vector<double> thomas_neg_constant1x; 
-	std::vector<double> thomas_neg_constant1y; 
-	std::vector<double> thomas_neg_constant1z; 
 	bool thomas_setup_done; 
 	int thomas_i_jump; 
 	int thomas_j_jump; 
@@ -110,12 +102,8 @@ class Microenvironment
 	std::vector<double> thomas_constant2;
 	std::vector<double> thomas_constant3;
 	std::vector<double> thomas_constant3a;
-	std::vector< std::vector<double> > thomas_denomx;
-	std::vector< std::vector<double> > thomas_cx;
-	std::vector< std::vector<double> > thomas_denomy;
-	std::vector< std::vector<double> > thomas_cy;
-	std::vector< std::vector<double> > thomas_denomz;
-	std::vector< std::vector<double> > thomas_cz;
+	std::vector< std::vector<double> > thomas_denom;
+	std::vector< std::vector<double> > thomas_c;
 	bool diffusion_solver_setup_done; 
 	
 	// on "resize density" type operations, need to extend all of these 
