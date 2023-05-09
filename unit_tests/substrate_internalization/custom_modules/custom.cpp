@@ -122,11 +122,11 @@ void create_cell_types( void )
 	int necrosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Necrosis" );
 	int oxygen_substrate_index = microenvironment.find_density_index( "oxygen" ); 
 
-	int G0G1_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell_constants::G0G1_phase );
-	int S_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell_constants::S_phase );
+	int G0G1_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell::Constants::G0G1_phase );
+	int S_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell::Constants::S_phase );
 	
-	int G2_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell_constants::G2_phase ); 
-	int M_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell_constants::M_phase ); 
+	int G2_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell::Constants::G2_phase ); 
+	int M_index = flow_cytometry_separated_cycle_model.find_phase_index( PhysiCell::Constants::M_phase ); 
 
 	// initially no necrosis 
 	cell_defaults.phenotype.death.rates[necrosis_model_index] = 0.0; 

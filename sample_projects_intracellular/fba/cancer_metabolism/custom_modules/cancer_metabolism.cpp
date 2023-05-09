@@ -229,8 +229,8 @@ void metabolic_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	}
 
 	// update the transition rate according to growth rate?
-	static int cycle_start_index = live.find_phase_index( PhysiCell_constants::live );
-	static int cycle_end_index = live.find_phase_index( PhysiCell_constants::live );
+	static int cycle_start_index = live.find_phase_index( PhysiCell::Constants::live );
+	static int cycle_end_index = live.find_phase_index( PhysiCell::Constants::live );
 
 	//static int oncoprotein_i = pCell->custom_data.find_variable_index( "oncoprotein" );
 	//phenotype.cycle.data.transition_rate( cycle_start_index ,cycle_end_index ) *= pCell->custom_data[oncoprotein_i] ;

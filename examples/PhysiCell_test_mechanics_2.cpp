@@ -142,9 +142,9 @@ int main( int argc, char* argv[] )
 	
 	// figure out the bounding box 
 	std::vector<double> bounding_box( 6, 0.0 );
-	bounding_box[PhysiCell_constants::mesh_min_x_index] = 0; bounding_box[PhysiCell_constants::mesh_max_x_index] = 2000; 
-	bounding_box[PhysiCell_constants::mesh_min_y_index] = 0; bounding_box[PhysiCell_constants::mesh_max_y_index] = 2000; 
-	bounding_box[PhysiCell_constants::mesh_min_z_index] = 0; bounding_box[PhysiCell_constants::mesh_max_z_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_x_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_x_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_y_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_y_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_z_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_z_index] = 2000; 
 	dx=20; dy=20; dz=20;
 	
 	
@@ -173,7 +173,7 @@ int main( int argc, char* argv[] )
 	cell_defaults.functions.update_phenotype = empty_function;
 	cell_defaults.functions.volume_update_function = empty_function;
 	
-	int Q_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_negative );
+	int Q_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_negative );
 	
 
 	double sample_cell_radius=10;

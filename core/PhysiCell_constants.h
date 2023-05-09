@@ -74,83 +74,83 @@
 namespace PhysiCell
 {
 	
-class PhysiCell_constants
+namespace Constants
 {
- public:
-	static constexpr double pi=3.1415926535897932384626433832795;
+	constexpr double pi=3.1415926535897932384626433832795;
 	
-	static constexpr double cell_removal_threshold_volume = 20; // 20 cubic microns -- about 1% of typical cell 
-	static const int keep_pushed_out_cells_in_outer_voxel=1;
-	static const int solid_boundary = 2;
-	static const int default_boundary_condition_for_pushed_out_agents = keep_pushed_out_cells_in_outer_voxel;		
+	constexpr double cell_removal_threshold_volume = 20; // 20 cubic microns -- about 1% of typical cell 
+	constexpr int keep_pushed_out_cells_in_outer_voxel=1;
+	constexpr int solid_boundary = 2;
+	constexpr int default_boundary_condition_for_pushed_out_agents = keep_pushed_out_cells_in_outer_voxel;		
 	
-	static const int deterministic_necrosis = 0;
-	static const int stochastic_necrosis = 1;
+	constexpr int deterministic_necrosis = 0;
+	constexpr int stochastic_necrosis = 1;
 	
-	static const int mesh_min_x_index=0;
-	static const int mesh_min_y_index=1;
-	static const int mesh_min_z_index=2;
-	static const int mesh_max_x_index=3;
-	static const int mesh_max_y_index=4;
-	static const int mesh_max_z_index=5;			
+	constexpr int mesh_min_x_index=0;
+	constexpr int mesh_min_y_index=1;
+	constexpr int mesh_min_z_index=2;
+	constexpr int mesh_max_x_index=3;
+	constexpr int mesh_max_y_index=4;
+	constexpr int mesh_max_z_index=5;			
 	
-	static const int mesh_lx_face_index=0;
-	static const int mesh_ly_face_index=1;
-	static const int mesh_lz_face_index=2;
-	static const int mesh_ux_face_index=3;
-	static const int mesh_uy_face_index=4;
-	static const int mesh_uz_face_index=5;
+	constexpr int mesh_lx_face_index=0;
+	constexpr int mesh_ly_face_index=1;
+	constexpr int mesh_lz_face_index=2;
+	constexpr int mesh_ux_face_index=3;
+	constexpr int mesh_uy_face_index=4;
+	constexpr int mesh_uz_face_index=5;
 	
 	// currently recognized cell cycle models 
-	static const int advanced_Ki67_cycle_model= 0;
-	static const int basic_Ki67_cycle_model=1;
-	static const int flow_cytometry_cycle_model=2;
-	static const int live_apoptotic_cycle_model=3;
-	static const int total_cells_cycle_model=4;
-	static const int live_cells_cycle_model = 5; 
-	static const int flow_cytometry_separated_cycle_model = 6; 
-	static const int cycling_quiescent_model = 7; 
+	constexpr int advanced_Ki67_cycle_model= 0;
+	constexpr int basic_Ki67_cycle_model=1;
+	constexpr int flow_cytometry_cycle_model=2;
+	constexpr int live_apoptotic_cycle_model=3;
+	constexpr int total_cells_cycle_model=4;
+	constexpr int live_cells_cycle_model = 5; 
+	constexpr int flow_cytometry_separated_cycle_model = 6; 
+	constexpr int cycling_quiescent_model = 7; 
 	
 	// currently recognized death models 
-	static const int apoptosis_death_model = 100; 
-	static const int necrosis_death_model = 101; 
-	static const int autophagy_death_model = 102; 
+	constexpr int apoptosis_death_model = 100; 
+	constexpr int necrosis_death_model = 101; 
+	constexpr int autophagy_death_model = 102; 
 	
-	static const int custom_cycle_model=9999; 
+	constexpr int custom_cycle_model=9999; 
 	
 	// currently recognized cell cycle and death phases 
 	// cycle phases
-	static const int Ki67_positive_premitotic=0; 
-	static const int Ki67_positive_postmitotic=1; 
-	static const int Ki67_positive=2; 
-	static const int Ki67_negative=3; 
-	static const int G0G1_phase=4;
-	static const int G0_phase=5;
-	static const int G1_phase=6; 
-	static const int G1a_phase=7; 
-	static const int G1b_phase=8;
-	static const int G1c_phase=9;
-	static const int S_phase=10;
-	static const int G2M_phase=11;
-	static const int G2_phase=12;
-	static const int M_phase=13;
-	static const int live=14;
+	constexpr int Ki67_positive_premitotic=0; 
+	constexpr int Ki67_positive_postmitotic=1; 
+	constexpr int Ki67_positive=2; 
+	constexpr int Ki67_negative=3; 
+	constexpr int G0G1_phase=4;
+	constexpr int G0_phase=5;
+	constexpr int G1_phase=6; 
+	constexpr int G1a_phase=7; 
+	constexpr int G1b_phase=8;
+	constexpr int G1c_phase=9;
+	constexpr int S_phase=10;
+	constexpr int G2M_phase=11;
+	constexpr int G2_phase=12;
+	constexpr int M_phase=13;
+	constexpr int live=14;
 	
-	static const int G1pm_phase = 15;
-	static const int G1ps_phase = 16; 
+	constexpr int G1pm_phase = 15;
+	constexpr int G1ps_phase = 16; 
 	
-	static const int cycling = 17; 
-	static const int quiescent = 18; 
+	constexpr int cycling = 17; 
+	constexpr int quiescent = 18; 
 	
 	
-	static const int custom_phase = 9999;
+	constexpr int custom_phase = 9999;
 	// death phases
-	static const int apoptotic=100;
-	static const int necrotic_swelling=101;
-	static const int necrotic_lysed=102;
-	static const int necrotic=103; 
-	static const int debris=104; 
+	constexpr int apoptotic=100;
+	constexpr int necrotic_swelling=101;
+	constexpr int necrotic_lysed=102;
+	constexpr int necrotic=103; 
+	constexpr int debris=104; 
 };
+
 extern std::string time_units;
 extern std::string space_units;
 extern double diffusion_dt; 

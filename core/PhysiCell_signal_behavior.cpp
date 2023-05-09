@@ -741,15 +741,15 @@ std::vector<double> get_signals( Cell* pCell )
 	}
 
 	static int apoptotic_ind = find_signal_index( "apoptotic" ); 
-	if(pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptotic )
+	if(pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::apoptotic )
 	{ signals[apoptotic_ind] = 1; }
 	else
 	{ signals[apoptotic_ind] = 0; }
 
 	static int necrotic_ind = find_signal_index( "necrotic" ); 
-	if( pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_swelling || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_lysed || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic )
+	if( pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_swelling || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_lysed || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic )
 	{ signals[necrotic_ind] = 1; }
 	else
 	{ signals[necrotic_ind] = 0; }
@@ -992,7 +992,7 @@ double get_single_signal( Cell* pCell, int index )
 	static int apoptotic_ind = find_signal_index( "apoptotic" ); 
 	if( index == apoptotic_ind )
 	{
-		if(pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptotic )
+		if(pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::apoptotic )
 		{ return 1; }
 		else
 		{ return 0; }
@@ -1001,9 +1001,9 @@ double get_single_signal( Cell* pCell, int index )
 	static int necrotic_ind = find_signal_index( "necrotic" ); 
 	if( index == necrotic_ind )
 	{
-		if( pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_swelling || 
-			pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_lysed || 
-			pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic )
+		if( pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_swelling || 
+			pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_lysed || 
+			pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic )
 		{ return 1; }
 		else
 		{ return 0; }
@@ -1091,8 +1091,8 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 	for( int i=0; i < max_cycle_index ; i++ )
 	{ pCell->phenotype.cycle.data.exit_rate( i ) = parameters[first_cycle_index + i]; }
 
-	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
-	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
+	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 
 	// apoptosis 
 	static int apoptosis_param_index = find_behavior_index( "apoptosis"); 
@@ -1263,13 +1263,13 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	// death rates 
 
 	// apoptosis
-	static int apoptosis_model_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
+	static int apoptosis_model_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
 	static int apoptosis_parameter_index = find_behavior_index( "apoptosis"); 
 	if( index == apoptosis_parameter_index )
 	{ pCell->phenotype.death.rates[apoptosis_model_index] = parameter; return; }
 
 	// necrosis 
-	static int necrosis_model_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int necrosis_model_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 	static int necrosis_parameter_index = find_behavior_index( "necrosis"); 
 	if( index == necrosis_parameter_index )
 	{ pCell->phenotype.death.rates[necrosis_model_index] = parameter; return; }
@@ -1445,8 +1445,8 @@ std::vector<double> get_behaviors( Cell* pCell )
 	for( int i=0; i < max_cycle_index ; i++ )
 	{ parameters[first_cycle_index+i] = pCell->phenotype.cycle.data.exit_rate( i ); }
 
-	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
-	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
+	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 
 	// apoptosis 
 	static int apoptosis_param_index = find_behavior_index( "apoptosis"); 
@@ -1621,8 +1621,8 @@ double get_single_behavior( Cell* pCell , int index )
 		return 0.0; 
 	}
 
-	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
-	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int apoptosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
+	static int necrosis_index = pCell->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 
 	static int apop_param_index = find_behavior_index( "apoptosis"); 
 	static int necr_param_index = find_behavior_index( "necrosis"); 
@@ -1837,8 +1837,8 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 	for( int i=0; i < max_cycle_index ; i++ )
 	{  parameters[first_cycle_index + i] = pCD->phenotype.cycle.data.exit_rate( i ); }
 
-	static int apoptosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
-	static int necrosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int apoptosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
+	static int necrosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 
 	// apoptosis 
 	static int apoptosis_param_index = find_behavior_index( "apoptosis"); 
@@ -2016,8 +2016,8 @@ double get_single_base_behavior( Cell* pCell , int index )
 		return 0.0; 
 	}
 
-	static int apoptosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
-	static int necrosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int apoptosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
+	static int necrosis_index = pCD->phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 
 	static int apop_param_index = find_behavior_index( "apoptosis"); 
 	static int necr_param_index = find_behavior_index( "necrosis"); 

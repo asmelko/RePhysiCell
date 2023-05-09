@@ -396,7 +396,7 @@ void bacteria_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// resource decreses necrosis
 
 	max_val = 0.0028;  
-	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model );
+	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model );
 	static double saturation_necrosis_resource = pCD->custom_data["necrosis_saturation_resource"]; //0.075
 	static double threshold_necrosis_resource = pCD->custom_data["necrosis_threshold_resource"]; // 0.15
 	phenotype.death.rates[nNecrosis] = max_val * 
@@ -422,7 +422,7 @@ void bacteria_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	phenotype.motility.migration_bias = base_val + (max_response-base_val)*hill; 
 
 	// damage increases death 
-	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );
+	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model );
 
 	signal = pCell->state.damage; 
 	base_val = pCD->phenotype.death.rates[nApoptosis]; 
@@ -710,7 +710,7 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// resource reduces necrotic death 
 
 	max_val = 0.0028;  
-	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model );
+	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model );
 	static double stem_saturation_necrosis = pCD->custom_data["necrosis_saturation_resource"];
 	static double stem_threshold_necrosis = pCD->custom_data["necrosis_threshold_resource"];
 
@@ -719,7 +719,7 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 	// toxin increases apoptotic death 
 	
-	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );
+	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model );
 
 	static double toxicity_halfmax = pCD->custom_data["toxicity_halfmax"]; // 0.4 
 	static double relative_max_toxicity = pCD->custom_data["relative_max_toxicity"]; 
@@ -772,7 +772,7 @@ void differentiated_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt
 	// resource reduces necrotic death 
 
 	double max_val = 0.0028;  
-	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model );
+	static int nNecrosis = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model );
 
 	// get same from bacteria
 	static double necrosis_saturation = pCD->custom_data["necrosis_saturation_resource"]; // 0.075 
@@ -783,7 +783,7 @@ void differentiated_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt
 
 	// toxin increases apoptotic death 
 	
-	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );
+	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model );
 
 	static double toxicity_halfmax = pCD->custom_data["toxicity_halfmax"]; // 0.2 
 	static double relative_max_tox_death = pCD->custom_data["relative_max_toxicity"]; // 100 

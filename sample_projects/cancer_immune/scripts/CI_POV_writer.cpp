@@ -518,16 +518,16 @@ void alt_pigment_and_finish_function( std::vector<double>& cyto_pigment, std::ve
 
 	// if not, dead colors 
 	
-	if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptotic )  // Apoptotic - Red
+	if (pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::apoptotic )  // Apoptotic - Red
 	{
 		output[0] = "rgb(255,0,0)";
 		output[2] = "rgb(125,0,0)";
 	}
 	
 	// Necrotic - Brown
-	if( pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_swelling || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_lysed || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic )
+	if( pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_swelling || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_lysed || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic )
 	{
 		output[0] = "rgb(250,138,38)";
 		output[2] = "rgb(139,69,19)";

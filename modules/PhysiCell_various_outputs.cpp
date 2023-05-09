@@ -92,13 +92,13 @@ int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 		if( all_cells[i]->phenotype.cycle.pCycle_Model )
 		{
 			int code= all_cells[i]->phenotype.cycle.current_phase().code;
-			if (code ==PhysiCell_constants::Ki67_positive_premitotic || code==PhysiCell_constants::Ki67_positive_postmitotic || code==PhysiCell_constants::Ki67_positive || code==PhysiCell_constants::Ki67_negative || code==PhysiCell_constants::live)
+			if (code ==PhysiCell::Constants::Ki67_positive_premitotic || code==PhysiCell::Constants::Ki67_positive_postmitotic || code==PhysiCell::Constants::Ki67_positive || code==PhysiCell::Constants::Ki67_negative || code==PhysiCell::Constants::live)
 				_nameCore="LIVE";
-			else if (code==PhysiCell_constants::apoptotic)
+			else if (code==PhysiCell::Constants::apoptotic)
 				_nameCore="APOP";
-			else if (code==PhysiCell_constants::necrotic_swelling || code==PhysiCell_constants::necrotic_lysed || code==PhysiCell_constants::necrotic)
+			else if (code==PhysiCell::Constants::necrotic_swelling || code==PhysiCell::Constants::necrotic_lysed || code==PhysiCell::Constants::necrotic)
 				_nameCore="NEC";
-			else if (code==PhysiCell_constants::debris)
+			else if (code==PhysiCell::Constants::debris)
 				_nameCore="DEBR";
 			else
 				_nameCore="MISC";
