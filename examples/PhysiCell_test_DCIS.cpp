@@ -165,9 +165,9 @@ int main( int argc, char* argv[] )
 	
 	// figure out the bounding box 
 	std::vector<double> bounding_box( 6, 0.0 );
-	bounding_box[PhysiCell_constants::mesh_min_x_index] = -200; bounding_box[PhysiCell_constants::mesh_max_x_index] = 1000; 
-	bounding_box[PhysiCell_constants::mesh_min_y_index] = -200; bounding_box[PhysiCell_constants::mesh_max_y_index] = 200; 
-	bounding_box[PhysiCell_constants::mesh_min_z_index] = -200; bounding_box[PhysiCell_constants::mesh_max_z_index] = 200; 
+	bounding_box[PhysiCell::Constants::mesh_min_x_index] = -200; bounding_box[PhysiCell::Constants::mesh_max_x_index] = 1000; 
+	bounding_box[PhysiCell::Constants::mesh_min_y_index] = -200; bounding_box[PhysiCell::Constants::mesh_max_y_index] = 200; 
+	bounding_box[PhysiCell::Constants::mesh_min_z_index] = -200; bounding_box[PhysiCell::Constants::mesh_max_z_index] = 200; 
 	dx=20; dy=20; dz=20;
 	
 	
@@ -215,10 +215,10 @@ int main( int argc, char* argv[] )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	cell_defaults.phenotype.sync_to_functions( cell_defaults.functions );
 	
-	int Q_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_negative );
+	int Q_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_negative );
 	int oxygen_substrate_index = microenvironment.find_density_index( "oxygen" ); 
-	int K1_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_positive_premitotic );
-	int K2_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_positive_postmitotic );
+	int K1_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_positive_premitotic );
+	int K2_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_positive_postmitotic );
 	int apoptosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "apoptosis" );
 	int necrosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "necrosis" );
 	// cells apoptose after about 7 days 
@@ -275,7 +275,7 @@ int main( int argc, char* argv[] )
 		pCell->phenotype.cycle.data.current_phase_index = Q_index; 
 		if( pCell->phenotype.cycle.current_phase().entry_function )                      
 			pCell->phenotype.cycle.current_phase().entry_function( pCell, pCell->phenotype, dt);
-		// pCell->parameters.necrosis_type= PhysiCell_constants::deterministic_necrosis;
+		// pCell->parameters.necrosis_type= PhysiCell::Constants::deterministic_necrosis;
 	}
 	for(int i=0;i<all_basic_agents.size();i++){
 		all_basic_agents[i]->set_internal_uptake_constants(dt); 

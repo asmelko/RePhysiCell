@@ -119,7 +119,7 @@ Cell_Parameters::Cell_Parameters()
 	// necrosis parameters 
 	
 	max_necrosis_rate = 1.0 / (6.0 * 60.0); // assume cells survive 6 hours in very low oxygen 
-	necrosis_type = PhysiCell_constants::deterministic_necrosis;;
+	necrosis_type = PhysiCell::Constants::deterministic_necrosis;;
 
 	return; 
 }
@@ -1967,39 +1967,39 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		{
 			// set the model 
 			//switch( model )   // do not use a switch stmt to avoid compile errors related to "static const int" on various compilers
-			if (model == PhysiCell_constants::advanced_Ki67_cycle_model)
+			if (model == PhysiCell::Constants::advanced_Ki67_cycle_model)
             {
                 pCD->functions.cycle_model = Ki67_advanced; 
             }
-			else if (model == PhysiCell_constants::basic_Ki67_cycle_model)
+			else if (model == PhysiCell::Constants::basic_Ki67_cycle_model)
             {
                 pCD->functions.cycle_model = Ki67_basic; 
             }
-            else if (model == PhysiCell_constants::flow_cytometry_cycle_model) 
+            else if (model == PhysiCell::Constants::flow_cytometry_cycle_model) 
             {
                 pCD->functions.cycle_model = flow_cytometry_cycle_model;  
             }
-            else if (model == PhysiCell_constants::live_apoptotic_cycle_model) // ?
+            else if (model == PhysiCell::Constants::live_apoptotic_cycle_model) // ?
             {
                 pCD->functions.cycle_model = live;  // ?
                 std::cout << "Warning: live_apoptotic_cycle_model not directly supported." << std::endl		
                             << "         Substituting live cells model. Set death rates=0." << std::endl; 
             }
-            else if (model == PhysiCell_constants::total_cells_cycle_model) 
+            else if (model == PhysiCell::Constants::total_cells_cycle_model) 
             {
                 pCD->functions.cycle_model = live; 
                 std::cout << "Warning: total_cells_cycle_model not directly supported." << std::endl		
                             << "         Substituting live cells model. Set death rates=0." << std::endl; 
             }
-            else if (model == PhysiCell_constants::live_cells_cycle_model) 
+            else if (model == PhysiCell::Constants::live_cells_cycle_model) 
             {
                 pCD->functions.cycle_model = live; 
             }
-            else if (model == PhysiCell_constants::flow_cytometry_separated_cycle_model) 
+            else if (model == PhysiCell::Constants::flow_cytometry_separated_cycle_model) 
             {
                 pCD->functions.cycle_model = flow_cytometry_separated_cycle_model; 
             }
-            else if (model == PhysiCell_constants::cycling_quiescent_model) 
+            else if (model == PhysiCell::Constants::cycling_quiescent_model) 
             {
                 pCD->functions.cycle_model = cycling_quiescent; 
             }
@@ -2200,7 +2200,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 					
 			// set the model 
 			// if the model already exists, just overwrite the parameters 
-            if (model == PhysiCell_constants::apoptosis_death_model) 
+            if (model == PhysiCell::Constants::apoptosis_death_model) 
             {
 //					pCD->phenotype.death.add_death_model( rate , &apoptosis , apoptosis_parameters );
                 if( death_model_already_exists == false )
@@ -2214,7 +2214,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
                     pCD->phenotype.death.rates[death_index] = rate; 
                 }
             }
-            else if (model == PhysiCell_constants::necrosis_death_model) 
+            else if (model == PhysiCell::Constants::necrosis_death_model) 
             {
                 // set necrosis parameters 
 //					pCD->phenotype.death.add_death_model( rate , &necrosis , necrosis_parameters );
@@ -2229,7 +2229,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
                     pCD->phenotype.death.rates[death_index] = rate; 						
                 }
             }
-            else if (model == PhysiCell_constants::autophagy_death_model) 
+            else if (model == PhysiCell::Constants::autophagy_death_model) 
             {
                 std::cout << "Warning: autophagy_death_model not yet supported." << std::endl		
                             << "         Skipping this model." << std::endl; 

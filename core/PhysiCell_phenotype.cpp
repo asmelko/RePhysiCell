@@ -162,7 +162,7 @@ Cycle_Model::Cycle_Model()
 	
 	data.pCycle_Model = this; 
 	
-	code = PhysiCell_constants::custom_cycle_model; 
+	code = PhysiCell::Constants::custom_cycle_model; 
 	default_phase_index = 0; 
 	
 	return; 
@@ -497,13 +497,13 @@ Cycle_Model& Death::current_model( void )
 
 double& Death::apoptosis_rate(void)
 {
-	static int nApoptosis = find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
+	static int nApoptosis = find_death_model_index( PhysiCell::Constants::apoptosis_death_model ); 
 	return rates[nApoptosis];
 }
 
 double& Death::necrosis_rate(void)
 {
-	static int nNecrosis = find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+	static int nNecrosis = find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 	return rates[nNecrosis];
 }
 

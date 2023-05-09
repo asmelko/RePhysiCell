@@ -78,28 +78,28 @@ double intracellular_dt = 0.01;
 
 std::unordered_map<std::string,int> cycle_model_codes = 
 {
-	{ "Ki67 (advanced)", PhysiCell_constants::advanced_Ki67_cycle_model}, 
-	{ "Ki67 (basic)" ,PhysiCell_constants::basic_Ki67_cycle_model},
-	{ "Flow cytometry model (basic)",PhysiCell_constants::flow_cytometry_cycle_model},
-	// { ,PhysiCell_constants::live_apoptotic_cycle_model}, // not implemented 
-	// { ,PhysiCell_constants::total_cells_cycle_model}, // not implemented 
-	{ "Live",PhysiCell_constants::live_cells_cycle_model}, 
-	{ "Flow cytometry model (separated)",PhysiCell_constants::flow_cytometry_separated_cycle_model}, 
-	{ "Cycling-Quiescent model",PhysiCell_constants::cycling_quiescent_model}, 
+	{ "Ki67 (advanced)", PhysiCell::Constants::advanced_Ki67_cycle_model}, 
+	{ "Ki67 (basic)" ,PhysiCell::Constants::basic_Ki67_cycle_model},
+	{ "Flow cytometry model (basic)",PhysiCell::Constants::flow_cytometry_cycle_model},
+	// { ,PhysiCell::Constants::live_apoptotic_cycle_model}, // not implemented 
+	// { ,PhysiCell::Constants::total_cells_cycle_model}, // not implemented 
+	{ "Live",PhysiCell::Constants::live_cells_cycle_model}, 
+	{ "Flow cytometry model (separated)",PhysiCell::Constants::flow_cytometry_separated_cycle_model}, 
+	{ "Cycling-Quiescent model",PhysiCell::Constants::cycling_quiescent_model}, 
 	
 	// currently recognized death models 
-	{ "Apoptosis",PhysiCell_constants::apoptosis_death_model}, 
-	{ "Necrosis",PhysiCell_constants::necrosis_death_model} , 
-	// { ,PhysiCell_constants::autophagy_death_model}, // not implemented 
+	{ "Apoptosis",PhysiCell::Constants::apoptosis_death_model}, 
+	{ "Necrosis",PhysiCell::Constants::necrosis_death_model} , 
+	// { ,PhysiCell::Constants::autophagy_death_model}, // not implemented 
 	
-	{ "ki67 (advanced)", PhysiCell_constants::advanced_Ki67_cycle_model}, 
-	{ "ki67 (basic)" ,PhysiCell_constants::basic_Ki67_cycle_model},
-	{ "flow cytometry model (basic)",PhysiCell_constants::flow_cytometry_cycle_model},
-	{ "live",PhysiCell_constants::live_cells_cycle_model}, 
-	{ "flow cytometry model (separated)",PhysiCell_constants::flow_cytometry_separated_cycle_model}, 
-	{ "cycling-quiescent model",PhysiCell_constants::cycling_quiescent_model}, 
-	{ "apoptosis",PhysiCell_constants::apoptosis_death_model}, 
-	{ "necrosis",PhysiCell_constants::necrosis_death_model} 
+	{ "ki67 (advanced)", PhysiCell::Constants::advanced_Ki67_cycle_model}, 
+	{ "ki67 (basic)" ,PhysiCell::Constants::basic_Ki67_cycle_model},
+	{ "flow cytometry model (basic)",PhysiCell::Constants::flow_cytometry_cycle_model},
+	{ "live",PhysiCell::Constants::live_cells_cycle_model}, 
+	{ "flow cytometry model (separated)",PhysiCell::Constants::flow_cytometry_separated_cycle_model}, 
+	{ "cycling-quiescent model",PhysiCell::Constants::cycling_quiescent_model}, 
+	{ "apoptosis",PhysiCell::Constants::apoptosis_death_model}, 
+	{ "necrosis",PhysiCell::Constants::necrosis_death_model} 
 	
 }; 
 

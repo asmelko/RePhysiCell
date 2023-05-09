@@ -82,7 +82,7 @@ std::vector<Cell*> *all_cells;
 Cell_Container::Cell_Container()
 {
 	all_cells = (std::vector<Cell*> *) &all_basic_agents;	
-	boundary_condition_for_pushed_out_agents= PhysiCell_constants::default_boundary_condition_for_pushed_out_agents;
+	boundary_condition_for_pushed_out_agents= PhysiCell::Constants::default_boundary_condition_for_pushed_out_agents;
 	std::vector<Cell*> cells_ready_to_divide;
 	std::vector<Cell*> cells_ready_to_die;
 	
@@ -99,7 +99,7 @@ void Cell_Container::initialize(double x_start, double x_end, double y_start, do
 void Cell_Container::initialize(double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx, double dy, double dz)
 {
 	all_cells = (std::vector<Cell*> *) &all_basic_agents;	
-	boundary_condition_for_pushed_out_agents= PhysiCell_constants::default_boundary_condition_for_pushed_out_agents;
+	boundary_condition_for_pushed_out_agents= PhysiCell::Constants::default_boundary_condition_for_pushed_out_agents;
 	std::vector<Cell*> cells_ready_to_divide;
 	std::vector<Cell*> cells_ready_to_die;
 
@@ -370,18 +370,18 @@ bool Cell_Container::contain_any_cell(int voxel_index)
 
 int find_escaping_face_index(Cell* agent)
 {
-	if(agent->position[0] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
-	{ return PhysiCell_constants::mesh_lx_face_index; }
-	if(agent->position[0] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
-	{ return PhysiCell_constants::mesh_ux_face_index; }
-	if(agent->position[1] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
-	{ return PhysiCell_constants::mesh_ly_face_index; }
-	if(agent->position[1] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
-	{ return PhysiCell_constants::mesh_uy_face_index; }
-	if(agent->position[2] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
-	{ return PhysiCell_constants::mesh_lz_face_index; }
-	if(agent->position[2] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
-	{ return PhysiCell_constants::mesh_uz_face_index; }
+	if(agent->position[0] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_min_x_index])
+	{ return PhysiCell::Constants::mesh_lx_face_index; }
+	if(agent->position[0] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_max_x_index])
+	{ return PhysiCell::Constants::mesh_ux_face_index; }
+	if(agent->position[1] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_min_y_index])
+	{ return PhysiCell::Constants::mesh_ly_face_index; }
+	if(agent->position[1] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_max_y_index])
+	{ return PhysiCell::Constants::mesh_uy_face_index; }
+	if(agent->position[2] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_min_z_index])
+	{ return PhysiCell::Constants::mesh_lz_face_index; }
+	if(agent->position[2] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell::Constants::mesh_max_z_index])
+	{ return PhysiCell::Constants::mesh_uz_face_index; }
 	return -1; 
 }
 

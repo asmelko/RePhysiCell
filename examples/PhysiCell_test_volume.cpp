@@ -123,9 +123,9 @@ int main( int argc, char* argv[] )
 	
 	// figure out the bounding box 
 	std::vector<double> bounding_box( 6, 0.0 );
-	bounding_box[PhysiCell_constants::mesh_min_x_index] = 0; bounding_box[PhysiCell_constants::mesh_max_x_index] = 2000; 
-	bounding_box[PhysiCell_constants::mesh_min_y_index] = 0; bounding_box[PhysiCell_constants::mesh_max_y_index] = 2000; 
-	bounding_box[PhysiCell_constants::mesh_min_z_index] = 0; bounding_box[PhysiCell_constants::mesh_max_z_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_x_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_x_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_y_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_y_index] = 2000; 
+	bounding_box[PhysiCell::Constants::mesh_min_z_index] = 0; bounding_box[PhysiCell::Constants::mesh_max_z_index] = 2000; 
 	dx=20; dy=20; dz=20;
 	
 	// create a microenvironment
@@ -167,11 +167,11 @@ int main( int argc, char* argv[] )
 	int necrosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Necrosis" );
 	int oxygen_substrate_index = microenvironment.find_density_index( "oxygen" ); 
 
-	int K1_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_positive_premitotic );
-	int K2_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_positive_postmitotic );
-	int Q_index = Ki67_advanced.find_phase_index( PhysiCell_constants::Ki67_negative );
-	int A_index = Ki67_advanced.find_phase_index( PhysiCell_constants::apoptotic );
-	int N_index = Ki67_advanced.find_phase_index( PhysiCell_constants::necrotic_swelling );
+	int K1_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_positive_premitotic );
+	int K2_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_positive_postmitotic );
+	int Q_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::Ki67_negative );
+	int A_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::apoptotic );
+	int N_index = Ki67_advanced.find_phase_index( PhysiCell::Constants::necrotic_swelling );
 	
 	microenvironment.display_information( std::cout );
 	std::vector<double> point1(3);
