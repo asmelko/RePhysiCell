@@ -130,49 +130,49 @@ void set_cancer_cell_line( Cell_Line& DCL )
 	
 	
 	// cell cycle information 
-	DCL.phenotypes[i].cycle.cycle_model = PhysiCell_constants::live_apoptotic_cycle_model; 
+	DCL.phenotypes[i].cycle.cycle_model = PhysiCell::Constants::live_apoptotic_cycle_model; 
 	DCL.phenotypes[i].cycle.cycle_model_name = "live_apoptotic"; 
 	DCL.phenotypes[i].cycle.phases.resize( 4 );
-	DCL.phenotypes[i].cycle.phases[0].code = PhysiCell_constants::live; 
+	DCL.phenotypes[i].cycle.phases[0].code = PhysiCell::Constants::live; 
 	DCL.phenotypes[i].cycle.phases[0].name = "live"; 
 	DCL.phenotypes[i].cycle.phases[0].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[0].duration = 17.100027 * 60.0; // minutes (MDA-MB-231) 
 	DCL.phenotypes[i].cycle.phases[0].birth_rate = 1.0 / DCL.phenotypes[i].cycle.phases[0].duration; 
 	DCL.phenotypes[i].cycle.phases[0].death_rate = 0.026133 / 60.0; // minutes (MDA-MB-231) 
-	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell_constants::apoptotic; 
+	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[0].arrest_density = pow( 0.006012 , 1.5 ); // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_N = 10.49*60.0; 
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_C = 15.83*60.0; 
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_F = 1*60.0; 
-	phase_hashmap[(int)PhysiCell_constants::live]=0;
+	phase_hashmap[(int)PhysiCell::Constants::live]=0;
 	
 	
-	DCL.phenotypes[i].cycle.phases[1].code = PhysiCell_constants::apoptotic; 
+	DCL.phenotypes[i].cycle.phases[1].code = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[1].name = "apoptotic"; 
 	DCL.phenotypes[i].cycle.phases[1].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[1].duration = 8.6 * 60.0; // minutes (MDA-MB-231) 
 	DCL.phenotypes[i].cycle.phases[1].birth_rate = 0; 
 	DCL.phenotypes[i].cycle.phases[1].death_rate = 0; // minutes (MDA-MB-231) 
-	DCL.phenotypes[i].cycle.phases[1].death_type = PhysiCell_constants::apoptotic; 
+	DCL.phenotypes[i].cycle.phases[1].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[1].arrest_density = 9e99; // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_N = 9*60.0; 
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_C = 1*60.0; 
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_F = 1*60.0; 	
-	phase_hashmap[(int)PhysiCell_constants::apoptotic]=1;
+	phase_hashmap[(int)PhysiCell::Constants::apoptotic]=1;
 
 	DCL.phenotypes[i].cycle.phases[2] = DCL.phenotypes[i].cycle.phases[1]; 
-	DCL.phenotypes[i].cycle.phases[2].code = PhysiCell_constants::necrotic_swelling; 
+	DCL.phenotypes[i].cycle.phases[2].code = PhysiCell::Constants::necrotic_swelling; 
 	DCL.phenotypes[i].cycle.phases[2].name = "necrotic swelling";
 	DCL.phenotypes[i].cycle.phases[2].duration = 3.0 * 60.0; // minutes (MDA-MB-231) 
-	DCL.phenotypes[i].cycle.phases[2].death_type = PhysiCell_constants::necrotic; 
-	phase_hashmap[(int)PhysiCell_constants::necrotic_swelling]=2;
+	DCL.phenotypes[i].cycle.phases[2].death_type = PhysiCell::Constants::necrotic; 
+	phase_hashmap[(int)PhysiCell::Constants::necrotic_swelling]=2;
 	
 	DCL.phenotypes[i].cycle.phases[3] = DCL.phenotypes[i].cycle.phases[2]; 
-	DCL.phenotypes[i].cycle.phases[3].code = PhysiCell_constants::necrotic_lysed; 
+	DCL.phenotypes[i].cycle.phases[3].code = PhysiCell::Constants::necrotic_lysed; 
 	DCL.phenotypes[i].cycle.phases[3].name = "necrotic lysed";
 	DCL.phenotypes[i].cycle.phases[3].duration = 45.0 * 24.0 * 60.0; // minutes (MDA-MB-231) 
-	DCL.phenotypes[i].cycle.phases[3].death_type = PhysiCell_constants::necrotic; 
-	phase_hashmap[(int)PhysiCell_constants::necrotic_lysed]=3;
+	DCL.phenotypes[i].cycle.phases[3].death_type = PhysiCell::Constants::necrotic; 
+	phase_hashmap[(int)PhysiCell::Constants::necrotic_lysed]=3;
 	
 	DCL.phenotypes[i].set_phase_maps(new std::unordered_map<int,int>(phase_hashmap));
 	
@@ -217,7 +217,7 @@ void set_cancer_cell_line( Cell_Line& DCL )
 	DCL.phenotypes[i].cycle.phases[0].birth_rate = 0; // 0.9 * DCL.phenotypes[0].cycle.phases[0].birth_rate ;
 	DCL.phenotypes[i].cycle.phases[0].duration = 1.0 / ( DCL.phenotypes[i].cycle.phases[0].birth_rate + 1e-16); // minutes (MDA-MB-231) 
 	DCL.phenotypes[i].cycle.phases[0].death_rate = 1.0; // cells survive 1 hour in this condition on average in this model 
-	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell_constants::necrotic; 
+	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell::Constants::necrotic; 
 	DCL.phenotypes[i].set_phase_maps(&phase_hashmap);
 
 	
@@ -301,41 +301,41 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	
 	
 	// cell cycle information 
-	DCL.phenotypes[i].cycle.cycle_model = PhysiCell_constants::advanced_Ki67_cycle_model; 
+	DCL.phenotypes[i].cycle.cycle_model = PhysiCell::Constants::advanced_Ki67_cycle_model; 
 	DCL.phenotypes[i].cycle.cycle_model_name = "advanced_Ki67"; 
 	DCL.phenotypes[i].cycle.phases.resize( 7 );
-	DCL.phenotypes[i].cycle.phases[0].code = PhysiCell_constants::Ki67_positive_premitotic; 
+	DCL.phenotypes[i].cycle.phases[0].code = PhysiCell::Constants::Ki67_positive_premitotic; 
 	DCL.phenotypes[i].cycle.phases[0].name = "Ki67_positive_premitotic"; 
 	DCL.phenotypes[i].cycle.phases[0].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[0].duration = 13* 60.0; // 
 	DCL.phenotypes[i].cycle.phases[0].death_rate = 0.00105  / 60; // arbitrarily set
-	// DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell_constants::apoptotic; 
+	// DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[0].arrest_density = pow( 0.006012 , 1.5 ); // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_N = 9.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_C = 11.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[0].volume_change_timescale_F = 1*60.0; 
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[0].code]=0;
 	
-	DCL.phenotypes[i].cycle.phases[1].code = PhysiCell_constants::Ki67_positive_postmitotic; 
+	DCL.phenotypes[i].cycle.phases[1].code = PhysiCell::Constants::Ki67_positive_postmitotic; 
 	DCL.phenotypes[i].cycle.phases[1].name = "Ki67_positive_postmitotic"; 
 	DCL.phenotypes[i].cycle.phases[1].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[1].duration = 2.5 * 60.0; // 
 	DCL.phenotypes[i].cycle.phases[1].birth_rate = 0; 
 	DCL.phenotypes[i].cycle.phases[1].death_rate = 0.00105  / 60; // arbitrarily set
-	// DCL.phenotypes[i].cycle.phases[1].death_type = PhysiCell_constants::apoptotic; 
+	// DCL.phenotypes[i].cycle.phases[1].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[1].arrest_density = 9e99; // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_N = 9.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_C = 11.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[1].volume_change_timescale_F = 1*60.0; 
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[1].code]=1;
 	
-	DCL.phenotypes[i].cycle.phases[2].code = PhysiCell_constants::Ki67_negative; 
+	DCL.phenotypes[i].cycle.phases[2].code = PhysiCell::Constants::Ki67_negative; 
 	DCL.phenotypes[i].cycle.phases[2].name = "Ki67_negative"; 
 	DCL.phenotypes[i].cycle.phases[2].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[2].duration = 74.35 * 60; // 
 	DCL.phenotypes[i].cycle.phases[2].birth_rate = 0; 
 	DCL.phenotypes[i].cycle.phases[2].death_rate = 0.00105  / 60; // arbitrarily set
-	// DCL.phenotypes[i].cycle.phases[2].death_type = PhysiCell_constants::apoptotic; 
+	// DCL.phenotypes[i].cycle.phases[2].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[2].arrest_density = 9e99; // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[2].volume_change_timescale_N = 9.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[2].volume_change_timescale_C = 11.1*60.0; 
@@ -343,13 +343,13 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[2].code]=2;
 	
 	
-	DCL.phenotypes[i].cycle.phases[3].code = PhysiCell_constants::apoptotic; 
+	DCL.phenotypes[i].cycle.phases[3].code = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[3].name = "apoptotic"; 
 	DCL.phenotypes[i].cycle.phases[3].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[3].duration = 8.6 * 60.0; // minutes (MDA-MB-231) 
 	DCL.phenotypes[i].cycle.phases[3].birth_rate = 0; 
 	DCL.phenotypes[i].cycle.phases[3].death_rate = 0; // minutes (MDA-MB-231) 
-	// DCL.phenotypes[i].cycle.phases[3].death_type = PhysiCell_constants::apoptotic; 
+	// DCL.phenotypes[i].cycle.phases[3].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[3].arrest_density = 9e99; // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[3].volume_change_timescale_N = 8.6*60.0; 
 	DCL.phenotypes[i].cycle.phases[3].volume_change_timescale_C = 3*60.0; 
@@ -357,10 +357,10 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[3].code]=3;
 
 	// DCL.phenotypes[i].cycle.phases[4] = DCL.phenotypes[i].cycle.phases[1]; 
-	DCL.phenotypes[i].cycle.phases[4].code = PhysiCell_constants::necrotic_swelling; 
+	DCL.phenotypes[i].cycle.phases[4].code = PhysiCell::Constants::necrotic_swelling; 
 	DCL.phenotypes[i].cycle.phases[4].name = "necrotic swelling";
 	DCL.phenotypes[i].cycle.phases[4].duration = 3.0 * 60.0; // minutes (MDA-MB-231) 
-	// DCL.phenotypes[i].cycle.phases[4].death_type = PhysiCell_constants::necrotic; 
+	// DCL.phenotypes[i].cycle.phases[4].death_type = PhysiCell::Constants::necrotic; 
 	DCL.phenotypes[i].cycle.phases[4].volume_change_timescale_N = 230*60.0; 
 	DCL.phenotypes[i].cycle.phases[4].volume_change_timescale_C = 936.2*60.0; 
 	DCL.phenotypes[i].cycle.phases[4].volume_change_timescale_F = 4.47*60.0; 
@@ -368,23 +368,23 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[4].code]=4;
 	
 	// DCL.phenotypes[i].cycle.phases[5] = DCL.phenotypes[i].cycle.phases[2]; 
-	DCL.phenotypes[i].cycle.phases[5].code = PhysiCell_constants::necrotic_lysed; 
+	DCL.phenotypes[i].cycle.phases[5].code = PhysiCell::Constants::necrotic_lysed; 
 	DCL.phenotypes[i].cycle.phases[5].name = "necrotic lysed";
 	DCL.phenotypes[i].cycle.phases[5].duration = 45.0 * 24.0 * 60.0; // minutes (MDA-MB-231) 
-	// DCL.phenotypes[i].cycle.phases[5].death_type = PhysiCell_constants::necrotic; 
+	// DCL.phenotypes[i].cycle.phases[5].death_type = PhysiCell::Constants::necrotic; 
 	DCL.phenotypes[i].cycle.phases[5].volume_change_timescale_N = 230*60.0; 
 	DCL.phenotypes[i].cycle.phases[5].volume_change_timescale_C = 936.2*60.0; 
 	DCL.phenotypes[i].cycle.phases[5].volume_change_timescale_F = 59*60.0; 
 	DCL.phenotypes[i].cycle.phases[5].calcification_rate = 0.0042/60;
 	phase_hashmap[(int)DCL.phenotypes[i].cycle.phases[5].code]=5;
 	
-	DCL.phenotypes[i].cycle.phases[6].code = PhysiCell_constants::live; 
+	DCL.phenotypes[i].cycle.phases[6].code = PhysiCell::Constants::live; 
 	DCL.phenotypes[i].cycle.phases[6].name = "live"; 
 	DCL.phenotypes[i].cycle.phases[6].elapsed_time = 0.0;
 	DCL.phenotypes[i].cycle.phases[6].duration = 17.1* 60.0; // 
 	DCL.phenotypes[i].cycle.phases[6].birth_rate= 1.0 / DCL.phenotypes[i].cycle.phases[6].duration;
 	DCL.phenotypes[i].cycle.phases[6].death_rate = 0.00105  / 60; // arbitrarily set
-	// DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell_constants::apoptotic; 
+	// DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell::Constants::apoptotic; 
 	DCL.phenotypes[i].cycle.phases[6].arrest_density = pow( 0.006012 , 1.5 ); // cells per cubic micron  
 	DCL.phenotypes[i].cycle.phases[6].volume_change_timescale_N = 9.1*60.0; 
 	DCL.phenotypes[i].cycle.phases[6].volume_change_timescale_C = 11.1*60.0; 
@@ -435,7 +435,7 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	DCL.phenotypes[i].cycle.phases[0].birth_rate = 0; // 0.9 * DCL.phenotypes[0].cycle.phases[0].birth_rate ;
 	DCL.phenotypes[i].cycle.phases[0].duration = 1.0 / ( DCL.phenotypes[i].cycle.phases[0].birth_rate + 1e-16); // minutes (MDA-MB-231) 
 	DCL.phenotypes[i].cycle.phases[0].death_rate = 1.0; // cells survive 1 hour in this condition on average in this model 
-	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell_constants::necrotic; 
+	DCL.phenotypes[i].cycle.phases[0].death_type = PhysiCell::Constants::necrotic; 
 	DCL.phenotypes[i].set_phase_maps(&phase_hashmap);
 
 	
@@ -499,7 +499,7 @@ void Full_Phenotype::update_radius()
 {
 	geometry.radius = pow( 0.238732414638*volume.total , 0.33333333333333333333333333333333 ); 
 	geometry.nuclear_radius = pow( 0.238732414638*volume.nuclear , 0.33333333333333333333333333333333 );   
-	geometry.surface_area = 4* PhysiCell_constants::pi * geometry.radius * geometry.radius;
+	geometry.surface_area = 4* PhysiCell::Constants::pi * geometry.radius * geometry.radius;
 }
 
 void Volume::divide()

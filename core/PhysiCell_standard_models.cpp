@@ -223,13 +223,13 @@ void create_ki67_models( void )
 {
 	// Ki67_basic: 
 	
-	Ki67_basic.code = PhysiCell_constants::basic_Ki67_cycle_model; 
+	Ki67_basic.code = PhysiCell::Constants::basic_Ki67_cycle_model; 
 	Ki67_basic.name = "Ki67 (basic)"; 
 	
 	Ki67_basic.data.time_units = "min"; 
 	
-	Ki67_basic.add_phase( PhysiCell_constants::Ki67_negative , "Ki67-" ); 
-	Ki67_basic.add_phase( PhysiCell_constants::Ki67_positive , "Ki67+" ); 
+	Ki67_basic.add_phase( PhysiCell::Constants::Ki67_negative , "Ki67-" ); 
+	Ki67_basic.add_phase( PhysiCell::Constants::Ki67_positive , "Ki67+" ); 
 
 	Ki67_basic.phases[1].division_at_phase_exit = true; 
 	
@@ -245,14 +245,14 @@ void create_ki67_models( void )
 	
 	// Ki67_advanced:
 	
-	Ki67_advanced.code = PhysiCell_constants::advanced_Ki67_cycle_model; 
+	Ki67_advanced.code = PhysiCell::Constants::advanced_Ki67_cycle_model; 
 	Ki67_advanced.name = "Ki67 (advanced)"; 
 
 	Ki67_advanced.data.time_units = "min"; 
 	
-	Ki67_advanced.add_phase( PhysiCell_constants::Ki67_negative , "Ki67-" ); 
-	Ki67_advanced.add_phase( PhysiCell_constants::Ki67_positive_premitotic , "Ki67+ (premitotic)" ); 
-	Ki67_advanced.add_phase( PhysiCell_constants::Ki67_positive_postmitotic , "Ki67+ (postmitotic)" ); 
+	Ki67_advanced.add_phase( PhysiCell::Constants::Ki67_negative , "Ki67-" ); 
+	Ki67_advanced.add_phase( PhysiCell::Constants::Ki67_positive_premitotic , "Ki67+ (premitotic)" ); 
+	Ki67_advanced.add_phase( PhysiCell::Constants::Ki67_positive_postmitotic , "Ki67+ (postmitotic)" ); 
 
 	Ki67_advanced.phases[1].division_at_phase_exit = true; 
 
@@ -275,12 +275,12 @@ void create_ki67_models( void )
 
 void create_live_model( void )
 {
-	live.code = PhysiCell_constants::live_cells_cycle_model; 
+	live.code = PhysiCell::Constants::live_cells_cycle_model; 
 	live.name = "Live"; 
 	
 	live.data.time_units = "min"; 
 	
-	live.add_phase( PhysiCell_constants::live , "Live" ); 
+	live.add_phase( PhysiCell::Constants::live , "Live" ); 
 	
 	live.phases[0].division_at_phase_exit = true; 
 	
@@ -296,14 +296,14 @@ void create_live_model( void )
 bool create_cytometry_cycle_models( void )
 {
 	// basic one first 
-	flow_cytometry_cycle_model.code = PhysiCell_constants::flow_cytometry_cycle_model; 
+	flow_cytometry_cycle_model.code = PhysiCell::Constants::flow_cytometry_cycle_model; 
 	flow_cytometry_cycle_model.name = "Flow cytometry model (basic)"; 
 	
 	flow_cytometry_cycle_model.data.time_units = "min"; 
 	
-	flow_cytometry_cycle_model.add_phase( PhysiCell_constants::G0G1_phase , "G0/G1" ); 
-	flow_cytometry_cycle_model.add_phase( PhysiCell_constants::S_phase , "S" ); 
-	flow_cytometry_cycle_model.add_phase( PhysiCell_constants::G2M_phase , "G2/M" ); 
+	flow_cytometry_cycle_model.add_phase( PhysiCell::Constants::G0G1_phase , "G0/G1" ); 
+	flow_cytometry_cycle_model.add_phase( PhysiCell::Constants::S_phase , "S" ); 
+	flow_cytometry_cycle_model.add_phase( PhysiCell::Constants::G2M_phase , "G2/M" ); 
 
 	flow_cytometry_cycle_model.phases[2].division_at_phase_exit = true; 
 	
@@ -324,15 +324,15 @@ bool create_cytometry_cycle_models( void )
 
 	// // expanded flow cytometry model 
 	
-	flow_cytometry_separated_cycle_model.code = PhysiCell_constants::flow_cytometry_separated_cycle_model; 
+	flow_cytometry_separated_cycle_model.code = PhysiCell::Constants::flow_cytometry_separated_cycle_model; 
 	flow_cytometry_separated_cycle_model.name = "Flow cytometry model (separated)"; 
 	
 	flow_cytometry_separated_cycle_model.data.time_units = "min"; 
 	
-	flow_cytometry_separated_cycle_model.add_phase( PhysiCell_constants::G0G1_phase , "G0/G1" ); 
-	flow_cytometry_separated_cycle_model.add_phase( PhysiCell_constants::S_phase , "S" ); 
-	flow_cytometry_separated_cycle_model.add_phase( PhysiCell_constants::G2_phase , "G2" ); 
-	flow_cytometry_separated_cycle_model.add_phase( PhysiCell_constants::M_phase , "M" ); 
+	flow_cytometry_separated_cycle_model.add_phase( PhysiCell::Constants::G0G1_phase , "G0/G1" ); 
+	flow_cytometry_separated_cycle_model.add_phase( PhysiCell::Constants::S_phase , "S" ); 
+	flow_cytometry_separated_cycle_model.add_phase( PhysiCell::Constants::G2_phase , "G2" ); 
+	flow_cytometry_separated_cycle_model.add_phase( PhysiCell::Constants::M_phase , "M" ); 
 	
 	
 	flow_cytometry_separated_cycle_model.phases[3].division_at_phase_exit = true; 
@@ -360,13 +360,13 @@ void create_cycling_quiescent_model( void )
 {
 	// Ki67_basic: 
 	
-	cycling_quiescent.code = PhysiCell_constants::cycling_quiescent_model; 
+	cycling_quiescent.code = PhysiCell::Constants::cycling_quiescent_model; 
 	cycling_quiescent.name = "Cycling-Quiescent model"; 
 	
 	cycling_quiescent.data.time_units = "min"; 
 	
-	cycling_quiescent.add_phase( PhysiCell_constants::quiescent , "Quiescent" ); 
-	cycling_quiescent.add_phase( PhysiCell_constants::cycling , "Cycling" ); 
+	cycling_quiescent.add_phase( PhysiCell::Constants::quiescent , "Quiescent" ); 
+	cycling_quiescent.add_phase( PhysiCell::Constants::cycling , "Cycling" ); 
 
 	cycling_quiescent.phases[1].division_at_phase_exit = true; 
 	
@@ -421,17 +421,17 @@ void create_standard_apoptosis_model( void )
  
 	// set up the apoptosis model 
 	apoptosis.name = "Apoptosis"; 
-	apoptosis.code = PhysiCell_constants::apoptosis_death_model; 
+	apoptosis.code = PhysiCell::Constants::apoptosis_death_model; 
 
 		// add the main phase for this model, make sure it 
 		// triggers the appropriate entry function, and note that 
 		// it should trigger cell removal at its end 
-	apoptosis.add_phase( PhysiCell_constants::apoptotic , "Apoptotic" );
+	apoptosis.add_phase( PhysiCell::Constants::apoptotic , "Apoptotic" );
 	apoptosis.phases[0].entry_function = standard_apoptosis_entry_function; 
 	apoptosis.phases[0].removal_at_phase_exit = true;
 
 		// add an empty junk debris phase for this model 
-	apoptosis.add_phase( PhysiCell_constants::debris , "Debris" ); 
+	apoptosis.add_phase( PhysiCell::Constants::debris , "Debris" ); 
 
 		// Add a link between these phases. Set the cell to be removed 
 		// upon this transition. (So the "debris" phase should never be entered). 
@@ -461,17 +461,17 @@ void create_standard_necrosis_model( void )
  
 	// set up the necrosis model 
 	necrosis.name = "Necrosis"; 
-	necrosis.code = PhysiCell_constants::necrosis_death_model; 
+	necrosis.code = PhysiCell::Constants::necrosis_death_model; 
 
-	necrosis.add_phase( PhysiCell_constants::necrotic_swelling , "Necrotic (swelling)" );
+	necrosis.add_phase( PhysiCell::Constants::necrotic_swelling , "Necrotic (swelling)" );
 	necrosis.phases[0].entry_function = standard_necrosis_entry_function; 
 
-	necrosis.add_phase( PhysiCell_constants::necrotic_lysed , "Necrotic (lysed)" );
+	necrosis.add_phase( PhysiCell::Constants::necrotic_lysed , "Necrotic (lysed)" );
 	necrosis.phases[1].entry_function = standard_lysis_entry_function; 
 	necrosis.phases[1].removal_at_phase_exit = true;
 	
 		// add an empty junk debris phase for this model 
-	necrosis.add_phase( PhysiCell_constants::debris , "Debris" ); 
+	necrosis.add_phase( PhysiCell::Constants::debris , "Debris" ); 
 
 
 	necrosis.add_phase_link( 0, 1, standard_necrosis_arrest_function ); 
@@ -803,52 +803,52 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 	{
 		// Ki67 models
 		
-		if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || 
-			phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+		if( phenotype.cycle.model().code == PhysiCell::Constants::advanced_Ki67_cycle_model || 
+			phenotype.cycle.model().code == PhysiCell::Constants::basic_Ki67_cycle_model )
 		{
-			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_negative );
-			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::Ki67_negative );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
 			
-			if( phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+			if( phenotype.cycle.model().code == PhysiCell::Constants::basic_Ki67_cycle_model )
 			{
 				end_phase_index = 
-					phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_positive );
+					phenotype.cycle.model().find_phase_index( PhysiCell::Constants::Ki67_positive );
 				indices_initiated = true; 
 			}
-			if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model )
+			if( phenotype.cycle.model().code == PhysiCell::Constants::advanced_Ki67_cycle_model )
 			{
 				end_phase_index = 
-					phenotype.cycle.model().find_phase_index( PhysiCell_constants::Ki67_positive_premitotic );
+					phenotype.cycle.model().find_phase_index( PhysiCell::Constants::Ki67_positive_premitotic );
 				indices_initiated = true; 
 			}
 		}
 		
 		// live model 
 			
-		if( phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
+		if( phenotype.cycle.model().code == PhysiCell::Constants::live_cells_cycle_model )
 		{
-			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
-			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
-			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::live );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::live );
 			indices_initiated = true; 
 		}
 		
 		// cytometry models 
 		
-		if( phenotype.cycle.model().code == PhysiCell_constants::flow_cytometry_cycle_model || 
-			phenotype.cycle.model().code == PhysiCell_constants::flow_cytometry_separated_cycle_model )
+		if( phenotype.cycle.model().code == PhysiCell::Constants::flow_cytometry_cycle_model || 
+			phenotype.cycle.model().code == PhysiCell::Constants::flow_cytometry_separated_cycle_model )
 		{
-			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::G0G1_phase );
-			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
-			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::S_phase );
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::G0G1_phase );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::S_phase );
 			indices_initiated = true; 
 		}	
 
-		if( phenotype.cycle.model().code == PhysiCell_constants::cycling_quiescent_model )
+		if( phenotype.cycle.model().code == PhysiCell::Constants::cycling_quiescent_model )
 		{
-			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::quiescent );
-			necrosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::necrosis_death_model ); 
-			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::cycling );
+			start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::quiescent );
+			necrosis_index = phenotype.death.find_death_model_index( PhysiCell::Constants::necrosis_death_model ); 
+			end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell::Constants::cycling );
 			indices_initiated = true; 
 		}
 		
@@ -862,7 +862,7 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 
 	// sample the microenvironment to get the pO2 value 
 	
-	double pO2 = (pCell->nearest_density_vector())[oxygen_substrate_index]; // PhysiCell_constants::oxygen_index]; 
+	double pO2 = (pCell->nearest_density_vector())[oxygen_substrate_index]; // PhysiCell::Constants::oxygen_index]; 
 	int n = pCell->phenotype.cycle.current_phase_index(); 
 	
 	// this multiplier is for linear interpolation of the oxygen value 
@@ -900,7 +900,7 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 	
 	// check for deterministic necrosis 
 	
-	if( pCell->parameters.necrosis_type == PhysiCell_constants::deterministic_necrosis && multiplier > 1e-16 )
+	if( pCell->parameters.necrosis_type == PhysiCell::Constants::deterministic_necrosis && multiplier > 1e-16 )
 	{ pCell->phenotype.death.rates[necrosis_index] = 9e99; } 
 	
 	return; 

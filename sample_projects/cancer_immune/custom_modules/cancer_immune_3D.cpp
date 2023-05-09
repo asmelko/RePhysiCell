@@ -327,8 +327,8 @@ void setup_tissue( void )
 // custom cell phenotype function to scale immunostimulatory factor with hypoxia 
 void tumor_cell_phenotype_with_and_immune_stimulation( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	static int cycle_start_index = live.find_phase_index( PhysiCell_constants::live ); 
-	static int cycle_end_index = live.find_phase_index( PhysiCell_constants::live ); 
+	static int cycle_start_index = live.find_phase_index( PhysiCell::Constants::live ); 
+	static int cycle_end_index = live.find_phase_index( PhysiCell::Constants::live ); 
 	static int oncoprotein_i = pCell->custom_data.find_variable_index( "oncoprotein" ); 
 	
 	// update secretion rates based on hypoxia 
@@ -397,16 +397,16 @@ std::vector<std::string> cancer_immune_coloring_function( Cell* pCell )
 
 	// if not, dead colors 
 	
-	if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptotic )  // Apoptotic - Red
+	if (pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::apoptotic )  // Apoptotic - Red
 	{
 		output[0] = "rgb(255,0,0)";
 		output[2] = "rgb(125,0,0)";
 	}
 	
 	// Necrotic - Brown
-	if( pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_swelling || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic_lysed || 
-		pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrotic )
+	if( pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_swelling || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic_lysed || 
+		pCell->phenotype.cycle.current_phase().code == PhysiCell::Constants::necrotic )
 	{
 		output[0] = "rgb(250,138,38)";
 		output[2] = "rgb(139,69,19)";

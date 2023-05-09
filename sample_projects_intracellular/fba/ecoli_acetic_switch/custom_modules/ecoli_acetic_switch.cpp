@@ -103,9 +103,9 @@ void create_bacteria_cell ( void )
 	bacteria_cell.phenotype.motility.restrict_to_2D = true;
 
 	// use default proliferation and death
-	int cycle_start_index = live.find_phase_index( PhysiCell_constants::live );
-	int cycle_end_index = live.find_phase_index( PhysiCell_constants::live );
-	int apoptosis_index = cell_defaults.phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );
+	int cycle_start_index = live.find_phase_index( PhysiCell::Constants::live );
+	int cycle_end_index = live.find_phase_index( PhysiCell::Constants::live );
+	int apoptosis_index = cell_defaults.phenotype.death.find_death_model_index( PhysiCell::Constants::apoptosis_death_model );
 
 	bacteria_cell.phenotype.death.rates[apoptosis_index] = 0.0;
 	bacteria_cell.parameters.o2_proliferation_saturation = 38.0;
@@ -375,8 +375,8 @@ void metabolic_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	}
 
 	// update the transition rate according to growth rate?
-	static int cycle_start_index = live.find_phase_index( PhysiCell_constants::live );
-	static int cycle_end_index = live.find_phase_index( PhysiCell_constants::live );
+	static int cycle_start_index = live.find_phase_index( PhysiCell::Constants::live );
+	static int cycle_end_index = live.find_phase_index( PhysiCell::Constants::live );
 
 	//static int oncoprotein_i = pCell->custom_data.find_variable_index( "oncoprotein" );
 	//phenotype.cycle.data.transition_rate( cycle_start_index ,cycle_end_index ) *= pCell->custom_data[oncoprotein_i] ;
