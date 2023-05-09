@@ -68,9 +68,9 @@ class Microenvironment
 	friend std::ostream& operator<<(std::ostream& os, const Microenvironment& S);  
 
 	/*! For internal use and accelerations in solvers */ 
-	std::vector< std::vector<double> > temporary_density_vectors1; 
+	std::vector<double> temporary_density_vectors1; 
 	/*! For internal use and accelerations in solvers */ 
-	std::vector< std::vector<double> > temporary_density_vectors2; 
+	std::vector<double> temporary_density_vectors2; 
 	
 	/*! for internal use in bulk source/sink solvers */
 	std::vector< std::vector<double> > bulk_source_sink_solver_temp1; 
@@ -78,9 +78,9 @@ class Microenvironment
 	std::vector< std::vector<double> > bulk_source_sink_solver_temp3; 
 	bool bulk_source_sink_solver_setup_done; 
 
-	
+	size_t densities_count;
 	/*! stores pointer to current density solutions. Access via operator() functions. */ 
-	std::vector< std::vector<double> >* p_density_vectors; 
+	double* p_density_vectors; 
 	
 	std::vector< std::vector<gradient> > gradient_vectors; 
 	std::vector<bool> gradient_vector_computed; 
@@ -165,7 +165,7 @@ class Microenvironment
 		
 	/*! functions to simplify size queries */ 
 	
-	unsigned int number_of_densities( void ); 
+	unsigned int number_of_densities( void ) const;
 	unsigned int number_of_voxels( void ); 
 	unsigned int number_of_voxel_faces( void ); 
 
@@ -197,15 +197,15 @@ class Microenvironment
 	std::vector<unsigned int> nearest_cartesian_indices( std::vector<double>& position ); 
 	Voxel& nearest_voxel( std::vector<double>& position ); 
 	Voxel& voxels( int voxel_index );
-	std::vector<double>& nearest_density_vector( std::vector<double>& position );  
-	std::vector<double>& nearest_density_vector( int voxel_index );  
-
+	double* nearest_density_vector( std::vector<double>& position );  
+	double* nearest_density_vector( int voxel_index );  
+	
 	/*! access the density vector at  [ X(i),Y(j),Z(k) ] */
-	std::vector<double>& operator()( int i, int j, int k ); 
+	double* density_vector( int i, int j, int k ); 
 	/*! access the density vector at  [ X(i),Y(j),0 ]  -- helpful for 2-D problems */
-	std::vector<double>& operator()( int i, int j );  
+	double* density_vector( int i, int j ); 
 	/*! access the density vector at [x,y,z](n) */
-	std::vector<double>& operator()( int n );  
+	double* density_vector( int n ); 
 	
 	std::vector<gradient>& gradient_vector(int i, int j, int k); 
 	std::vector<gradient>& gradient_vector(int i, int j ); 
@@ -216,13 +216,6 @@ class Microenvironment
 	void compute_all_gradient_vectors( void ); 
 	void compute_gradient_vector( int n );  
 	void reset_all_gradient_vectors( void ); 
-	
-	/*! access the density vector at  [ X(i),Y(j),Z(k) ] */
-	std::vector<double>& density_vector( int i, int j, int k ); 
-	/*! access the density vector at  [ X(i),Y(j),0 ]  -- helpful for 2-D problems */
-	std::vector<double>& density_vector( int i, int j ); 
-	/*! access the density vector at [x,y,z](n) */
-	std::vector<double>& density_vector( int n ); 
 
 	/*! advance the diffusion-decay solver by dt time */
 	void simulate_diffusion_decay( double dt ); 

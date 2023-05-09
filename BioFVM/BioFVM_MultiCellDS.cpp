@@ -712,7 +712,7 @@ void add_BioFVM_substrates_to_open_xml_pugi( pugi::xml_document& xml_dom , std::
 			buffer = new char [data_size]; 
 			for( unsigned int j=0 ; j < M.mesh.voxels.size() ; j++ )
 			{
-				vector_to_list( M.density_vector(j) , buffer , ' ' ); 
+				vector_to_list( M.density_vector(j) , M.number_of_densities() , buffer , ' ' ); 
 				node = node.append_child( "data_vector"); 
 				attrib = node.append_attribute( "voxel_ID" ); 
 				attrib.set_value( M.mesh.voxels[j].mesh_index ); 
@@ -773,7 +773,7 @@ void add_BioFVM_substrates_to_open_xml_pugi( pugi::xml_document& xml_dom , std::
 		node = node.child( "data_vector" );
 		for( unsigned int j=0 ; j < M.mesh.voxels.size() ; j++ )
 		{
-			vector_to_list( M.density_vector(j) , buffer , ' ' ); 
+			vector_to_list( M.density_vector(j) , M.number_of_densities() , buffer , ' ' ); 
 			node = node.first_child(); 
 			
 			node.set_value( buffer ); 
@@ -1428,7 +1428,7 @@ bool read_microenvironment_from_matlab( std::string mat_filename )
 	{
 		// std::cout << microenvironment.mesh.voxels[n].center << " vs " << mat[0][n] << " " << mat[1][n] << " " << mat[2][n] << std::endl; 	
 		for( int k=4; k < num_rows ; k++ )
-		{ microenvironment(n)[k-4] = mat[k][n]; }
+		{ microenvironment.density_vector(n)[k-4] = mat[k][n]; }
 	}
 
 	std::cout << "done!" << std::endl << std::endl; 

@@ -203,19 +203,26 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 
 			// remaining part of forward elimination, using pre-computed quantities 
 			int n = M.voxel_index(0,j,k);
-			(*M.p_density_vectors)[n] /= M.thomas_denomx[0]; 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
 
 			for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
 			{
 				n = M.voxel_index(i,j,k); 
-				axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_i_jump] ); 
-				(*M.p_density_vectors)[n] /= M.thomas_denomx[i]; 
+
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] = 
+						(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
+						 M.thomas_denomx[i][d];
 			}
 
 			for( int i = M.mesh.x_coordinates.size()-2 ; i >= 0 ; i-- )
 			{
 				n = M.voxel_index(i,j,k); 
-				naxpy( &(*M.p_density_vectors)[n] , M.thomas_cx[i] , (*M.p_density_vectors)[n+M.thomas_i_jump] ); 
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] += 
+						M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			}
 
 		}
@@ -229,67 +236,71 @@ void diffusion_decay_solver__constant_coefficients_LOD_3D( Microenvironment& M, 
 	{
 		for( unsigned int i=0; i < M.mesh.x_coordinates.size() ; i++ )
 		{
-   // Thomas solver, y-direction
+			// Thomas solver, y-direction
 
-	// remaining part of forward elimination, using pre-computed quantities 
+			// remaining part of forward elimination, using pre-computed quantities 
+			int n = M.voxel_index(i,0,k);
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomy[0][d]; 
 
-	int n = M.voxel_index(i,0,k);
-	(*M.p_density_vectors)[n] /= M.thomas_denomy[0]; 
+			for( unsigned int j=1; j < M.mesh.y_coordinates.size() ; j++ )
+			{
+				n = M.voxel_index(i,j,k); 
 
-	for( unsigned int j=1; j < M.mesh.y_coordinates.size() ; j++ )
-	{
-		n = M.voxel_index(i,j,k); 
-		axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_j_jump] ); 
-		(*M.p_density_vectors)[n] /= M.thomas_denomy[j]; 
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] = 
+						(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_j_jump) * M.number_of_densities() + d]) /
+						 M.thomas_denomy[j][d];
+			}
+
+			for( int j = M.mesh.y_coordinates.size()-2 ; j >= 0 ; j-- )
+			{
+				n = M.voxel_index(i,j,k); 
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] += 
+						M.thomas_cy[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
+			}
+
+		}
 	}
-
-	// back substitution 
-	// n = voxel_index( mesh.x_coordinates.size()-2 ,j,k); 
-
-	for( int j = M.mesh.y_coordinates.size()-2 ; j >= 0 ; j-- )
-	{
-		n = M.voxel_index(i,j,k); 
-		naxpy( &(*M.p_density_vectors)[n] , M.thomas_cy[j] , (*M.p_density_vectors)[n+M.thomas_j_jump] ); 
-	}
-
-  }
- }
 
  // z-diffusion 
 
 	M.apply_dirichlet_conditions();
- #pragma omp parallel for 
- for( unsigned int j=0; j < M.mesh.y_coordinates.size() ; j++ )
- {
-	 
-  for( unsigned int i=0; i < M.mesh.x_coordinates.size() ; i++ )
-  {
-   // Thomas solver, y-direction
-
-	// remaining part of forward elimination, using pre-computed quantities 
-
-	int n = M.voxel_index(i,j,0);
-	(*M.p_density_vectors)[n] /= M.thomas_denomz[0]; 
-
-	// should be an empty loop if mesh.z_coordinates.size() < 2  
-	for( unsigned int k=1; k < M.mesh.z_coordinates.size() ; k++ )
+	#pragma omp parallel for 
+	for( unsigned int j=0; j < M.mesh.y_coordinates.size() ; j++ )
 	{
-		n = M.voxel_index(i,j,k); 
-		axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_k_jump] ); 
-		(*M.p_density_vectors)[n] /= M.thomas_denomz[k]; 
-	}
+		for( unsigned int i=0; i < M.mesh.x_coordinates.size() ; i++ )
+		{
+			// Thomas solver, z-direction
 
-	// back substitution 
+			// remaining part of forward elimination, using pre-computed quantities 
+			int n = M.voxel_index(i,j,0);
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomz[0][d]; 
 
-	// should be an empty loop if mesh.z_coordinates.size() < 2 
-	for( int k = M.mesh.z_coordinates.size()-2 ; k >= 0 ; k-- )
-	{
-		n = M.voxel_index(i,j,k); 
-		naxpy( &(*M.p_density_vectors)[n] , M.thomas_cz[k] , (*M.p_density_vectors)[n+M.thomas_k_jump] ); 
-		// n -= i_jump; 
+			for( unsigned int k=1; k < M.mesh.z_coordinates.size() ; k++ )
+			{
+				n = M.voxel_index(i,j,k); 
+
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] = 
+						(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						 M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_k_jump) * M.number_of_densities() + d]) /
+						 M.thomas_denomx[k][d];
+			}
+
+			for( int k = M.mesh.z_coordinates.size()-2 ; k >= 0 ; k-- )
+			{
+				n = M.voxel_index(i,j,k); 
+				for (int d = 0; d < M.number_of_densities(); d++)
+					M.p_density_vectors[n * M.number_of_densities() + d] += 
+						M.thomas_cz[k][d] * M.p_density_vectors[(n+M.thomas_k_jump) * M.number_of_densities() + d];
+			}
+
+		}
 	}
-  }
- }
  
 	M.apply_dirichlet_conditions();
 	
@@ -392,13 +403,17 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 
 		// remaining part of forward elimination, using pre-computed quantities 
 		unsigned int n = M.voxel_index(0,j,0);
-		(*M.p_density_vectors)[n] /= M.thomas_denomx[0]; 
+		for (int d = 0; d < M.number_of_densities(); d++)
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
 
 		n += M.thomas_i_jump; 
 		for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
 		{
-			axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_i_jump] ); 
-			(*M.p_density_vectors)[n] /= M.thomas_denomx[i]; 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] = 
+					(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
+						M.thomas_denomx[i][d];
 			n += M.thomas_i_jump; 
 		}
 
@@ -407,7 +422,9 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 
 		for( int i = M.mesh.x_coordinates.size()-2 ; i >= 0 ; i-- )
 		{
-			naxpy( &(*M.p_density_vectors)[n] , M.thomas_cx[i] , (*M.p_density_vectors)[n+M.thomas_i_jump] ); 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] += 
+					M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			n -= M.thomas_i_jump; 
 		}
 	}
@@ -423,13 +440,17 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 		// remaining part of forward elimination, using pre-computed quantities 
 
 		int n = M.voxel_index(i,0,0);
-		(*M.p_density_vectors)[n] /= M.thomas_denomy[0]; 
+		for (int d = 0; d < M.number_of_densities(); d++)
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomy[0][d]; 
 
 		n += M.thomas_j_jump; 
 		for( unsigned int j=1; j < M.mesh.y_coordinates.size() ; j++ )
 		{
-			axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_j_jump] ); 
-			(*M.p_density_vectors)[n] /= M.thomas_denomy[j]; 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] = 
+					(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_j_jump) * M.number_of_densities() + d]) /
+						M.thomas_denomy[j][d];
 			n += M.thomas_j_jump; 
 		}
 
@@ -438,7 +459,9 @@ void diffusion_decay_solver__constant_coefficients_LOD_2D( Microenvironment& M, 
 
 		for( int j = M.mesh.y_coordinates.size()-2 ; j >= 0 ; j-- )
 		{
-			naxpy( &(*M.p_density_vectors)[n] , M.thomas_cy[j] , (*M.p_density_vectors)[n+M.thomas_j_jump] ); 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] += 
+					M.thomas_cy[j][d] * M.p_density_vectors[(n+M.thomas_j_jump) * M.number_of_densities() + d];
 			n -= M.thomas_j_jump; 
 		}
 	}
@@ -478,14 +501,12 @@ void diffusion_decay_explicit_uniform_rates( Microenvironment& M, double dt )
 
 	// double buffering to reduce memory copy / allocation overhead 
 
-	static vector< vector<double> >* pNew = &(M.temporary_density_vectors1);
-	static vector< vector<double> >* pOld = &(M.temporary_density_vectors2);
+	double* pNew = M.temporary_density_vectors1.data();
+	double* pOld = M.temporary_density_vectors2.data();
 
 	// swap the buffers 
 
-	vector< vector<double> >* pTemp = pNew; 
-	pNew = pOld; 
-	pOld = pTemp; 
+	std::swap(pNew, pOld);
 	M.p_density_vectors = pNew; 
 
 	// static bool reaction_diffusion_shortcuts_are_set = false; 
@@ -497,22 +518,27 @@ void diffusion_decay_explicit_uniform_rates( Microenvironment& M, double dt )
 	static vector<double> constant4 = M.one - dt * M.decay_rates;
 
 	#pragma omp parallel for
-	for( unsigned int i=0; i < (*(M.p_density_vectors)).size() ; i++ )
+	for( unsigned int i=0; i < M.number_of_voxels() ; i++ )
 	{
 		unsigned int number_of_neighbors = M.mesh.connected_voxel_indices[i].size(); 
 
 		double d1 = -1.0 * number_of_neighbors; 
 
-		(*pNew)[i] = (*pOld)[i];  
-		(*pNew)[i] *= constant4; 
+		for (int d = 0; d < M.number_of_densities(); d++)
+			pNew[i * M.number_of_densities() + d] = pOld[i * M.number_of_densities() + d] * constant4[d];
 
 		for( unsigned int j=0; j < number_of_neighbors ; j++ )
 		{
-			axpy( &(*pNew)[i], constant2, (*pOld)[  M.mesh.connected_voxel_indices[i][j] ] ); 
+			int neighbor_idx = M.mesh.connected_voxel_indices[i][j];
+
+			for (int d = 0; d < M.number_of_densities(); d++)
+				pNew[i * M.number_of_densities() + d] += 
+					constant2[d] * pOld[neighbor_idx * M.number_of_densities() + d];
 		}
-		vector<double> temp = constant2; 
-		temp *= d1; 
-		axpy( &(*pNew)[i] , temp , (*pOld)[i] ); 
+		
+		for (int d = 0; d < M.number_of_densities(); d++)
+			pNew[i * M.number_of_densities() + d] += 
+				constant2[d] * d1 * pOld[i * M.number_of_densities() + d];
 	}
 	
 	// reset gradient vectors 
@@ -597,13 +623,17 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 
 		// remaining part of forward elimination, using pre-computed quantities 
 		unsigned int n = M.voxel_index(0,j,0);
-		(*M.p_density_vectors)[n] /= M.thomas_denomx[0]; 
+		for (int d = 0; d < M.number_of_densities(); d++)
+			M.p_density_vectors[n * M.number_of_densities() + d] /= M.thomas_denomx[0][d]; 
 
 		n += M.thomas_i_jump; 
 		for( unsigned int i=1; i < M.mesh.x_coordinates.size() ; i++ )
 		{
-			axpy( &(*M.p_density_vectors)[n] , M.thomas_constant1 , (*M.p_density_vectors)[n-M.thomas_i_jump] ); 
-			(*M.p_density_vectors)[n] /= M.thomas_denomx[i]; 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] = 
+					(M.p_density_vectors[n * M.number_of_densities() + d] + 
+						M.thomas_constant1[d] * M.p_density_vectors[(n-M.thomas_i_jump) * M.number_of_densities() + d]) /
+						M.thomas_denomx[i][d];
 			n += M.thomas_i_jump; 
 		}
 
@@ -612,7 +642,9 @@ void diffusion_decay_solver__constant_coefficients_LOD_1D( Microenvironment& M, 
 
 		for( int i = M.mesh.x_coordinates.size()-2 ; i >= 0 ; i-- )
 		{
-			naxpy( &(*M.p_density_vectors)[n] , M.thomas_cx[i] , (*M.p_density_vectors)[n+M.thomas_i_jump] ); 
+			for (int d = 0; d < M.number_of_densities(); d++)
+				M.p_density_vectors[n * M.number_of_densities() + d] += 
+					M.thomas_cx[i][d] * M.p_density_vectors[(n+M.thomas_i_jump) * M.number_of_densities() + d];
 			n -= M.thomas_i_jump; 
 		}
 	}
