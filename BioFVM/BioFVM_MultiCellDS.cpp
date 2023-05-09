@@ -614,7 +614,7 @@ void add_BioFVM_substrates_to_open_xml_pugi( pugi::xml_document& xml_dom , std::
 				node = node.append_child( "center" );
 				attrib = node.append_attribute( "delimiter" );
 				attrib.set_value( " " );
-				sprintf( temp , "%f %f %f" , M.mesh.voxels[k].center[0] , M.mesh.voxels[k].center[1], M.mesh.voxels[k].center[2] );
+				sprintf( temp , "%f %f %f" , M.mesh.voxels[k].center.x , M.mesh.voxels[k].center.y, M.mesh.voxels[k].center.z );
 				node.append_child( pugi::node_pcdata ).set_value( temp ); 
 				node = node.parent(); 
 				
@@ -1238,9 +1238,9 @@ void read_microenvironment_from_MultiCellDS_xml( Microenvironment& M_destination
 				for( unsigned int j=0; j < columns ; j++ )
 				{
 					// read x, y, z, dV
-					result = fread( (char*) & (M_destination.mesh.voxels[j].center[0])   , sizeof(double) , 1 , fp );
-					result = fread( (char*) & (M_destination.mesh.voxels[j].center[1])   , sizeof(double) , 1 , fp );
-					result = fread( (char*) & (M_destination.mesh.voxels[j].center[2])   , sizeof(double) , 1 , fp );
+					result = fread( (char*) & (M_destination.mesh.voxels[j].center.x)   , sizeof(double) , 1 , fp );
+					result = fread( (char*) & (M_destination.mesh.voxels[j].center.y)   , sizeof(double) , 1 , fp );
+					result = fread( (char*) & (M_destination.mesh.voxels[j].center.z)   , sizeof(double) , 1 , fp );
 					result = fread( (char*) & (M_destination.mesh.voxels[j].volume)   , sizeof(double) , 1 , fp );
 				} 
 				fclose( fp );				
@@ -1281,7 +1281,11 @@ void read_microenvironment_from_MultiCellDS_xml( Microenvironment& M_destination
 					
 					// now, get the coordinates 
 					node = node.child("center"); 
-					csv_to_vector( node.first_child().value() , M_destination.mesh.voxels[voxel_index].center ); 
+					std::vector<double> center;
+					csv_to_vector( node.first_child().value() , center ); 
+					M_destination.mesh.voxels[voxel_index].center.x = center[0];
+					M_destination.mesh.voxels[voxel_index].center.y = center[1];
+					M_destination.mesh.voxels[voxel_index].center.z = center[2];
 					node = node.parent(); 
 					
 					// now, get the volume

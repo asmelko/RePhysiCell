@@ -827,9 +827,9 @@ void Microenvironment::write_to_matlab( std::string filename )
 	// storing data as cols 
 	for( int i=0; i < number_of_data_entries ; i++ )
 	{
-		fwrite( (char*) &( mesh.voxels[i].center[0] ) , sizeof(double) , 1 , fp ); 
-		fwrite( (char*) &( mesh.voxels[i].center[1] ) , sizeof(double) , 1 , fp );   
-		fwrite( (char*) &( mesh.voxels[i].center[2] ) , sizeof(double) , 1 , fp ); 
+		fwrite( (char*) &( mesh.voxels[i].center.x ) , sizeof(double) , 1 , fp ); 
+		fwrite( (char*) &( mesh.voxels[i].center.y ) , sizeof(double) , 1 , fp );   
+		fwrite( (char*) &( mesh.voxels[i].center.z ) , sizeof(double) , 1 , fp ); 
 		fwrite( (char*) &( mesh.voxels[i].volume ) , sizeof(double) , 1 , fp ); 
 
 		// densities  

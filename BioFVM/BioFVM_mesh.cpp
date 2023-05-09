@@ -50,6 +50,21 @@
 #include "BioFVM_mesh.h" 
 
 namespace BioFVM{
+
+
+position_t::position_t(double x, double y, double z) :x(x), y(y), z(z) {}
+position_t::position_t() :x(0.), y(0.), z(0.) {}
+std::vector<double> position_t::v() const
+{
+	std::vector<double> v;
+	v.resize(3);
+
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+
+	return v;
+}
 	
 /* voxels */
 const int mesh_min_x_index=0;
@@ -62,7 +77,6 @@ Voxel::Voxel()
 {
 	mesh_index = 0; 
 	volume = 10*10*10;
-	center.assign( 3 , 0.0 ); 
 	is_Dirichlet = false;
 }
 
@@ -71,7 +85,7 @@ std::ostream& operator<<(std::ostream& os, const Voxel& v)
 	static std::string tabbing = "\t\t\t\t"; 
 	static std::string tabbing2 = "\t\t\t\t\t"; 
 	os	<< tabbing << "<voxel ID=\"" << v.mesh_index << "\">"  << std::endl
-		<< tabbing2 << "<center " << v.center << " />" << std::endl  
+		<< tabbing2 << "<center " << v.center.v() << " />" << std::endl  
 		<< tabbing2 << "<volume>" << v.volume << "</volume>" << std::endl  
 		<< tabbing  << "</voxel>"; 
 
@@ -83,7 +97,7 @@ void Voxel::stream_output_with_units( std::ostream& os , std::string units ) con
 	static std::string tabbing = "\t\t\t\t"; 
 	static std::string tabbing2 = "\t\t\t\t\t"; 
 	os	<< tabbing << "<voxel ID=\"" << mesh_index << "\">"  << std::endl
-		<< tabbing2 << "<center " << center << " units=\"" << units << "\" />" << std::endl 
+		<< tabbing2 << "<center " << center.v() << " units=\"" << units << "\" />" << std::endl 
 		<< tabbing2 << "<volume units=\"cubic " << units << "\">" << volume << "</volume>" << std::endl
 		<< tabbing  << "</voxel>"; 
 	return; 
@@ -215,7 +229,7 @@ void General_Mesh::connect_voxels_faces_only(int i,int j, double SA) // done
 	int k = voxel_faces.size(); 
 	VF1.mesh_index = k; 
 	VF1.surface_area = SA; 
-	VF1.outward_normal = voxels[j].center - voxels[i].center ; 
+	VF1.outward_normal = voxels[j].center.v() - voxels[i].center.v() ; 
 	normalize( &(VF1.outward_normal) );
 	VF1.inward_normal = VF1.outward_normal; 
 	VF1.inward_normal *= -1.0; 
@@ -253,7 +267,7 @@ void General_Mesh::connect_voxels(int i,int j, double SA)
 	int k = voxel_faces.size(); 
 	VF1.mesh_index = k; 
 	VF1.surface_area = SA; 
-	VF1.outward_normal = voxels[j].center - voxels[i].center ; 
+	VF1.outward_normal = voxels[j].center.v() - voxels[i].center.v() ; 
 	normalize( &(VF1.outward_normal) );
 	VF1.inward_normal = VF1.outward_normal; 
 	VF1.inward_normal *= -1.0; 
@@ -299,9 +313,9 @@ void General_Mesh::write_to_matlab( std::string filename )
 	// storing data as cols 
 	for( unsigned int i=0; i < number_of_data_entries ; i++ )
 	{
-		fwrite( (char*) &( voxels[i].center[0] ) , sizeof(double) , 1 , fp ); 
-		fwrite( (char*) &( voxels[i].center[1] ) , sizeof(double) , 1 , fp ); 
-		fwrite( (char*) &( voxels[i].center[2] ) , sizeof(double) , 1 , fp ); 
+		fwrite( (char*) &( voxels[i].center.x ) , sizeof(double) , 1 , fp ); 
+		fwrite( (char*) &( voxels[i].center.y ) , sizeof(double) , 1 , fp ); 
+		fwrite( (char*) &( voxels[i].center.z ) , sizeof(double) , 1 , fp ); 
 		fwrite( (char*) &( voxels[i].volume ) , sizeof(double) , 1 , fp ); 
 	}
 
@@ -343,26 +357,26 @@ void General_Mesh::read_from_matlab( std::string filename )
         size_t result;
 	for( unsigned int i=0; i < number_of_data_entries ; i++ )
 	{
-		result = fread( (char*) &( voxels[i].center[0] ) , sizeof(double) , 1 , fp ); 
-		result = fread( (char*) &( voxels[i].center[1] ) , sizeof(double) , 1 , fp ); 
-		result = fread( (char*) &( voxels[i].center[2] ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.x ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.y ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.z ) , sizeof(double) , 1 , fp ); 
 		result = fread( (char*) &( voxels[i].volume ) , sizeof(double) , 1 , fp ); 
 		
 		// estimate the bounding box; 
-		if( voxels[i].center[0] < bounding_box[0] )
-		{ bounding_box[0] = voxels[i].center[0]; }
-		if( voxels[i].center[0] > bounding_box[3] )
-		{ bounding_box[3] = voxels[i].center[0]; }
+		if( voxels[i].center.x < bounding_box[0] )
+		{ bounding_box[0] = voxels[i].center.x; }
+		if( voxels[i].center.x > bounding_box[3] )
+		{ bounding_box[3] = voxels[i].center.x; }
 
-		if( voxels[i].center[1] < bounding_box[1] )
-		{ bounding_box[1] = voxels[i].center[1]; }
-		if( voxels[i].center[1] > bounding_box[4] )
-		{ bounding_box[4] = voxels[i].center[1]; }
+		if( voxels[i].center.y < bounding_box[1] )
+		{ bounding_box[1] = voxels[i].center.y; }
+		if( voxels[i].center.y > bounding_box[4] )
+		{ bounding_box[4] = voxels[i].center.y; }
 
-		if( voxels[i].center[2] < bounding_box[2] )
-		{ bounding_box[2] = voxels[i].center[2]; }
-		if( voxels[i].center[2] > bounding_box[5] )
-		{ bounding_box[5] = voxels[i].center[2]; }
+		if( voxels[i].center.z < bounding_box[2] )
+		{ bounding_box[2] = voxels[i].center.z; }
+		if( voxels[i].center.z > bounding_box[5] )
+		{ bounding_box[5] = voxels[i].center.z; }
 	} 
 	
 	std::cout << "Warning: General_Mesh::read_from_matlab is incomplete. No connection information read." << std::endl; 
@@ -405,9 +419,9 @@ Cartesian_Mesh::Cartesian_Mesh()
 	template_voxel.volume = dV; 
  
 	voxels.assign( x_coordinates.size() * y_coordinates.size() * z_coordinates.size() , template_voxel ); 
-	voxels[0].center[0] = x_coordinates[0]; 
-	voxels[0].center[1] = y_coordinates[0]; 
-	voxels[0].center[2] = z_coordinates[0]; 
+	voxels[0].center.x = x_coordinates[0]; 
+	voxels[0].center.y = y_coordinates[0]; 
+	voxels[0].center.z = z_coordinates[0]; 
 }
 
 void Cartesian_Mesh::create_voxel_faces( void )
@@ -511,9 +525,9 @@ Cartesian_Mesh::Cartesian_Mesh( int xnodes, int ynodes, int znodes )
 		{
 			for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
 			{
-				voxels[n].center[0] = x_coordinates[i]; 
-				voxels[n].center[1] = y_coordinates[j]; 
-				voxels[n].center[2] = z_coordinates[k]; 
+				voxels[n].center.x = x_coordinates[i]; 
+				voxels[n].center.y = y_coordinates[j]; 
+				voxels[n].center.z = z_coordinates[k]; 
 				voxels[n].mesh_index = n; 
 				voxels[n].volume = dV; 
 
@@ -678,9 +692,9 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 		{
 			for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
 			{
-				voxels[n].center[0] = x_coordinates[i]; 
-				voxels[n].center[1] = y_coordinates[j]; 
-				voxels[n].center[2] = z_coordinates[k]; 
+				voxels[n].center.x = x_coordinates[i]; 
+				voxels[n].center.y = y_coordinates[j]; 
+				voxels[n].center.z = z_coordinates[k]; 
 				voxels[n].mesh_index = n; 
 				voxels[n].volume = dV; 
 
@@ -800,9 +814,9 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 		{
 			for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
 			{
-				voxels[n].center[0] = x_coordinates[i]; 
-				voxels[n].center[1] = y_coordinates[j]; 
-				voxels[n].center[2] = z_coordinates[k]; 
+				voxels[n].center.x = x_coordinates[i]; 
+				voxels[n].center.y = y_coordinates[j]; 
+				voxels[n].center.z = z_coordinates[k]; 
 				voxels[n].mesh_index = n; 
 				voxels[n].volume = dV; 
 
@@ -992,26 +1006,26 @@ void Cartesian_Mesh::read_from_matlab( std::string filename )
         size_t result;
 	for( unsigned int i=0; i < number_of_data_entries ; i++ )
 	{
-		result = fread( (char*) &( voxels[i].center[0] ) , sizeof(double) , 1 , fp ); 
-		result = fread( (char*) &( voxels[i].center[1] ) , sizeof(double) , 1 , fp ); 
-		result = fread( (char*) &( voxels[i].center[2] ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.x ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.y ) , sizeof(double) , 1 , fp ); 
+		result = fread( (char*) &( voxels[i].center.z ) , sizeof(double) , 1 , fp ); 
 		result = fread( (char*) &( voxels[i].volume ) , sizeof(double) , 1 , fp ); 
 		
 		// estimate the bounding box; 
-		if( voxels[i].center[0] < bounding_box[0] )
-		{ bounding_box[0] = voxels[i].center[0]; }
-		if( voxels[i].center[0] > bounding_box[3] )
-		{ bounding_box[3] = voxels[i].center[0]; }
+		if( voxels[i].center.x < bounding_box[0] )
+		{ bounding_box[0] = voxels[i].center.x; }
+		if( voxels[i].center.x > bounding_box[3] )
+		{ bounding_box[3] = voxels[i].center.x; }
 
-		if( voxels[i].center[1] < bounding_box[1] )
-		{ bounding_box[1] = voxels[i].center[1]; }
-		if( voxels[i].center[1] > bounding_box[4] )
-		{ bounding_box[4] = voxels[i].center[1]; }
+		if( voxels[i].center.y < bounding_box[1] )
+		{ bounding_box[1] = voxels[i].center.y; }
+		if( voxels[i].center.y > bounding_box[4] )
+		{ bounding_box[4] = voxels[i].center.y; }
 
-		if( voxels[i].center[2] < bounding_box[2] )
-		{ bounding_box[2] = voxels[i].center[2]; }
-		if( voxels[i].center[2] > bounding_box[5] )
-		{ bounding_box[5] = voxels[i].center[2]; }
+		if( voxels[i].center.z < bounding_box[2] )
+		{ bounding_box[2] = voxels[i].center.z; }
+		if( voxels[i].center.z > bounding_box[5] )
+		{ bounding_box[5] = voxels[i].center.z; }
 	} 
 	
 	// figure out dx, dy, dz 
@@ -1027,14 +1041,14 @@ void Cartesian_Mesh::read_from_matlab( std::string filename )
 
 	// figure out number of x nodes  
 	int xnodes = 0; 
-	while( fabs( voxels[xnodes].center[0] - xmax ) > 1e-15 )
+	while( fabs( voxels[xnodes].center.x - xmax ) > 1e-15 )
 	{ xnodes++; }
 	xnodes++; 
 
 	// figure out number of y nodes 
 	int ynodes = 0; 
 
-	while( fabs( voxels[ynodes*xnodes].center[1] - ymax ) > 1e-15 )
+	while( fabs( voxels[ynodes*xnodes].center.y - ymax ) > 1e-15 )
 	{ ynodes += 1; }
 	ynodes++;
 
@@ -1042,7 +1056,7 @@ void Cartesian_Mesh::read_from_matlab( std::string filename )
 
 	int znodes = 0; 
 
-	while( fabs( voxels[ynodes*xnodes*znodes].center[2] - zmax ) > 1e-15 )
+	while( fabs( voxels[ynodes*xnodes*znodes].center.z - zmax ) > 1e-15 )
 	{ znodes += 1; }
 	znodes++;
 

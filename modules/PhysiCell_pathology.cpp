@@ -529,7 +529,7 @@ void SVG_plot( std::string filename , Microenvironment& M, double z_slice , doub
 			for (int n = 0; n < M.number_of_voxels(); n++)
 			{
 				auto current_voxel = M.voxels(n);
-				int z_center = current_voxel.center[2];
+				int z_center = current_voxel.center.z;
 				double z_displ = z_center -  dz_stroma/2; 
 				
 				double z_compare = z_displ;
@@ -539,8 +539,8 @@ void SVG_plot( std::string filename , Microenvironment& M, double z_slice , doub
 				};
 
 				if (z_slice == z_compare){			//this is to make sure the substrate is sampled in the voxel visualized (so basically the slice)
-					int x_center = current_voxel.center[0];
-					int y_center = current_voxel.center[1];
+					int x_center = current_voxel.center.x;
+					int y_center = current_voxel.center.y;
 					
 					double x_displ = x_center -  dx_stroma/2;
 					double y_displ = (y_center - dy_stroma) +  dy_stroma/2;

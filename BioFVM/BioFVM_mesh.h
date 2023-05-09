@@ -65,6 +65,18 @@ namespace BioFVM{
   * with a vector<double> of densities for each Voxel, along with rate constants, etc. 
   * The Domain may also include a vector<double> of flux coefficients for each Voxel_Face. 
  */
+
+struct position_t
+{
+	double x;
+	double y;
+	double z;
+
+	position_t(double x, double y, double z);
+	position_t();
+
+	std::vector<double> v() const;
+};
  
 class Voxel
 {
@@ -83,7 +95,7 @@ class Voxel
 	int mesh_index; /*!< voxel's index in a General_Mesh */ 
 
 	double volume; /*!< voxel's volume (cubic spatial units) */ 
-	std::vector<double> center; /*!< center of volume */
+	position_t center; /*!< center of volume */
 	bool is_Dirichlet;
 	void stream_output_with_units( std::ostream& os , std::string units ) const;
 };

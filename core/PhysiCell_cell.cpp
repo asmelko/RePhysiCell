@@ -1170,62 +1170,18 @@ void delete_cell( Cell* pDelete )
 	return; 
 }
 
-bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index)
+bool is_neighbor_voxel(Cell* pCell, const position_t& my_voxel_center, const position_t& other_voxel_center, int other_voxel_index)
 {
 	double max_interactive_distance = pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
 		+ pCell->get_container()->max_cell_interactive_distance_in_voxel[other_voxel_index];
 	
-	int comparing_dimension = -1, comparing_dimension2 = -1;
-	if(my_voxel_center[0] == other_voxel_center[0] && my_voxel_center[1] == other_voxel_center[1])
-	{
-		comparing_dimension = 2;
-	}
-	else if(my_voxel_center[0] == other_voxel_center[0] && my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 1;
-	}
-	else if(my_voxel_center[1] == other_voxel_center[1] && my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 0;
-	}
-	
-	if(comparing_dimension != -1) 
-	{ //then it is an immediate neighbor (through side faces)
-		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->position[comparing_dimension] - surface_coord) > max_interactive_distance)
-		{ return false; }
-		return true;
-	}
-	comparing_dimension=-1;
-	
-	if(my_voxel_center[0] == other_voxel_center[0])
-	{
-		comparing_dimension = 1; comparing_dimension2 = 2;
-	}
-	else if(my_voxel_center[1] == other_voxel_center[1])
-	{
-		comparing_dimension=0; comparing_dimension2 = 2;
-	}
-	else if(my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 0; comparing_dimension2=1;
-	}
-	if(comparing_dimension != -1)
-	{
-		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->position[comparing_dimension] - line_coord1,2)+ std::pow( pCell->position[comparing_dimension2] - line_coord2,2);
-		if(distance_squared > max_interactive_distance * max_interactive_distance)
-		{ return false; }
-		return true;
-	}
-	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->position[0])*(corner_point[0]-pCell->position[0])
-		+(corner_point[1]-pCell->position[1])*(corner_point[1]-pCell->position[1]) 
-		+(corner_point[2]-pCell->position[2]) * (corner_point[2]-pCell->position[2]);
-	if(distance_squared > max_interactive_distance * max_interactive_distance)
-	{ return false; }
-	return true;
+	double diff_x = (my_voxel_center.x + other_voxel_center.x) / 2.0 - pCell->position[0];
+	double diff_y = (my_voxel_center.y + other_voxel_center.y) / 2.0 - pCell->position[1];
+	double diff_z = (my_voxel_center.z + other_voxel_center.z) / 2.0 - pCell->position[2];
+
+	double distance_squared = diff_x * diff_x + diff_y * diff_y + diff_z * diff_z;
+
+	return distance_squared <= max_interactive_distance * max_interactive_distance;
 }
 
 std::vector<Cell*>& Cell::cells_in_my_container( void )
