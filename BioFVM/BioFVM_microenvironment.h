@@ -102,8 +102,8 @@ class Microenvironment
 	std::vector<double> thomas_constant2;
 	std::vector<double> thomas_constant3;
 	std::vector<double> thomas_constant3a;
-	std::vector< std::vector<double> > thomas_denom;
-	std::vector< std::vector<double> > thomas_c;
+	std::vector<double> thomas_denom;
+	std::vector<double> thomas_c;
 	bool diffusion_solver_setup_done; 
 	
 	// on "resize density" type operations, need to extend all of these 
@@ -120,6 +120,8 @@ class Microenvironment
 	   on a voxel-by-voxel basis */ 
 	   
 	std::vector< std::vector<bool> > dirichlet_activation_vectors; 
+
+	void setup_thomas_constants(double dt, int dim);
 	
  public:
 	

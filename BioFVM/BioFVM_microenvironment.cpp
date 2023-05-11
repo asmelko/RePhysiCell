@@ -1534,4 +1534,73 @@ void initialize_microenvironment( void )
 	return;
 }
 
+void Microenvironment::setup_thomas_constants(double dt, int dim)
+{
+	std::size_t max_coord_size = std::max(mesh.x_coordinates.size(), mesh.y_coordinates.size());
+	max_coord_size = std::max(max_coord_size, mesh.z_coordinates.size());
+
+	thomas_denom.resize( max_coord_size * densities_count );
+	thomas_c.resize( max_coord_size * densities_count);
+
+	thomas_i_jump = 1; 
+	thomas_j_jump = mesh.x_coordinates.size(); 
+	thomas_k_jump = thomas_j_jump * mesh.y_coordinates.size(); 
+
+	thomas_constant1 =  diffusion_coefficients; // dt*D/dx^2 
+	thomas_constant1a = zero; // -dt*D/dx^2; 
+	thomas_constant2 =  decay_rates; // (1/dim)* dt*lambda 
+	thomas_constant3 = one; // 1 + 2*constant1 + constant2; 
+	thomas_constant3a = one; // 1 + constant1 + constant2; 		
+		
+	thomas_constant1 *= dt; 
+	thomas_constant1 /= mesh.dx; 
+	thomas_constant1 /= mesh.dx; 
+
+	thomas_constant1a = thomas_constant1; 
+	thomas_constant1a *= -1.0; 
+
+	thomas_constant2 *= dt; 
+	thomas_constant2 /= dim; // for the LOD splitting of the source 
+
+	thomas_constant3 += thomas_constant1; 
+	thomas_constant3 += thomas_constant1; 
+	thomas_constant3 += thomas_constant2; 
+
+	thomas_constant3a += thomas_constant1; 
+	thomas_constant3a += thomas_constant2; 
+
+	// Thomas solver coefficients 
+
+	for (int i = 0; i < max_coord_size; i++)
+	{
+		std::copy(thomas_constant1a.begin(), thomas_constant1a.end(), thomas_c.begin() + i * densities_count);
+		std::copy(thomas_constant3.begin(), thomas_constant3.end(), thomas_denom.begin() + i * densities_count);
+	}
+
+	std::copy(thomas_constant3a.begin(), thomas_constant3a.end(), thomas_denom.begin());
+	std::copy(thomas_constant3a.begin(), thomas_constant3a.end(), thomas_denom.end() - densities_count);
+
+	if( max_coord_size == 1 )
+	{ 
+		for (int i = 0; i < densities_count; i++)
+			thomas_denom[i] = 1 + thomas_constant2[i];
+	}
+
+	for (int i = 0; i < densities_count; i++)
+		thomas_c[i] /= thomas_denom[i];
+
+	for( unsigned int i=1 ; i < max_coord_size ; i++ )
+	{ 	
+		for (int d = 0; d < densities_count; d++)
+		{
+			thomas_denom[i * densities_count + d] += 
+				thomas_constant1[d] * thomas_c[(i-1) * densities_count + d];
+
+			thomas_c[i * densities_count + d] /= thomas_denom[i * densities_count + d];
+		}
+	}
+
+	diffusion_solver_setup_done = true; 
+}
+
 };
