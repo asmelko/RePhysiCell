@@ -808,7 +808,7 @@ void Microenvironment::display_information( std::ostream& os )
 unsigned int Microenvironment::number_of_densities( void ) const
 { return densities_count; }
 
-unsigned int Microenvironment::number_of_voxels( void )
+unsigned int Microenvironment::number_of_voxels( void ) const
 { return mesh.voxels.size(); }
 
 unsigned int Microenvironment::number_of_voxel_faces( void )

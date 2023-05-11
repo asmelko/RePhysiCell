@@ -154,7 +154,7 @@ class Microenvironment
 	/*! functions to simplify size queries */ 
 	
 	unsigned int number_of_densities( void ) const;
-	unsigned int number_of_voxels( void ); 
+	unsigned int number_of_voxels( void ) const; 
 	unsigned int number_of_voxel_faces( void ); 
 
  	
