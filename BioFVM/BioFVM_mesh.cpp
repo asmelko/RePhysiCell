@@ -610,7 +610,7 @@ void Cartesian_Mesh::create_moore_neighborhood()
 		}
 	}
 }
-unsigned int Cartesian_Mesh::voxel_index( unsigned int i, unsigned int j, unsigned int k )
+unsigned int Cartesian_Mesh::voxel_index( unsigned int i, unsigned int j, unsigned int k ) const
 {
  return ( k*y_coordinates.size() + j )*x_coordinates.size() + i; 
 }

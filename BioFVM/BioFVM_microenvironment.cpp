@@ -716,7 +716,7 @@ void Microenvironment::set_density( int index , std::string name , std::string u
 	return; 
 }
 
-int Microenvironment::voxel_index( int i, int j, int k )
+int Microenvironment::voxel_index( int i, int j, int k ) const
 { return mesh.voxel_index(i,j,k) ; }
 
 std::vector<unsigned int> Microenvironment::cartesian_indices( int n )

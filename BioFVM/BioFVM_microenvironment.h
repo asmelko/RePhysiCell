@@ -180,7 +180,7 @@ class Microenvironment
 
 	int find_density_index( std::string name ); 
 	
-	int voxel_index( int i, int j, int k ); 
+	int voxel_index( int i, int j, int k ) const; 
 	std::vector<unsigned int> cartesian_indices( int n ); 
 	
 	int nearest_voxel_index( std::vector<double>& position ); 
