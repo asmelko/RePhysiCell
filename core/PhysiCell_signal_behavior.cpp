@@ -678,7 +678,7 @@ std::vector<double> get_signals( Cell* pCell )
     // substrate gradients 
 	static int start_substrate_grad_ind = find_signal_index( microenvironment.density_names[0] + " gradient"); 
 	for( int i=0; i < m ; i++ )
-	{ signals[start_substrate_grad_ind+i] = norm( pCell->nearest_gradient(i) ); }    
+	{ signals[start_substrate_grad_ind+i] = norm( pCell->nearest_gradient(i).v() ); }    
 
 	// mechanical pressure 
 	static int pressure_ind = find_signal_index( "pressure"); 
@@ -869,7 +869,7 @@ double get_single_signal( Cell* pCell, int index )
 	static int start_substrate_grad_ind = find_signal_index( microenvironment.density_names[0] + " gradient"); 
 	if( start_substrate_grad_ind <= index && index < start_substrate_grad_ind + m )
 	{
-		out =  norm( pCell->nearest_gradient(index-start_substrate_grad_ind) ); 
+		out =  norm( pCell->nearest_gradient(index-start_substrate_grad_ind).v() ); 
 		out /= signal_scales[index]; 
 		return out; 
 	}

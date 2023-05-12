@@ -122,9 +122,9 @@ class Basic_Agent
 	double* nearest_density_vector( void );
 	
 	// directly access the gradient of substrate n nearest to the cell 
-	std::vector<double>& nearest_gradient( int substrate_index );
+	position_t& nearest_gradient( int substrate_index );
 	// directly access a vector of gradients, one gradient per substrate 
-	std::vector<gradient>& nearest_gradient_vector( void ); 
+	position_t* nearest_gradient_vector( void ); 
 };
 
 extern std::vector<Basic_Agent*> all_basic_agents; 

@@ -82,7 +82,7 @@ class Microenvironment
 	/*! stores pointer to current density solutions. Access via operator() functions. */ 
 	double* p_density_vectors; 
 	
-	std::vector< std::vector<gradient> > gradient_vectors; 
+	std::vector<position_t> gradient_vectors; 
 	std::vector<bool> gradient_vector_computed; 
 
 	
@@ -197,11 +197,11 @@ class Microenvironment
 	/*! access the density vector at [x,y,z](n) */
 	double* density_vector( int n ); 
 	
-	std::vector<gradient>& gradient_vector(int i, int j, int k); 
-	std::vector<gradient>& gradient_vector(int i, int j ); 
-	std::vector<gradient>& gradient_vector(int n );  
+	position_t* gradient_vector(int i, int j, int k); 
+	position_t* gradient_vector(int i, int j ); 
+	position_t* gradient_vector(int n );  
 	
-	std::vector<gradient>& nearest_gradient_vector( std::vector<double>& position ); 
+	position_t* nearest_gradient_vector( std::vector<double>& position ); 
 
 	void compute_all_gradient_vectors( void ); 
 	void compute_gradient_vector( int n );  

@@ -280,13 +280,13 @@ double* Basic_Agent::nearest_density_vector( void )
 
 
 // directly access the gradient of substrate n nearest to the cell 
-std::vector<double>& Basic_Agent::nearest_gradient( int substrate_index )
+position_t& Basic_Agent::nearest_gradient( int substrate_index )
 {
 	return microenvironment->gradient_vector(current_voxel_index)[substrate_index]; 
 }
 
 	// directly access a vector of gradients, one gradient per substrate 
-std::vector<gradient>& Basic_Agent::nearest_gradient_vector( void )
+position_t* Basic_Agent::nearest_gradient_vector( void )
 {
 	return microenvironment->gradient_vector(current_voxel_index); 
 }

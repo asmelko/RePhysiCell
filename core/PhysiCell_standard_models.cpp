@@ -909,7 +909,7 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 void chemotaxis_function( Cell* pCell, Phenotype& phenotype , double dt )
 {
 	// bias direction is gradient for the indicated substrate 
-	phenotype.motility.migration_bias_direction = pCell->nearest_gradient(phenotype.motility.chemotaxis_index);
+	phenotype.motility.migration_bias_direction = pCell->nearest_gradient(phenotype.motility.chemotaxis_index).v();
 	// move up or down gradient based on this direction 
 	phenotype.motility.migration_bias_direction *= phenotype.motility.chemotaxis_direction; 
 
@@ -933,7 +933,7 @@ void advanced_chemotaxis_function_normalized( Cell* pCell, Phenotype& phenotype 
 	for( int i=0; i < phenotype.motility.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		temp = pCell->nearest_gradient(i); 
+		temp = pCell->nearest_gradient(i).v(); 
 		normalize( &temp ); 
 		axpy( pVec , phenotype.motility.chemotactic_sensitivities[i] , temp ); 
 	}
@@ -954,7 +954,8 @@ void advanced_chemotaxis_function( Cell* pCell, Phenotype& phenotype , double dt
 	for( int i=0; i < phenotype.motility.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		axpy( pVec , phenotype.motility.chemotactic_sensitivities[i] , pCell->nearest_gradient(i) ); 
+		auto tmp = pCell->nearest_gradient(i).v();
+		axpy( pVec , phenotype.motility.chemotactic_sensitivities[i] , tmp ); 
 	}
 	// normalize that 
 	normalize( pVec ); 

@@ -129,12 +129,7 @@ Microenvironment::Microenvironment()
 	temporary_density_vectors2.resize( mesh.voxels.size() * densities_count, 0. ); 
 	p_density_vectors = temporary_density_vectors1.data();
 
-	gradient_vectors.resize( mesh.voxels.size() ); 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( 1 ); 
-		(gradient_vectors[k])[0].resize( 3, 0.0 );
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t() ); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 
 
 	bulk_supply_rate_function = zero_function; 
@@ -309,15 +304,7 @@ void Microenvironment::resize_voxels( int new_number_of_voxes )
 	temporary_density_vectors2.resize( mesh.voxels.size() * densities_count , 0 );
 	p_density_vectors = temporary_density_vectors1.data(); 
 		
-	gradient_vectors.resize( mesh.voxels.size() ); 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 	
 	dirichlet_value_vectors.assign( mesh.voxels.size(), one ); 
@@ -336,15 +323,7 @@ void Microenvironment::resize_space( int x_nodes, int y_nodes, int z_nodes )
 	temporary_density_vectors2.assign( mesh.voxels.size() * densities_count , 0 ); 
 	p_density_vectors = temporary_density_vectors1.data();
 		
-	gradient_vectors.resize( mesh.voxels.size() ); 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 	
 	dirichlet_value_vectors.assign( mesh.voxels.size(), one ); 
@@ -362,15 +341,7 @@ void Microenvironment::resize_space( double x_start, double x_end, double y_star
 	temporary_density_vectors2.assign( mesh.voxels.size() * densities_count , 0 ); 
 	p_density_vectors = temporary_density_vectors1.data();
 	
-	gradient_vectors.resize( mesh.voxels.size() ); 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 
 	dirichlet_value_vectors.assign( mesh.voxels.size(), one ); 
@@ -388,15 +359,7 @@ void Microenvironment::resize_space( double x_start, double x_end, double y_star
 	temporary_density_vectors2.assign( mesh.voxels.size() * densities_count , 0 ); 
 	p_density_vectors = temporary_density_vectors1.data();
 	
-	gradient_vectors.resize( mesh.voxels.size() ); 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 	
 	dirichlet_value_vectors.assign( mesh.voxels.size(), one ); 
@@ -422,14 +385,7 @@ void Microenvironment::resize_densities( int new_size )
 	temporary_density_vectors2.assign( mesh.voxels.size() * densities_count , 0 ); 
 	p_density_vectors = temporary_density_vectors1.data();
 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 	
 	diffusion_coefficients.assign( new_size , 0.0 ); 
@@ -497,14 +453,7 @@ void Microenvironment::add_density( void )
 	p_density_vectors = temporary_density_vectors1.data();
 
 	// resize the gradient data structures 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 	
@@ -567,14 +516,7 @@ void Microenvironment::add_density( std::string name , std::string units )
 	p_density_vectors = temporary_density_vectors1.data();
 
 	// resize the gradient data structures, 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 
 	one_half = one; 
@@ -636,14 +578,7 @@ void Microenvironment::add_density( std::string name , std::string units, double
 	p_density_vectors = temporary_density_vectors1.data();
 
 	// resize the gradient data structures 
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		gradient_vectors[k].resize( densities_count ); 
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.resize( mesh.voxels.size() * densities_count, position_t()); 
 	gradient_vector_computed.resize( mesh.voxels.size() , false ); 	
 
 	one_half = one; 
@@ -913,7 +848,7 @@ void Microenvironment::update_rates( void )
 	return; 
 }
 
-std::vector<gradient>& Microenvironment::gradient_vector(int i, int j, int k)
+position_t* Microenvironment::gradient_vector(int i, int j, int k)
 {
 	int n = voxel_index(i,j,k);
 	if( gradient_vector_computed[n] == false )
@@ -921,10 +856,10 @@ std::vector<gradient>& Microenvironment::gradient_vector(int i, int j, int k)
 		compute_gradient_vector( n );
 	}
 	
-	return gradient_vectors[n];
+	return gradient_vectors.data() + n * densities_count;
 }
 
-std::vector<gradient>& Microenvironment::gradient_vector(int i, int j )
+position_t* Microenvironment::gradient_vector(int i, int j )
 {
 	int n = voxel_index(i,j,0);
 	if( gradient_vector_computed[n] == false )
@@ -932,10 +867,10 @@ std::vector<gradient>& Microenvironment::gradient_vector(int i, int j )
 		compute_gradient_vector( n );
 	}
 	
-	return gradient_vectors[n];
+	return gradient_vectors.data() + n * densities_count;
 }
 
-std::vector<gradient>& Microenvironment::gradient_vector(int n )
+position_t* Microenvironment::gradient_vector(int n )
 {
 	// if the gradient has not yet been computed, then do it!
 	if( gradient_vector_computed[n] == false )
@@ -944,10 +879,10 @@ std::vector<gradient>& Microenvironment::gradient_vector(int n )
 	}
 	
 	
-	return gradient_vectors[n];
+	return gradient_vectors.data() + n * densities_count;
 }
 	
-std::vector<gradient>& Microenvironment::nearest_gradient_vector( std::vector<double>& position )
+position_t* Microenvironment::nearest_gradient_vector( std::vector<double>& position )
 {
 	int n = nearest_voxel_index( position );
 	if( gradient_vector_computed[n] == false )
@@ -955,7 +890,7 @@ std::vector<gradient>& Microenvironment::nearest_gradient_vector( std::vector<do
 		compute_gradient_vector( n );
 	}
 	
-	return gradient_vectors[n];
+	return gradient_vectors.data() + n * densities_count;
 }
 
 void Microenvironment::compute_all_gradient_vectors( void )
@@ -983,9 +918,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int i = 0; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][0] = p_density_vectors[(n+thomas_i_jump)*densities_count + q]; 
-				gradient_vectors[n][q][0] -= p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][0] /= mesh.dx; 
+				gradient_vectors[n*densities_count+q].x = p_density_vectors[(n+thomas_i_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].x -= p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].x /= mesh.dx; 
 				
 				gradient_vector_computed[n] = true; 
 			}
@@ -994,9 +929,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int i = mesh.x_coordinates.size()-1; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][0] = p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][0] -= p_density_vectors[(n-thomas_i_jump)*densities_count + q]; 
-				gradient_vectors[n][q][0] /= mesh.dx; 
+				gradient_vectors[n*densities_count+q].x = p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].x -= p_density_vectors[(n-thomas_i_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].x /= mesh.dx; 
 				
 				gradient_vector_computed[n] = true; 
 			}
@@ -1007,9 +942,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				{
 					int n = voxel_index(i,j,k);
 					// x-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][0] = p_density_vectors[(n+thomas_i_jump)*densities_count + q]; 
-					gradient_vectors[n][q][0] -= p_density_vectors[(n-thomas_i_jump)*densities_count + q]; 
-					gradient_vectors[n][q][0] /= two_dx; 
+					gradient_vectors[n*densities_count+q].x = p_density_vectors[(n+thomas_i_jump)*densities_count + q]; 
+					gradient_vectors[n*densities_count+q].x -= p_density_vectors[(n-thomas_i_jump)*densities_count + q]; 
+					gradient_vectors[n*densities_count+q].x /= two_dx; 
 					
 					gradient_vector_computed[n] = true; 
  				}
@@ -1029,9 +964,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int j = 0; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][1] = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; 
-				gradient_vectors[n][q][1] -= p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][1] /= mesh.dy; 
+				gradient_vectors[n*densities_count+q].y = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].y -= p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].y /= mesh.dy; 
 				
 				gradient_vector_computed[n] = true; 
 			}
@@ -1040,9 +975,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int j = mesh.y_coordinates.size()-1; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][1] = p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][1] -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
-				gradient_vectors[n][q][1] /= mesh.dy; 
+				gradient_vectors[n*densities_count+q].y = p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].y -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].y /= mesh.dy; 
 				
 				gradient_vector_computed[n] = true; 
 			}		
@@ -1053,9 +988,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				{
 					int n = voxel_index(i,j,k);
 					// y-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][1] = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; ; 
-					gradient_vectors[n][q][1] -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
-					gradient_vectors[n][q][1] /= two_dy; 
+					gradient_vectors[n*densities_count+q].y = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; ; 
+					gradient_vectors[n*densities_count+q].y -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
+					gradient_vectors[n*densities_count+q].y /= two_dy; 
 					gradient_vector_computed[n] = true; 
 				}
 			}
@@ -1078,9 +1013,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int k = 0; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][2] = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
-				gradient_vectors[n][q][2] -= p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][2] /= mesh.dz; 
+				gradient_vectors[n*densities_count+q].z = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].z -= p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].z /= mesh.dz; 
 				
 				gradient_vector_computed[n] = true; 
 			}
@@ -1089,9 +1024,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				int k = mesh.z_coordinates.size()-1; 
 				int n = voxel_index(i,j,k);
 				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][2] = p_density_vectors[(n)*densities_count + q]; 
-				gradient_vectors[n][q][2] -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
-				gradient_vectors[n][q][2] /= mesh.dz; 
+				gradient_vectors[n*densities_count+q].z = p_density_vectors[(n)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].z -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
+				gradient_vectors[n*densities_count+q].z /= mesh.dz; 
 				
 				gradient_vector_computed[n] = true; 
 			}			
@@ -1102,9 +1037,9 @@ void Microenvironment::compute_all_gradient_vectors( void )
 				{
 					int n = voxel_index(i,j,k);
 					// y-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][2] = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
-					gradient_vectors[n][q][2] -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
-					gradient_vectors[n][q][2] /= two_dz; 
+					gradient_vectors[n*densities_count+q].z = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
+					gradient_vectors[n*densities_count+q].z -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
+					gradient_vectors[n*densities_count+q].z /= two_dz; 
 					gradient_vector_computed[n] = true; 
 				}
 			}
@@ -1138,9 +1073,9 @@ void Microenvironment::compute_gradient_vector( int n )
 	{
 		for( unsigned int q=0; q < densities_count ; q++ )
 		{
-			gradient_vectors[n][q][0] = p_density_vectors[(n+thomas_i_jump)*densities_count + q];
-			gradient_vectors[n][q][0] -= p_density_vectors[(n-thomas_i_jump)*densities_count + q];
-			gradient_vectors[n][q][0] /= two_dx; 
+			gradient_vectors[n*densities_count+q].x = p_density_vectors[(n+thomas_i_jump)*densities_count + q];
+			gradient_vectors[n*densities_count+q].x -= p_density_vectors[(n-thomas_i_jump)*densities_count + q];
+			gradient_vectors[n*densities_count+q].x /= two_dx; 
 			gradient_vector_computed[n] = true; 
 		}
 	}
@@ -1154,9 +1089,9 @@ void Microenvironment::compute_gradient_vector( int n )
 	{
 		for( unsigned int q=0; q < densities_count ; q++ )
 		{
-			gradient_vectors[n][q][1] = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; 
-			gradient_vectors[n][q][1] -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
-			gradient_vectors[n][q][1] /= two_dy; 
+			gradient_vectors[n*densities_count+q].y = p_density_vectors[(n+thomas_j_jump)*densities_count + q]; 
+			gradient_vectors[n*densities_count+q].y -= p_density_vectors[(n-thomas_j_jump)*densities_count + q]; 
+			gradient_vectors[n*densities_count+q].y /= two_dy; 
 			gradient_vector_computed[n] = true; 
 		}
 	}
@@ -1170,9 +1105,9 @@ void Microenvironment::compute_gradient_vector( int n )
 	{
 		for( unsigned int q=0; q < densities_count ; q++ )
 		{
-			gradient_vectors[n][q][2] = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
-			gradient_vectors[n][q][2] -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
-			gradient_vectors[n][q][2] /= two_dz; 
+			gradient_vectors[n*densities_count+q].z = p_density_vectors[(n+thomas_k_jump)*densities_count + q]; 
+			gradient_vectors[n*densities_count+q].z -= p_density_vectors[(n-thomas_k_jump)*densities_count + q]; 
+			gradient_vectors[n*densities_count+q].z /= two_dz; 
 			gradient_vector_computed[n] = true; 
 		}
 	}
@@ -1182,13 +1117,7 @@ void Microenvironment::compute_gradient_vector( int n )
 
 void Microenvironment::reset_all_gradient_vectors( void )
 {
-	for( unsigned int k=0 ; k < mesh.voxels.size() ; k++ )
-	{
-		for( unsigned int i=0 ; i < densities_count ; i++ )
-		{
-			(gradient_vectors[k])[i].resize( 3, 0.0 );
-		}
-	}
+	gradient_vectors.assign( gradient_vectors.size() , position_t() ); 	
 	gradient_vector_computed.assign( mesh.voxels.size() , false ); 	
 }
 
