@@ -409,16 +409,16 @@ void diffusion_decay_explicit_uniform_rates( Microenvironment& M, double dt )
 	#pragma omp parallel for
 	for( unsigned int i=0; i < M.number_of_voxels() ; i++ )
 	{
-		unsigned int number_of_neighbors = M.mesh.connected_voxel_indices[i].size(); 
+		std::vector<int> neighbors = M.mesh.get_connected_voxel_indices(i); 
 
-		double d1 = -1.0 * number_of_neighbors; 
+		double d1 = -1.0 * neighbors.size(); 
 
 		for (int d = 0; d < d_dim; d++)
 			pNew[i * d_dim + d] = pOld[i * d_dim + d] * constant4[d];
 
-		for( unsigned int j=0; j < number_of_neighbors ; j++ )
+		for( unsigned int j=0; j < neighbors.size() ; j++ )
 		{
-			int neighbor_idx = M.mesh.connected_voxel_indices[i][j];
+			int neighbor_idx = neighbors[j];
 
 			for (int d = 0; d < d_dim; d++)
 				pNew[i * d_dim + d] += 

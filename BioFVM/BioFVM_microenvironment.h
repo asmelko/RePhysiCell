@@ -113,13 +113,13 @@ class Microenvironment
 	std::vector< std::vector<double> > dirichlet_value_vectors; 
 	std::vector<bool> dirichlet_node_map; 
 	*/
-	std::vector< std::vector<double> > dirichlet_value_vectors; 
+	std::vector<double> dirichlet_value_vectors; 
 	std::vector<bool> dirichlet_activation_vector; 
 	
 	/* new in Version 1.7.0 -- activation vectors can be specified 
 	   on a voxel-by-voxel basis */ 
 	   
-	std::vector< std::vector<bool> > dirichlet_activation_vectors; 
+	std::vector<bool> dirichlet_activation_vectors; 
 
 	void setup_thomas_constants(double dt, int dim);
 	

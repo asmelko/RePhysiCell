@@ -135,7 +135,7 @@ class General_Mesh
 	
 	std::vector<Voxel> voxels; 
 	std::vector<Voxel_Face> voxel_faces; 
-	// each voxel[k] has a list of connected voxels -- helpful for some numerical methods 
+	// each voxel[k] has a list of connected voxels -- helpful for some numerical methods  
 	std::vector< std::vector<int> > connected_voxel_indices; 
 	
 	int nearest_voxel_index( std::vector<double>& position );   
@@ -187,6 +187,7 @@ class Cartesian_Mesh : public General_Mesh
 	std::array<int, 6> get_moore_neighborhood(unsigned int n);
 	unsigned int voxel_index( unsigned int i, unsigned int j, unsigned int k ) const; 
 	std::vector<unsigned int> cartesian_indices( unsigned int n ); 
+	std::vector<int> get_connected_voxel_indices(int n);
 	
 	double dx;
 	double dy;

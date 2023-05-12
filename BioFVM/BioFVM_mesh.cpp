@@ -536,54 +536,79 @@ Cartesian_Mesh::Cartesian_Mesh( int xnodes, int ynodes, int znodes )
 		}
 	}
 	
-	// make connections 
+
+	// no need to make connections, for cartesian mesh this is trivial and only consumes memory 
+	// connected_voxel_indices.resize( voxels.size() ); 
 	
-	connected_voxel_indices.resize( voxels.size() ); 
-	
-	int i_jump = 1; 
-	int j_jump = x_coordinates.size(); 
-	int k_jump = x_coordinates.size() * y_coordinates.size(); 
+	// int i_jump = 1; 
+	// int j_jump = x_coordinates.size(); 
+	// int k_jump = x_coordinates.size() * y_coordinates.size(); 
 		
-	// x-aligned connections 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-		{
-			for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
-			}
-		}
-	}
-	// y-aligned connections 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
-			}
-		}
-	}	
-	// z-aligned connections 
-	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
-			}
-		}
-	}	
+	// // x-aligned connections 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// 	{
+	// 		for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
+	// 		}
+	// 	}
+	// }
+	// // y-aligned connections 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
+	// 		}
+	// 	}
+	// }	
+	// // z-aligned connections 
+	// for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
+	// 		}
+	// 	}
+	// }	
 	
 	if( use_voxel_faces )
 	{ create_voxel_faces(); }
 }	 
+
+std::vector<int> Cartesian_Mesh::get_connected_voxel_indices(int n)
+{
+	std::vector<int> ret;
+	auto i = n % x_coordinates.size();
+	auto j = (n / x_coordinates.size()) % y_coordinates.size();
+	auto k = n / (x_coordinates.size() * y_coordinates.size());
+
+	if (i != 0)
+		ret.push_back(n - 1);
+	if (i != x_coordinates.size() - 1)
+		ret.push_back(n + 1);
+
+	if (j != 0)
+		ret.push_back(n - x_coordinates.size());
+	if (j != y_coordinates.size() - 1)
+		ret.push_back(n + x_coordinates.size());
+		
+	if (k != 0)
+		ret.push_back(n - x_coordinates.size() * y_coordinates.size());
+	if (k != z_coordinates.size() - 1)
+		ret.push_back(n + x_coordinates.size() * y_coordinates.size());
+
+	return ret;
+}
 
 std::array<int, 6> Cartesian_Mesh::get_moore_neighborhood(unsigned int n)
 {
@@ -696,55 +721,54 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 		}
 	}
 	
-	// make connections 
+	// no need to make connections, for cartesian mesh this is trivial and only consumes memory 
+	// connected_voxel_indices.resize( voxels.size() ); 
+	// voxel_faces.clear(); 
 	
-	connected_voxel_indices.resize( voxels.size() ); 
-	voxel_faces.clear(); 
+	// for( unsigned int i=0; i < connected_voxel_indices.size() ; i++ )
+	// { connected_voxel_indices[i].clear(); }
+	// int i_jump = 1; 
+	// int j_jump = x_coordinates.size(); 
+	// int k_jump = x_coordinates.size() * y_coordinates.size(); 
 	
-	for( unsigned int i=0; i < connected_voxel_indices.size() ; i++ )
-	{ connected_voxel_indices[i].clear(); }
-	int i_jump = 1; 
-	int j_jump = x_coordinates.size(); 
-	int k_jump = x_coordinates.size() * y_coordinates.size(); 
-	
-	// x-aligned connections 
-	int count = 0; 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-		{
-			for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
-				count++; 
-			}
-		}
-	}
-	// y-aligned connections 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
-			}
-		}
-	}	
-	// z-aligned connections 
-	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
-			}
-		}
-	}
+	// // x-aligned connections 
+	// int count = 0; 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// 	{
+	// 		for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
+	// 			count++; 
+	// 		}
+	// 	}
+	// }
+	// // y-aligned connections 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
+	// 		}
+	// 	}
+	// }	
+	// // z-aligned connections 
+	// for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
+	// 		}
+	// 	}
+	// }
 	
 	if( use_voxel_faces )
 	{ create_voxel_faces(); }
@@ -817,58 +841,57 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 		}
 	}
 	
-	// make connections 
+	// no need to make connections, for cartesian mesh this is trivial and only consumes memory 
+	// connected_voxel_indices.resize( voxels.size() ); 
+	// voxel_faces.clear(); 
 	
-	connected_voxel_indices.resize( voxels.size() ); 
-	voxel_faces.clear(); 
+	// for( unsigned int i=0; i < connected_voxel_indices.size() ; i++ )
+	// { connected_voxel_indices[i].clear(); }
 	
-	for( unsigned int i=0; i < connected_voxel_indices.size() ; i++ )
-	{ connected_voxel_indices[i].clear(); }
+	// int i_jump = 1; 
+	// int j_jump = x_coordinates.size(); 
+	// int k_jump = x_coordinates.size() * y_coordinates.size(); 
 	
-	int i_jump = 1; 
-	int j_jump = x_coordinates.size(); 
-	int k_jump = x_coordinates.size() * y_coordinates.size(); 
-	
-	// x-aligned connections 
-	int count = 0; 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-		{
-			for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
-				count++; 
-			}
-		}
-	}
+	// // x-aligned connections 
+	// int count = 0; 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// 	{
+	// 		for( unsigned int i=0 ; i < x_coordinates.size()-1 ; i++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+i_jump, dS_yz ); 
+	// 			count++; 
+	// 		}
+	// 	}
+	// }
 
-	// y-aligned connections 
-	for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
-			}
-		}
-	}	
+	// // y-aligned connections 
+	// for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int j=0 ; j < y_coordinates.size()-1 ; j++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+j_jump, dS_xz ); 
+	// 		}
+	// 	}
+	// }	
 
-	// z-aligned connections 
-	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
-			{
-				int n = voxel_index(i,j,k); 
-				connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
-			}
-		}
-	}
+	// // z-aligned connections 
+	// for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
+	// {
+	// 	for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
+	// 	{
+	// 		for( unsigned int k=0 ; k < z_coordinates.size()-1 ; k++ )
+	// 		{
+	// 			int n = voxel_index(i,j,k); 
+	// 			connect_voxels_indices_only(n,n+k_jump, dS_xy ); 
+	// 		}
+	// 	}
+	// }
 	
 	if( use_voxel_faces )
 	{ create_voxel_faces(); }
