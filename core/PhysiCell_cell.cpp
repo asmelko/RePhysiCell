@@ -3204,19 +3204,16 @@ std::vector<Cell*> find_nearby_cells( Cell* pCell )
 	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{ neighbors.push_back( *neighbor ); }
 
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+	auto neighborhood = 
+		pCell->get_container()->underlying_mesh.get_moore_neighborhood(pCell->get_current_mechanics_voxel_index());
 	
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
+	for(int neighbor_voxel_index : neighborhood)
 	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+		if (neighbor_voxel_index<0) continue;
+		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[neighbor_voxel_index].center, neighbor_voxel_index))
 			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
+		end = pCell->get_container()->agent_grid[neighbor_voxel_index].end();
+		for(neighbor = pCell->get_container()->agent_grid[neighbor_voxel_index].begin();neighbor != end; ++neighbor)
 		{ neighbors.push_back( *neighbor ); }
 	}
 	
@@ -3240,19 +3237,16 @@ std::vector<Cell*> find_nearby_interacting_cells( Cell* pCell )
 		{ neighbors.push_back( *neighbor ); }
 	}
 
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+	auto neighborhood = 
+		pCell->get_container()->underlying_mesh.get_moore_neighborhood(pCell->get_current_mechanics_voxel_index());
 	
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
+	for(int neighbor_voxel_index : neighborhood)
 	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+		if (neighbor_voxel_index<0) continue;
+		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[neighbor_voxel_index].center, neighbor_voxel_index))
 			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
+		end = pCell->get_container()->agent_grid[neighbor_voxel_index].end();
+		for(neighbor = pCell->get_container()->agent_grid[neighbor_voxel_index].begin();neighbor != end; ++neighbor)
 		{
 			std::vector<double> displacement = (*neighbor)->position - pCell->position; 
 			double distance = norm( displacement ); 

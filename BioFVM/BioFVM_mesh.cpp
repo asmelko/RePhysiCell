@@ -585,30 +585,23 @@ Cartesian_Mesh::Cartesian_Mesh( int xnodes, int ynodes, int znodes )
 	{ create_voxel_faces(); }
 }	 
 
-void Cartesian_Mesh::create_moore_neighborhood()
+std::array<int, 6> Cartesian_Mesh::get_moore_neighborhood(unsigned int n)
 {
-	moore_connected_voxel_indices.resize( voxels.size() );
-	for( unsigned int j=0 ; j < y_coordinates.size() ; j++ )
-	{
-		for( unsigned int i=0 ; i < x_coordinates.size() ; i++ )
-		{
-			for( unsigned int k=0 ; k < z_coordinates.size() ; k++ )
-			{
-				int center_inex = voxel_index(i,j,k); 
-				for(int ii=-1;ii<=1;ii++)
-					for(int jj=-1;jj<=1;jj++)
-						for(int kk=-1;kk<=1;kk++)
-							if(i+ii>=0 && i+ii<x_coordinates.size() &&
-								j+jj>=0 && j+jj<y_coordinates.size() &&
-								k+kk>=0 && k+kk<z_coordinates.size() &&
-								!(ii==0 && jj==0 && kk==0))
-								{
-									int neighbor_index= voxel_index(i+ii,j+jj,k+kk);
-									moore_connected_voxel_indices[center_inex].push_back( neighbor_index );
-								}
-			}
-		}
-	}
+	std::array<int, 6> ret;
+	auto i = n % x_coordinates.size();
+	auto j = (n / x_coordinates.size()) % y_coordinates.size();
+	auto k = n / (x_coordinates.size() * y_coordinates.size());
+	
+	ret[0] = i == 0 ? -1 : n - 1;
+	ret[1] = i == x_coordinates.size() - 1 ? -1 : n + 1;
+
+	ret[2] = j == 0 ? -1 : n - x_coordinates.size();
+	ret[3] = j == y_coordinates.size() - 1 ? -1 : n + x_coordinates.size();
+
+	ret[4] = k == 0 ? -1 : n - x_coordinates.size() * y_coordinates.size();
+	ret[5] = k == z_coordinates.size() - 1 ? -1 : n + x_coordinates.size() * y_coordinates.size();
+
+	return ret;
 }
 unsigned int Cartesian_Mesh::voxel_index( unsigned int i, unsigned int j, unsigned int k ) const
 {
@@ -756,7 +749,6 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 	if( use_voxel_faces )
 	{ create_voxel_faces(); }
 	
-	create_moore_neighborhood();
 	return; 
 }
 
@@ -881,7 +873,6 @@ void Cartesian_Mesh::resize( double x_start, double x_end, double y_start, doubl
 	if( use_voxel_faces )
 	{ create_voxel_faces(); }
 	
-	create_moore_neighborhood();
 	return; 
 }
 
