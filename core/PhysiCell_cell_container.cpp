@@ -207,11 +207,21 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		{
 			time_since_last_mechanics = mechanics_dt_;
 		}
-		
+
 		// new February 2018 
 		// if we need gradients, compute them
 		if( default_microenvironment_options.calculate_gradients ) 
-		{ microenvironment.compute_all_gradient_vectors();  }
+		{ 
+			auto start = std::chrono::high_resolution_clock::now();
+
+			microenvironment.compute_all_gradient_vectors();  
+
+			auto finish = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+			std::cout << "Gradient took " << duration << " milliseconds" << std::endl;
+		}
 		// end of new in Feb 2018 
 		
 		// perform interactions -- new in June 2020 
