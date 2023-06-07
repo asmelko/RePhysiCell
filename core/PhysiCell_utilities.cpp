@@ -153,7 +153,7 @@ double UniformRandom( void )
 	if( local_pnrg_setup_done == false )
 	{
 		// get my thread number 
-		int i = omp_get_thread_num(); 
+		int i = 0;// omp_get_thread_num(); 
     	physicell_PRNG_generator.seed( physicell_random_seeds[i] ); 
 		local_pnrg_setup_done = true; 
 /*
