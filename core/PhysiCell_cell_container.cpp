@@ -124,13 +124,24 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 {
 	// secretions and uptakes. Syncing with BioFVM is automated. 
 
-	#pragma omp parallel for 
-	for( int i=0; i < (*all_cells).size(); i++ )
 	{
-		if( (*all_cells)[i]->is_out_of_domain == false )
+		auto start = std::chrono::high_resolution_clock::now();
+
+		#pragma omp parallel for 
+		for( int i=0; i < (*all_cells).size(); i++ )
 		{
-			(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
+			if( (*all_cells)[i]->is_out_of_domain == false )
+			{
+				(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
+			}
 		}
+
+		auto finish = std::chrono::high_resolution_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+		std::cout << "Secretion took " << duration << " milliseconds" << std::endl;
+
 	}
 	
 	//if it is the time for running cell cycle, do it!
