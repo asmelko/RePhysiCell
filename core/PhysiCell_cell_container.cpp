@@ -256,13 +256,22 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		}
 		
 		// update velocities 
-		
-		#pragma omp parallel for 
-		for( int i=0; i < (*all_cells).size(); i++ )
 		{
-			Cell* pC = (*all_cells)[i]; 
-			if( pC->functions.update_velocity && pC->is_out_of_domain == false && pC->is_movable )
-			{ pC->functions.update_velocity( pC,pC->phenotype,time_since_last_mechanics ); }
+			auto start = std::chrono::high_resolution_clock::now();
+		
+			#pragma omp parallel for 
+			for( int i=0; i < (*all_cells).size(); i++ )
+			{
+				Cell* pC = (*all_cells)[i]; 
+				if( pC->functions.update_velocity && pC->is_out_of_domain == false && pC->is_movable )
+				{ pC->functions.update_velocity( pC,pC->phenotype,time_since_last_mechanics ); }
+			}
+
+			auto finish = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+			std::cout << "Velocities took " << duration << " milliseconds" << std::endl;
 		}
 
 		// new March 2023: 
