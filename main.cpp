@@ -230,7 +230,7 @@ int main( int argc, char* argv[] )
 			
 			auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
 			
-			std::cout << "Diffusion took " << duration1 << " milliseconds and Update cells took " << duration2 << "milliseconds" << std::endl;
+			std::cout << "Diffusion took " << duration1 << " milliseconds and Update cells took " << duration2 << " milliseconds" << std::endl;
 			
 			/*
 			  Custom add-ons could potentially go here. 
