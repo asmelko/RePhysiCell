@@ -303,44 +303,66 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 
 		// new March 2022: 
 		// run standard interactions (phagocytosis, attack, fusion) here 
-		#pragma omp parallel for 
-		for( int i=0; i < (*all_cells).size(); i++ )
+		
 		{
-			Cell* pC = (*all_cells)[i]; 
-			standard_cell_cell_interactions(pC,pC->phenotype,time_since_last_mechanics); 
+			auto start = std::chrono::high_resolution_clock::now();
+			#pragma omp parallel for 
+			for( int i=0; i < (*all_cells).size(); i++ )
+			{
+				Cell* pC = (*all_cells)[i]; 
+				standard_cell_cell_interactions(pC,pC->phenotype,time_since_last_mechanics); 
+			}
+
+			auto finish = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+			std::cout << "Cell cell interactions took " << duration << " milliseconds" << std::endl;
 		}
+		
 		// super-critical to performance! clear the "dummy" cells from phagocytosis / fusion
 		// otherwise, comptuational cost increases at polynomial rate VERY fast, as O(10,000) 
 		// dummy cells of size zero are left ot interact mechanically, etc. 
-		if( cells_ready_to_die.size() > 0 )
 		{
-			/*
-			std::cout << "\tClearing dummy cells from phagocytosis and fusion events ... " << std::endl; 
-			std::cout << "\t\tClearing " << cells_ready_to_die.size() << " cells ... " << std::endl; 
-			// there might be a lot of "dummy" cells ready for removal. Let's do it. 		
-			*/
-			for( int i=0; i < cells_ready_to_die.size(); i++ )
-			{ cells_ready_to_die[i]->die(); }
-			cells_ready_to_die.clear();
-		}
-		
+			auto start = std::chrono::high_resolution_clock::now();
 
-		// update positions 
-		
-		#pragma omp parallel for 
-		for( int i=0; i < (*all_cells).size(); i++ )
-		{
-			Cell* pC = (*all_cells)[i]; 
-			if( pC->is_out_of_domain == false && pC->is_movable)
-			{ pC->update_position(time_since_last_mechanics); }
+			if( cells_ready_to_die.size() > 0 )
+			{
+				/*
+				std::cout << "\tClearing dummy cells from phagocytosis and fusion events ... " << std::endl; 
+				std::cout << "\t\tClearing " << cells_ready_to_die.size() << " cells ... " << std::endl; 
+				// there might be a lot of "dummy" cells ready for removal. Let's do it. 		
+				*/
+				for( int i=0; i < cells_ready_to_die.size(); i++ )
+				{ cells_ready_to_die[i]->die(); }
+				cells_ready_to_die.clear();
+			}
+			
+
+			// update positions 
+			
+			#pragma omp parallel for 
+			for( int i=0; i < (*all_cells).size(); i++ )
+			{
+				Cell* pC = (*all_cells)[i]; 
+				if( pC->is_out_of_domain == false && pC->is_movable)
+				{ pC->update_position(time_since_last_mechanics); }
+			}
+			
+			// When somebody reviews this code, let's add proper braces for clarity!!! 
+			
+			// Update cell indices in the container
+			for( int i=0; i < (*all_cells).size(); i++ )
+				if(!(*all_cells)[i]->is_out_of_domain && (*all_cells)[i]->is_movable)
+					(*all_cells)[i]->update_voxel_in_container();
+
+			auto finish = std::chrono::high_resolution_clock::now();
+
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+
+			std::cout << "Container update took " << duration << " milliseconds" << std::endl;
+
 		}
-		
-		// When somebody reviews this code, let's add proper braces for clarity!!! 
-		
-		// Update cell indices in the container
-		for( int i=0; i < (*all_cells).size(); i++ )
-			if(!(*all_cells)[i]->is_out_of_domain && (*all_cells)[i]->is_movable)
-				(*all_cells)[i]->update_voxel_in_container();
 		last_mechanics_time=t;
 	}
 	

@@ -219,12 +219,18 @@ int main( int argc, char* argv[] )
 
 			auto finish = std::chrono::high_resolution_clock::now();
 
-			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
-
-			std::cout << "Diffusion took " << duration << " milliseconds" << std::endl;
+			auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+			
+			start = std::chrono::high_resolution_clock::now();
 			
 			// run PhysiCell 
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
+			
+			finish = std::chrono::high_resolution_clock::now();
+			
+			auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
+			
+			std::cout << "Diffusion took " << duration1 << " milliseconds and Update cells took " << duration2 << "milliseconds" << std::endl;
 			
 			/*
 			  Custom add-ons could potentially go here. 
