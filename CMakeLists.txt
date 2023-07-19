@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.18)
+
+project(PhysiCell VERSION 0.1)
+
+add_subdirectory(BioFVM)
+add_subdirectory(core)
+add_subdirectory(modules)
+
+add_subdirectory(sample_projects/biorobots)
+add_subdirectory(sample_projects/cancer_biorobots)
+add_subdirectory(sample_projects/cancer_immune)
+add_subdirectory(sample_projects/celltypes3)
+add_subdirectory(sample_projects/heterogeneity)
+add_subdirectory(sample_projects/interactions)
+add_subdirectory(sample_projects/mechano)
+add_subdirectory(sample_projects/pred_prey_farmer)
+add_subdirectory(sample_projects/rules_sample)
+add_subdirectory(sample_projects/template)
+add_subdirectory(sample_projects/virus_macrophage)
+add_subdirectory(sample_projects/worm)
