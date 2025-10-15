@@ -1,8 +1,10 @@
+# Here we are creating two libraries:
+# 1) PhysiCell-modules: includes all modules functionality
+# 2) PhysiCell-modules-no-addon: includes all modules functionality, excluding the multicellds class
+# The latter is necessary for projects that define ADDON_* macro for the specific intracellular support
+
 add_library(PhysiCell-modules OBJECT)
 add_library(PhysiCell-modules-no-addon OBJECT)
-
-set(PHYSICELL_MODULES_ADDON_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/PhysiCell_MultiCellDS.cpp)
 
 target_sources(
   PhysiCell-modules

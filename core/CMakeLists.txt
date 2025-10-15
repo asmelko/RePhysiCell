@@ -1,7 +1,10 @@
+# Here we are creating two libraries:
+# 1) PhysiCell-core: includes all core PhysiCell functionality
+# 2) PhysiCell-core-no-addon: includes all core PhysiCell functionality, excluding the cell class
+# The latter is necessary for projects that define ADDON_* macro for the specific intracellular support
+
 add_library(PhysiCell-core OBJECT)
 add_library(PhysiCell-core-no-addon OBJECT)
-
-set(PHYSICELL_CORE_ADDON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/PhysiCell_cell.cpp)
 
 target_sources(
   PhysiCell-core
