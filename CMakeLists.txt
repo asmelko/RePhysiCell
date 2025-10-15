@@ -4,6 +4,11 @@ project(
   LANGUAGES CXX
   VERSION 1.14.2)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+
 add_subdirectory(BioFVM)
 add_subdirectory(core)
 add_subdirectory(custom_modules)
