@@ -18,6 +18,7 @@ add_subdirectory(modules)
 add_subdirectory(examples)
 
 add_subdirectory(addons/dFBA)
+add_subdirectory(addons/libRoadrunner)
 add_subdirectory(addons/PhysiBoSS)
 add_subdirectory(addons/PhysiMeSS)
 
@@ -46,3 +47,5 @@ add_subdirectory(sample_projects_intracellular/boolean/tutorial)
 add_subdirectory(sample_projects_intracellular/fba/cancer_metabolism)
 # broken target - can not compile
 # add_subdirectory(sample_projects_intracellular/fba/ecoli_acetic_switch) 
+
+add_subdirectory(sample_projects_intracellular/ode/ode_energy)
