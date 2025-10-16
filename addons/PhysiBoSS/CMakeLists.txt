@@ -26,7 +26,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURE STREQUAL
                                                "arm64")
   set(MABOSS_ARCHIVE libMaBoSS-macos-arm64.tar.gz)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(MABOSS_ARCHIVE libMaBoSS-win64.zip)
+  set(MABOSS_ARCHIVE libMaBoSS-win64.tar.gz)
 else()
   message(FATAL_ERROR "Unsupported OS: ${CMAKE_SYSTEM_NAME}")
 endif()
