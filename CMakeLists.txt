@@ -45,7 +45,6 @@ add_subdirectory(sample_projects/worm)
 # PhysiBoSS addon and related sample projects
 if(PHYSICELL_BUILD_PHYSIBOSS)
   add_subdirectory(addons/PhysiBoSS)
-
   add_subdirectory(sample_projects_intracellular/boolean/cancer_invasion)
   add_subdirectory(sample_projects_intracellular/boolean/physiboss_cell_lines)
   add_subdirectory(sample_projects_intracellular/boolean/template_BM)
@@ -55,14 +54,12 @@ endif()
 # libRoadrunner addon and related sample projects
 if(PHYSICELL_BUILD_LIBROADDRUNNER)
   add_subdirectory(addons/libRoadrunner)
-
   add_subdirectory(sample_projects_intracellular/ode/ode_energy)
 endif()
 
 # dFBA addon and related sample projects
 if(PHYSICELL_BUILD_DFBA)
   add_subdirectory(addons/dFBA)
-
   add_subdirectory(sample_projects_intracellular/fba/cancer_metabolism)
   # broken target - can not compile
   # add_subdirectory(sample_projects_intracellular/fba/ecoli_acetic_switch)

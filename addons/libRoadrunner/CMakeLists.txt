@@ -10,12 +10,12 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(LIBROADRUNNER_ARCHIVE_URL
       https://sourceforge.net/projects/libroadrunner/files/libroadrunner-1.3.3/alpha-rhel-6.6/roadrunner-1.3.3-alpha.tar.gz/download
   )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURE STREQUAL
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
                                                "x86_64")
   set(LIBROADRUNNER_ARCHIVE_URL
       https://sourceforge.net/projects/libroadrunner/files/libroadrunner-1.4.18/roadrunner-osx-10.9-cp36m.tar.gz/download
   )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURE STREQUAL
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
                                                "arm64")
   set(LIBROADRUNNER_ARCHIVE_URL
       https://github.com/PhysiCell-Tools/intracellular_libs/raw/main/ode/roadrunner_macos_arm64.tar.gz

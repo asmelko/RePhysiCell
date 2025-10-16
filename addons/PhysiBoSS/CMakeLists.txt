@@ -19,10 +19,10 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(MABOSS_ARCHIVE libMaBoSS-linux64.tar.gz)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURE STREQUAL
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
                                                "x86_64")
   set(MABOSS_ARCHIVE libMaBoSS-osx64.tar.gz)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_OSX_ARCHITECTURE STREQUAL
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CMAKE_SYSTEM_PROCESSOR STREQUAL
                                                "arm64")
   set(MABOSS_ARCHIVE libMaBoSS-macos-arm64.tar.gz)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
