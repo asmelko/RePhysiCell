@@ -3,7 +3,7 @@ add_executable(${project})
 
 file(GLOB MODULES "custom_modules/*.cpp")
 
-target_sources(${project} PRIVATE main.cpp ${MODULES})
+target_sources(${project} PRIVATE main-cancer_immune_3D.cpp ${MODULES})
 
 target_link_libraries(${project} PRIVATE BioFVM PhysiCell-core
                                          PhysiCell-modules)
