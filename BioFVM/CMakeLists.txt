@@ -3,7 +3,7 @@ add_library(BioFVM OBJECT)
 file(GLOB SOURCES "*.cpp")
 target_sources(BioFVM PRIVATE ${SOURCES})
 
-find_package(OpenMP)
+find_package(OpenMP 4)
 if(OpenMP_CXX_FOUND)
   target_link_libraries(BioFVM PUBLIC OpenMP::OpenMP_CXX)
 else()
