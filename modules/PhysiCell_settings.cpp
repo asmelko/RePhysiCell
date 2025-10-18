@@ -362,8 +362,11 @@ bool create_directories(const std::string &path)
 
 bool create_directory(const std::string &path)
 {
-#if defined(_WIN32) || defined(_WIN64)
-		// Create the directory using C++17 filesystem library
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	bool success = mkdir(path.c_str()) == 0;
+	return success || errno == EEXIST;
+#elif defined(_WIN32) || defined(_WIN64)
+	// Create the directory using C++17 filesystem library
 	std::error_code ec; // To capture any error
 	if (std::filesystem::create_directories(path, ec)) {
 		return true; // Directory created successfully
@@ -373,11 +376,7 @@ bool create_directory(const std::string &path)
 	}
 	return true; // Directory already exists
 #else
-	#if defined(__MINGW32__) || defined(__MINGW64__)
-	bool success = mkdir(path.c_str()) == 0;
-	#else
 	bool success = mkdir(path.c_str(), 0755) == 0;
-	#endif
 	return success || errno == EEXIST;
 #endif
 }
