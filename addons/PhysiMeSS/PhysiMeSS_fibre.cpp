@@ -2,6 +2,9 @@
 #include "PhysiMeSS_cell.h"
 #include <algorithm>
 
+#include "../../bio_interface/Bio_microenvironment_interface.h"
+#include "../../BioFVM/BioFVM_microenvironment.h"
+
 bool isFibre(PhysiCell::Cell* pCell) 
 {
     const auto agentname = std::string(pCell->type_name);
@@ -100,13 +103,13 @@ void PhysiMeSS_Fibre::assign_fibre_orientation()
 
 void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
 {
-    double Xmin = BioFVM::get_default_microenvironment()->mesh.bounding_box[0]; 
-	double Ymin = BioFVM::get_default_microenvironment()->mesh.bounding_box[1]; 
-	double Zmin = BioFVM::get_default_microenvironment()->mesh.bounding_box[2]; 
+    double Xmin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double Ymin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	double Zmin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	double Xmax = BioFVM::get_default_microenvironment()->mesh.bounding_box[3]; 
-	double Ymax = BioFVM::get_default_microenvironment()->mesh.bounding_box[4]; 
-	double Zmax = BioFVM::get_default_microenvironment()->mesh.bounding_box[5]; 
+	double Xmax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	double Ymax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	double Zmax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	if( default_microenvironment_options.simulate_2D == true )
 	{

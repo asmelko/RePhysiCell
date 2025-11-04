@@ -94,7 +94,7 @@ void setup_signal_behavior_dictionaries( void )
 	{ return; }
 	setup_done = true; 
 
-	int m = microenvironment.number_of_densities(); 
+	int m = get_microenvironment_i()->number_of_densities(); 
 	int n = cell_definition_indices_by_name.size(); 
 
 	signal_to_int.clear(); 
@@ -105,7 +105,7 @@ void setup_signal_behavior_dictionaries( void )
 	// substrate densities 
 	for( int i=0; i < m ; i++ )
 	{
-		std::string name = microenvironment.density_names[i]; 
+		std::string name = get_microenvironment_i()->get_density_names()[i]; 
 		signal_to_int[ name ] = i;
 		int_to_signal[i] = name; 
 	}
@@ -114,12 +114,12 @@ void setup_signal_behavior_dictionaries( void )
     int map_index = m; 
     for( int i=0; i < m ; i++ )
 	{
-		std::string name = "intracellular " + microenvironment.density_names[i]; 
+		std::string name = "intracellular " + get_microenvironment_i()->get_density_names()[i]; 
 		signal_to_int[ name ] = m+i;
 		int_to_signal[m+i] = name; 
 
 		// synonym 
-		name = "internalized " + microenvironment.density_names[i]; 
+		name = "internalized " + get_microenvironment_i()->get_density_names()[i]; 
 		signal_to_int[ name ] = m+i; 
 	}
 
@@ -127,16 +127,16 @@ void setup_signal_behavior_dictionaries( void )
     map_index = 2*m; 
 	for( int i=0; i < m ; i++ )
 	{
-		std::string name = microenvironment.density_names[i] + " gradient"; 
+		std::string name = get_microenvironment_i()->get_density_names()[i] + " gradient"; 
 		signal_to_int[ name ] = map_index;
 		int_to_signal[map_index] = name; 
 
         // synonym
-        name = "grad(" + microenvironment.density_names[i] +")"; 
+        name = "grad(" + get_microenvironment_i()->get_density_names()[i] +")"; 
 		signal_to_int[ name ] = map_index;
 
         // synonym 
-        name = "gradient of " + microenvironment.density_names[i]; 
+        name = "gradient of " + get_microenvironment_i()->get_density_names()[i]; 
 		signal_to_int[ name ] = map_index;
 
         map_index++; 
@@ -307,7 +307,7 @@ void setup_signal_behavior_dictionaries( void )
 	for( int i=0; i < m ; i++ )
 	{
 		map_index = i; 
-		name = microenvironment.density_names[i]; 
+		name = get_microenvironment_i()->get_density_names()[i]; 
 		map_name = name + " " + "secretion";
 
 		// secretion rate 
@@ -383,11 +383,11 @@ void setup_signal_behavior_dictionaries( void )
 	for( int i=0; i < m ; i++ )
 	{
 		map_index++; 
-		std::string name = "chemotactic response to " + microenvironment.density_names[i]; 
+		std::string name = "chemotactic response to " + get_microenvironment_i()->get_density_names()[i]; 
 		behavior_to_int[ name ] = map_index;
 		int_to_behavior[map_index] = name; 
 		// synonym 
-		name = "chemotactic sensitivity to " + microenvironment.density_names[i]; 
+		name = "chemotactic sensitivity to " + get_microenvironment_i()->get_density_names()[i]; 
 		behavior_to_int[ name ] = map_index;
 	}
 	
@@ -769,7 +769,7 @@ std::vector<int> find_behavior_indices( std::vector<std::string> behavior_names 
 // create a full signal vector 
 std::vector<double> get_signals( Cell* pCell )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	// construct signals 
@@ -777,13 +777,13 @@ std::vector<double> get_signals( Cell* pCell )
 
 	// substrate densities 
     // copy efficiently; 
-	static int start_substrate_ind = find_signal_index( microenvironment.density_names[0] ); 
+	static int start_substrate_ind = find_signal_index( get_microenvironment_i()->get_density_names()[0] ); 
     std::copy( pCell->nearest_density_vector().begin() , 
 			   pCell->nearest_density_vector().end(), 
 			   signals.begin()+start_substrate_ind ); 
 
     // internalized substrates 
-	static int start_int_substrate_ind = find_signal_index( "intracellular " + microenvironment.density_names[0] ); 
+	static int start_int_substrate_ind = find_signal_index( "intracellular " + get_microenvironment_i()->get_density_names()[0] ); 
     std::copy( pCell->phenotype.molecular.internalized_total_substrates.begin() , 
 	           pCell->phenotype.molecular.internalized_total_substrates.end(), 
 			   signals.begin()+start_int_substrate_ind);  
@@ -791,7 +791,7 @@ std::vector<double> get_signals( Cell* pCell )
 	{ signals[i+start_int_substrate_ind] /= pCell->phenotype.volume.total; }
 
     // substrate gradients 
-	static int start_substrate_grad_ind = find_signal_index( microenvironment.density_names[0] + " gradient"); 
+	static int start_substrate_grad_ind = find_signal_index( get_microenvironment_i()->get_density_names()[0] + " gradient"); 
 	for( int i=0; i < m ; i++ )
 	{ signals[start_substrate_grad_ind+i] = norm( pCell->nearest_gradient(i) ); }    
 
@@ -922,7 +922,7 @@ std::vector<double> get_signals( Cell* pCell )
 // create a signal vector of only the cell contacts 
 std::vector<double> get_cell_contact_signals( Cell* pCell )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	std::vector<double> output( n+2+3 , 0.0 ); 
@@ -972,7 +972,7 @@ std::vector<double> get_cell_contact_signals( Cell* pCell )
 
 std::vector<double> get_selected_signals( Cell* pCell , std::vector<int> indices )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 	
 
 	// contact signals start here 
@@ -1006,7 +1006,7 @@ std::vector<double> get_selected_signals( Cell* pCell , std::vector<std::string>
 
 double get_single_signal( Cell* pCell, int index )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	double out = 0.0; 
@@ -1017,7 +1017,7 @@ double get_single_signal( Cell* pCell, int index )
 	}
 
 	// first m entries: extracellular concentration 
-	static int start_substrate_ind = find_signal_index( microenvironment.density_names[0] ); 
+	static int start_substrate_ind = find_signal_index( get_microenvironment_i()->get_density_names()[0] ); 
 	if( start_substrate_ind <= index && index < start_substrate_ind + m )
 	{
 		out = pCell->nearest_density_vector()[index-start_substrate_ind];
@@ -1026,7 +1026,7 @@ double get_single_signal( Cell* pCell, int index )
 	}
 
 	// second m entries: intracellular concentration 
-	static int start_int_substrate_ind = find_signal_index( "intracellular " + microenvironment.density_names[0] ); 
+	static int start_int_substrate_ind = find_signal_index( "intracellular " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( start_int_substrate_ind <= index && index < start_int_substrate_ind + m )
 	{
 		out = pCell->phenotype.molecular.internalized_total_substrates[index-start_int_substrate_ind]; 
@@ -1036,7 +1036,7 @@ double get_single_signal( Cell* pCell, int index )
 	}
 
 	// next m entries: gradients 
-	static int start_substrate_grad_ind = find_signal_index( microenvironment.density_names[0] + " gradient"); 
+	static int start_substrate_grad_ind = find_signal_index( get_microenvironment_i()->get_density_names()[0] + " gradient"); 
 	if( start_substrate_grad_ind <= index && index < start_substrate_grad_ind + m )
 	{
 		out =  norm( pCell->nearest_gradient(index-start_substrate_grad_ind) ); 
@@ -1279,31 +1279,31 @@ std::vector<double> create_empty_behavior_vector()
 
 void set_behaviors( Cell* pCell , std::vector<double> parameters )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	// substrate-related behaviors 
 	
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	std::copy(  parameters.begin()+first_secretion_index , 
 				parameters.begin()+first_secretion_index + m , 
 				pCell->phenotype.secretion.secretion_rates.begin() ); 
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	std::copy(  parameters.begin()+first_secretion_target_index , 
 				parameters.begin()+first_secretion_target_index + m , 
 				pCell->phenotype.secretion.saturation_densities.begin() ); 
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	std::copy(  parameters.begin()+first_uptake_index , 
 				parameters.begin()+first_uptake_index + m , 
 				pCell->phenotype.secretion.uptake_rates.begin() ); 
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	std::copy(  parameters.begin()+first_export_index , 
 				parameters.begin()+first_export_index + m , 
 				pCell->phenotype.secretion.net_export_rates.begin() ); 
@@ -1344,7 +1344,7 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 	pCell->phenotype.motility.persistence_time = parameters[migration_pt_index]; 
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	std::copy(  parameters.begin()+first_chemotaxis_index , 
 				parameters.begin()+first_chemotaxis_index + m , 
 				pCell->phenotype.motility.chemotactic_sensitivities.begin() ); 	
@@ -1475,7 +1475,7 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 
 void set_single_behavior( Cell* pCell, int index , double parameter )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	if( index < 0 )
@@ -1488,22 +1488,22 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	// substrate-related behaviors 
 	
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	if( index >= first_secretion_index && index < first_secretion_index + m )
 	{ pCell->phenotype.secretion.secretion_rates[index-first_secretion_index] = parameter; return; }
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	if( index >= first_secretion_target_index && index < first_secretion_target_index + m )
 	{ pCell->phenotype.secretion.saturation_densities[index-first_secretion_target_index] = parameter; return; }
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	if( index >= first_uptake_index && index < first_uptake_index + m )
 	{ pCell->phenotype.secretion.uptake_rates[index-first_uptake_index] = parameter; return; }
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	if( index >= first_export_index && index < first_export_index + m )
 	{ pCell->phenotype.secretion.net_export_rates[index-first_export_index] = parameter; return; }
 
@@ -1549,7 +1549,7 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	{ pCell->phenotype.motility.persistence_time = parameter; return; } 
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
 	{ pCell->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index] = parameter; return; } 
 
@@ -1696,7 +1696,7 @@ void set_single_behavior( Cell* pCell, std::string name , double parameter )
 
 std::vector<double> get_behaviors( Cell* pCell )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	std::vector<double> parameters( int_to_behavior.size() , 0.0 ); 
@@ -1704,25 +1704,25 @@ std::vector<double> get_behaviors( Cell* pCell )
 	// substrate-related behaviors 
 	
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	std::copy(  pCell->phenotype.secretion.secretion_rates.begin(), 
 				pCell->phenotype.secretion.secretion_rates.end(), 
 				parameters.begin()+first_secretion_index ); 
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	std::copy(  pCell->phenotype.secretion.saturation_densities.begin(), 
 				pCell->phenotype.secretion.saturation_densities.end(), 
 				parameters.begin()+first_secretion_target_index ); 
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	std::copy(  pCell->phenotype.secretion.uptake_rates.begin(), 
 				pCell->phenotype.secretion.uptake_rates.end(), 
 				parameters.begin()+first_uptake_index ); 
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	std::copy(  pCell->phenotype.secretion.net_export_rates.begin(), 
 				pCell->phenotype.secretion.net_export_rates.end(), 
 				parameters.begin()+first_export_index ); 
@@ -1763,7 +1763,7 @@ std::vector<double> get_behaviors( Cell* pCell )
 	parameters[migration_pt_index] = pCell->phenotype.motility.persistence_time; 
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	std::copy(  pCell->phenotype.motility.chemotactic_sensitivities.begin() ,
 				pCell->phenotype.motility.chemotactic_sensitivities.end() ,
 			 	parameters.begin()+first_chemotaxis_index ); 
@@ -1896,7 +1896,7 @@ std::vector<double> get_behaviors( Cell* pCell )
 
 double get_single_behavior( Cell* pCell , int index )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	if( index < 0 )
@@ -1909,22 +1909,22 @@ double get_single_behavior( Cell* pCell , int index )
 	// substrate-related behaviors 
 
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	if( index >= first_secretion_index && index < first_secretion_index + m )
 	{ return pCell->phenotype.secretion.secretion_rates[index-first_secretion_index]; }
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	if( index >= first_secretion_target_index && index < first_secretion_target_index + m )
 	{ return pCell->phenotype.secretion.saturation_densities[index-first_secretion_target_index]; }
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	if( index >= first_uptake_index && index < first_uptake_index + m )
 	{ return pCell->phenotype.secretion.uptake_rates[index-first_uptake_index]; }
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	if( index >= first_export_index && index < first_export_index + m )
 	{ return pCell->phenotype.secretion.net_export_rates[index-first_export_index]; }
 
@@ -1975,7 +1975,7 @@ double get_single_behavior( Cell* pCell , int index )
 	{ return pCell->phenotype.motility.persistence_time; }
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
 	{ return pCell->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
 
@@ -2152,7 +2152,7 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 {
 	Cell_Definition* pCD = find_cell_definition( pCell->type_name ); 
 
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	std::vector<double> parameters( int_to_behavior.size() , 0.0 ); 
@@ -2160,25 +2160,25 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 	// substrate-related behaviors 
 	
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	std::copy(  pCD->phenotype.secretion.secretion_rates.begin(), 
 				pCD->phenotype.secretion.secretion_rates.end(), 
 				parameters.begin()+first_secretion_index ); 
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	std::copy(  pCD->phenotype.secretion.saturation_densities.begin(), 
 				pCD->phenotype.secretion.saturation_densities.end(), 
 				parameters.begin()+first_secretion_target_index ); 
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	std::copy(  pCD->phenotype.secretion.uptake_rates.begin(), 
 				pCD->phenotype.secretion.uptake_rates.end(), 
 				parameters.begin()+first_uptake_index ); 
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	std::copy(  pCD->phenotype.secretion.net_export_rates.begin(), 
 				pCD->phenotype.secretion.net_export_rates.end(), 
 				parameters.begin()+first_export_index ); 
@@ -2219,7 +2219,7 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 	parameters[migration_pt_index] = pCD->phenotype.motility.persistence_time; 
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	std::copy(  pCD->phenotype.motility.chemotactic_sensitivities.begin() ,
 				pCD->phenotype.motility.chemotactic_sensitivities.end() ,
 			 	parameters.begin()+first_chemotaxis_index ); 
@@ -2353,7 +2353,7 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 
 double get_single_base_behavior( Cell* pCell , int index )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	Cell_Definition* pCD = find_cell_definition( pCell->type_name ); 	
@@ -2368,22 +2368,22 @@ double get_single_base_behavior( Cell* pCell , int index )
 	// substrate-related behaviors 
 
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	if( index >= first_secretion_index && index < first_secretion_index + m )
 	{ return pCD->phenotype.secretion.secretion_rates[index-first_secretion_index]; }
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	if( index >= first_secretion_target_index && index < first_secretion_target_index + m )
 	{ return pCD->phenotype.secretion.saturation_densities[index-first_secretion_target_index]; }
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	if( index >= first_uptake_index && index < first_uptake_index + m )
 	{ return pCD->phenotype.secretion.uptake_rates[index-first_uptake_index]; }
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	if( index >= first_export_index && index < first_export_index + m )
 	{ return pCD->phenotype.secretion.net_export_rates[index-first_export_index]; }
 
@@ -2434,7 +2434,7 @@ double get_single_base_behavior( Cell* pCell , int index )
 	{ return pCD->phenotype.motility.persistence_time; }
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
 	{ return pCD->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
 
@@ -2575,7 +2575,7 @@ double get_single_base_behavior( Cell* pCell , int index )
 
 double get_single_base_behavior( Cell_Definition* pCD , int index )
 {
-	static int m = microenvironment.number_of_densities(); 
+	static int m = get_microenvironment_i()->number_of_densities(); 
 	static int n = cell_definition_indices_by_name.size(); 
 
 	// Cell_Definition* pCD = find_cell_definition( pCell->type_name ); 	
@@ -2590,22 +2590,22 @@ double get_single_base_behavior( Cell_Definition* pCD , int index )
 	// substrate-related behaviors 
 
 	// first m entries are secretion 
-	static int first_secretion_index = find_behavior_index( microenvironment.density_names[0] + " secretion" ); // 0; 
+	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	if( index >= first_secretion_index && index < first_secretion_index + m )
 	{ return pCD->phenotype.secretion.secretion_rates[index-first_secretion_index]; }
 
 	// next m entries are secretion targets
-	static int first_secretion_target_index = find_behavior_index( microenvironment.density_names[0] + " secretion target" ); // m; 
+	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	if( index >= first_secretion_target_index && index < first_secretion_target_index + m )
 	{ return pCD->phenotype.secretion.saturation_densities[index-first_secretion_target_index]; }
 
 	// next m entries are uptake rates
-	static int first_uptake_index = find_behavior_index( microenvironment.density_names[0] + " uptake" );  // 2*m; 
+	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	if( index >= first_uptake_index && index < first_uptake_index + m )
 	{ return pCD->phenotype.secretion.uptake_rates[index-first_uptake_index]; }
 
 	// next m entries are net export rates 
-	static int first_export_index = find_behavior_index( microenvironment.density_names[0] + " export" ); //  3*m; 
+	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	if( index >= first_export_index && index < first_export_index + m )
 	{ return pCD->phenotype.secretion.net_export_rates[index-first_export_index]; }
 
@@ -2656,7 +2656,7 @@ double get_single_base_behavior( Cell_Definition* pCD , int index )
 	{ return pCD->phenotype.motility.persistence_time; }
 
 	// chemotactic sensitivities 
-	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + microenvironment.density_names[0] ); 
+	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
 	{ return pCD->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
 

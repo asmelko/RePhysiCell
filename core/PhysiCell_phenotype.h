@@ -73,9 +73,8 @@
 #include <unordered_map>
 #include <map> 
 
-#include "../BioFVM/BioFVM.h" 
-
 #include "../modules/PhysiCell_settings.h"
+#include "../bio_interface/Bio_microenvironment_interface.h"
 
 using namespace BioFVM; 
 
@@ -447,7 +446,7 @@ class Motility
 	double& chemotactic_sensitivity( std::string name ); 
 	
 	void sync_to_current_microenvironment( void ); 
-	void sync_to_microenvironment( Microenvironment* pNew_Microenvironment ); 
+	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); 
 	
 		
 	Motility(); // done 
@@ -457,7 +456,7 @@ class Secretion
 {
  private:
  public:
-	Microenvironment* pMicroenvironment; 
+	Microenvironment_Interface* pMicroenvironment; 
 	
 	std::vector<double> secretion_rates; 
 	std::vector<double> uptake_rates; 
@@ -475,7 +474,7 @@ class Secretion
 	void advance( Basic_Agent* pCell, Phenotype& phenotype , double dt ); 
 	
 	// use this to properly size the secretion parameters to the microenvironment 
-	void sync_to_microenvironment( Microenvironment* pNew_Microenvironment ); // done 
+	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); // done 
 	
 	void set_all_secretion_to_zero( void ); // NEW
 	void set_all_uptake_to_zero( void ); // NEW
@@ -554,7 +553,7 @@ class Molecular
 {
 	private:
 	public: 
-		Microenvironment* pMicroenvironment; 
+		Microenvironment_Interface* pMicroenvironment; 
 	
 		// model much of this from Secretion 
 		Molecular(); 
@@ -604,7 +603,7 @@ class Molecular
 		
 		// use this to properly size the secretion parameters to the microenvironment in 
 		// pMicroenvironment
-		void sync_to_microenvironment( Microenvironment* pNew_Microenvironment ); // done 
+		void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); // done 
 		
 		// use this 
 		void sync_to_cell( Basic_Agent* pCell ); 
@@ -801,7 +800,7 @@ class Phenotype
 
 	void sync_to_functions( Cell_Functions& functions ); // done 
 	
-	void sync_to_microenvironment( Microenvironment* pMicroenvironment ); 
+	void sync_to_microenvironment( Microenvironment_Interface* pMicroenvironment ); 
 	
 	// make sure cycle, death, etc. are synced to the defaults. 
 	void sync_to_default_functions( void ); // done 

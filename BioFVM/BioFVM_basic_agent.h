@@ -50,11 +50,12 @@
 #define __BioFVM_basic_agent_h__
 
 #include <vector>
-#include "BioFVM_microenvironment.h"
 #include "BioFVM_matlab.h"
 #include "BioFVM_vector.h"
 
 namespace BioFVM{
+
+class Microenvironment;
 
 void reset_max_basic_agent_ID( void );
 
@@ -126,7 +127,7 @@ class Basic_Agent
 	// directly access the gradient of substrate n nearest to the cell 
 	std::vector<double>& nearest_gradient( int substrate_index );
 	// directly access a vector of gradients, one gradient per substrate 
-	std::vector<gradient>& nearest_gradient_vector( void ); 
+	std::vector<std::vector<double>>& nearest_gradient_vector( void ); 
 	
 	const std::vector<double>& get_previous_velocity( void );
 };

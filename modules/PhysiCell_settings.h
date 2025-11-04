@@ -78,12 +78,9 @@
 #include <unordered_map>
 
 #include "./PhysiCell_pugixml.h"
-#include "../BioFVM/BioFVM.h"
 
 #include "../core/PhysiCell_constants.h" 
 #include "../core/PhysiCell_utilities.h"
-
-using namespace BioFVM; 
 
 namespace PhysiCell{
  	

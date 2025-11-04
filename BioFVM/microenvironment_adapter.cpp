@@ -1,0 +1,529 @@
+/*
+###############################################################################
+# If you use PhysiCell in your project, please cite PhysiCell and the version #
+# number, such as below:                                                      #
+#                                                                             #
+# We implemented and solved the model using PhysiCell (Version x.y.z) [1].    #
+#                                                                             #
+# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
+#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
+#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
+#     DOI: 10.1371/journal.pcbi.1005991                                       #
+#                                                                             #
+# See VERSION.txt or call get_PhysiCell_version() to get the current version  #
+#     x.y.z. Call display_citations() to get detailed information on all cite-#
+#     able software used in your PhysiCell application.                       #
+#                                                                             #
+# Because PhysiCell extensively uses BioFVM, we suggest you also cite BioFVM  #
+#     as below:                                                               #
+#                                                                             #
+# We implemented and solved the model using PhysiCell (Version x.y.z) [1],    #
+# with BioFVM [2] to solve the transport equations.                           #
+#                                                                             #
+# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
+#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
+#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
+#     DOI: 10.1371/journal.pcbi.1005991                                       #
+#                                                                             #
+# [2] A Ghaffarizadeh, SH Friedman, and P Macklin, BioFVM: an efficient para- #
+#     llelized diffusive transport solver for 3-D biological simulations,     #
+#     Bioinformatics 32(8): 1256-8, 2016. DOI: 10.1093/bioinformatics/btv730  #
+#                                                                             #
+###############################################################################
+#                                                                             #
+# BSD 3-Clause License (see https://opensource.org/licenses/BSD-3-Clause)     #
+#                                                                             #
+# Copyright (c) 2015-2025, Paul Macklin and the PhysiCell Project             #
+# All rights reserved.                                                        #
+#                                                                             #
+# Redistribution and use in source and binary forms, with or without          #
+# modification, are permitted provided that the following conditions are met: #
+#                                                                             #
+# 1. Redistributions of source code must retain the above copyright notice,   #
+# this list of conditions and the following disclaimer.                       #
+#                                                                             #
+# 2. Redistributions in binary form must reproduce the above copyright        #
+# notice, this list of conditions and the following disclaimer in the         #
+# documentation and/or other materials provided with the distribution.        #
+#                                                                             #
+# 3. Neither the name of the copyright holder nor the names of its            #
+# contributors may be used to endorse or promote products derived from this   #
+# software without specific prior written permission.                         #
+#                                                                             #
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" #
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE   #
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE  #
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE   #
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR         #
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF        #
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS    #
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN     #
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)     #
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE  #
+# POSSIBILITY OF SUCH DAMAGE.                                                 #
+#                                                                             #
+###############################################################################
+*/
+
+#include "microenvironment_adapter.h"
+#include "BioFVM.h"
+
+namespace PhysiCell{
+
+// Global pointer to the default microenvironment interface
+static Microenvironment_Interface* default_microenvironment_interface = nullptr;
+
+void set_default_microenvironment_interface(Microenvironment_Interface* env)
+{
+	default_microenvironment_interface = env;
+}
+
+Microenvironment_Interface* get_microenvironment_i()
+{
+	return default_microenvironment_interface;
+}
+
+} // namespace PhysiCell
+
+// ============================================================================
+// BioFVM_Microenvironment_Adapter implementation
+// ============================================================================
+
+namespace BioFVM{
+
+Microenvironment_Adapter::Microenvironment_Adapter(BioFVM::Microenvironment* env, bool take_ownership)
+	: biofvm_microenvironment(env), owns_microenvironment(take_ownership)
+{
+	if (biofvm_microenvironment == nullptr)
+	{
+		throw std::invalid_argument("BioFVM_Microenvironment_Adapter: Cannot wrap a null microenvironment");
+	}
+}
+
+Microenvironment_Adapter::Microenvironment_Adapter()
+	: biofvm_microenvironment(new BioFVM::Microenvironment()), owns_microenvironment(true)
+{
+}
+
+Microenvironment_Adapter::~Microenvironment_Adapter()
+{
+	if (owns_microenvironment && biofvm_microenvironment != nullptr)
+	{
+		delete biofvm_microenvironment;
+	}
+}
+
+// Units access
+std::string& Microenvironment_Adapter::get_time_units()
+{
+	return biofvm_microenvironment->time_units;
+}
+
+const std::string& Microenvironment_Adapter::get_time_units() const
+{
+	return biofvm_microenvironment->time_units;
+}
+
+std::string& Microenvironment_Adapter::get_spatial_units()
+{
+	return biofvm_microenvironment->spatial_units;
+}
+
+const std::string& Microenvironment_Adapter::get_spatial_units() const
+{
+	return biofvm_microenvironment->spatial_units;
+}
+
+// Query methods
+unsigned int Microenvironment_Adapter::number_of_densities() const
+{
+	return biofvm_microenvironment->number_of_densities();
+}
+
+unsigned int Microenvironment_Adapter::number_of_voxels() const
+{
+	return biofvm_microenvironment->number_of_voxels();
+}
+
+unsigned int Microenvironment_Adapter::number_of_voxel_faces() const
+{
+	return biofvm_microenvironment->number_of_voxel_faces();
+}
+
+// Substrate/Density management
+int Microenvironment_Adapter::find_density_index(const std::string& name) const
+{
+	return biofvm_microenvironment->find_density_index(name);
+}
+
+void Microenvironment_Adapter::add_density()
+{
+	biofvm_microenvironment->add_density();
+}
+
+void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units)
+{
+	biofvm_microenvironment->add_density(name, units);
+}
+
+void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units,
+                                                  double diffusion_constant, double decay_rate)
+{
+	biofvm_microenvironment->add_density(name, units, diffusion_constant, decay_rate);
+}
+
+void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units)
+{
+	biofvm_microenvironment->set_density(index, name, units);
+}
+
+void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units,
+                                                  double diffusion_constant, double decay_rate)
+{
+	biofvm_microenvironment->set_density(index, name, units, diffusion_constant, decay_rate);
+}
+
+void Microenvironment_Adapter::resize_densities(int new_size)
+{
+	biofvm_microenvironment->resize_densities(new_size);
+}
+
+// Voxel/Position access
+int Microenvironment_Adapter::voxel_index(int i, int j, int k) const
+{
+	return biofvm_microenvironment->voxel_index(i, j, k);
+}
+
+std::vector<unsigned int> Microenvironment_Adapter::cartesian_indices(int n) const
+{
+	return biofvm_microenvironment->cartesian_indices(n);
+}
+
+int Microenvironment_Adapter::nearest_voxel_index(const std::vector<double>& position) const
+{
+	// Need to cast away const for BioFVM's API
+	return biofvm_microenvironment->nearest_voxel_index(const_cast<std::vector<double>&>(position));
+}
+
+std::vector<unsigned int> Microenvironment_Adapter::nearest_cartesian_indices(const std::vector<double>& position) const
+{
+	// Need to cast away const for BioFVM's API
+	return biofvm_microenvironment->nearest_cartesian_indices(const_cast<std::vector<double>&>(position));
+}
+
+BioFVM::Voxel& Microenvironment_Adapter::voxels(int voxel_index)
+{
+	return biofvm_microenvironment->voxels(voxel_index);
+}
+
+const BioFVM::Voxel& Microenvironment_Adapter::voxels(int voxel_index) const
+{
+	return biofvm_microenvironment->voxels(voxel_index);
+}
+
+BioFVM::Voxel& Microenvironment_Adapter::nearest_voxel(const std::vector<double>& position)
+{
+	// Need to cast away const for BioFVM's API
+	return biofvm_microenvironment->nearest_voxel(const_cast<std::vector<double>&>(position));
+}
+
+// Density vector access
+std::vector<double>& Microenvironment_Adapter::density_vector(int n)
+{
+	return (*biofvm_microenvironment)(n);
+}
+
+std::vector<double>& Microenvironment_Adapter::density_vector(int i, int j)
+{
+	return (*biofvm_microenvironment)(i, j);
+}
+
+std::vector<double>& Microenvironment_Adapter::density_vector(int i, int j, int k)
+{
+	return (*biofvm_microenvironment)(i, j, k);
+}
+
+std::vector<double>& Microenvironment_Adapter::nearest_density_vector(const std::vector<double>& position)
+{
+	// Need to cast away const for BioFVM's API
+	return biofvm_microenvironment->nearest_density_vector(const_cast<std::vector<double>&>(position));
+}
+
+std::vector<double>& Microenvironment_Adapter::nearest_density_vector(int voxel_index)
+{
+	return biofvm_microenvironment->nearest_density_vector(voxel_index);
+}
+
+const std::vector<double>& Microenvironment_Adapter::density_vector(int n) const
+{
+	return (*biofvm_microenvironment)(n);
+}
+
+// Gradient computation and access
+void Microenvironment_Adapter::compute_gradient_vector(int n)
+{
+	biofvm_microenvironment->compute_gradient_vector(n);
+}
+
+void Microenvironment_Adapter::compute_all_gradient_vectors()
+{
+	biofvm_microenvironment->compute_all_gradient_vectors();
+}
+
+void Microenvironment_Adapter::reset_all_gradient_vectors()
+{
+	biofvm_microenvironment->reset_all_gradient_vectors();
+}
+
+std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int n)
+{
+	return biofvm_microenvironment->gradient_vector(n);
+}
+
+std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int i, int j)
+{
+	return biofvm_microenvironment->gradient_vector(i, j);
+}
+
+std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int i, int j, int k)
+{
+	return biofvm_microenvironment->gradient_vector(i, j, k);
+}
+
+std::vector<BioFVM::gradient>& Microenvironment_Adapter::nearest_gradient_vector(const std::vector<double>& position)
+{
+	// Need to cast away const for BioFVM's API
+	return biofvm_microenvironment->nearest_gradient_vector(const_cast<std::vector<double>&>(position));
+}
+
+// Simulation methods
+void Microenvironment_Adapter::simulate_diffusion_decay(double dt)
+{
+	biofvm_microenvironment->simulate_diffusion_decay(dt);
+}
+
+void Microenvironment_Adapter::simulate_bulk_sources_and_sinks(double dt)
+{
+	biofvm_microenvironment->simulate_bulk_sources_and_sinks(dt);
+}
+
+void Microenvironment_Adapter::simulate_cell_sources_and_sinks(std::vector<BioFVM::Basic_Agent*>& basic_agent_list, double dt)
+{
+	biofvm_microenvironment->simulate_cell_sources_and_sinks(basic_agent_list, dt);
+}
+
+void Microenvironment_Adapter::simulate_cell_sources_and_sinks(double dt)
+{
+	biofvm_microenvironment->simulate_cell_sources_and_sinks(dt);
+}
+
+// Dirichlet boundary conditions
+void Microenvironment_Adapter::add_dirichlet_node(int voxel_index, std::vector<double>& value)
+{
+	biofvm_microenvironment->add_dirichlet_node(voxel_index, value);
+}
+
+void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, std::vector<double>& new_value)
+{
+	biofvm_microenvironment->update_dirichlet_node(voxel_index, new_value);
+}
+
+void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, int substrate_index, double new_value)
+{
+	biofvm_microenvironment->update_dirichlet_node(voxel_index, substrate_index, new_value);
+}
+
+void Microenvironment_Adapter::remove_dirichlet_node(int voxel_index)
+{
+	biofvm_microenvironment->remove_dirichlet_node(voxel_index);
+}
+
+void Microenvironment_Adapter::apply_dirichlet_conditions()
+{
+	biofvm_microenvironment->apply_dirichlet_conditions();
+}
+
+void Microenvironment_Adapter::set_substrate_dirichlet_activation(int substrate_index, bool new_value)
+{
+	biofvm_microenvironment->set_substrate_dirichlet_activation(substrate_index, new_value);
+}
+
+void Microenvironment_Adapter::set_substrate_dirichlet_activation(int substrate_index, int index, bool new_value)
+{
+	biofvm_microenvironment->set_substrate_dirichlet_activation(substrate_index, index, new_value);
+}
+
+void Microenvironment_Adapter::set_substrate_dirichlet_activation(int index, std::vector<bool>& new_value)
+{
+	biofvm_microenvironment->set_substrate_dirichlet_activation(index, new_value);
+}
+
+bool Microenvironment_Adapter::get_substrate_dirichlet_activation(int substrate_index) const
+{
+	return biofvm_microenvironment->get_substrate_dirichlet_activation(substrate_index);
+}
+
+bool Microenvironment_Adapter::get_substrate_dirichlet_activation(int substrate_index, int index) const
+{
+	return biofvm_microenvironment->get_substrate_dirichlet_activation(substrate_index, index);
+}
+
+double Microenvironment_Adapter::get_substrate_dirichlet_value(int substrate_index, int index) const
+{
+	return biofvm_microenvironment->get_substrate_dirichlet_value(substrate_index, index);
+}
+
+bool& Microenvironment_Adapter::is_dirichlet_node(int voxel_index)
+{
+	return biofvm_microenvironment->is_dirichlet_node(voxel_index);
+}
+
+// Mesh access
+BioFVM::Cartesian_Mesh& Microenvironment_Adapter::get_mesh()
+{
+	return biofvm_microenvironment->mesh;
+}
+
+const BioFVM::Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
+{
+	return biofvm_microenvironment->mesh;
+}
+
+// Agent container access
+BioFVM::Agent_Container* Microenvironment_Adapter::get_agent_container()
+{
+	return biofvm_microenvironment->agent_container;
+}
+
+const BioFVM::Agent_Container* Microenvironment_Adapter::get_agent_container() const
+{
+	return biofvm_microenvironment->agent_container;
+}
+
+void Microenvironment_Adapter::set_agent_container(BioFVM::Agent_Container* container)
+{
+	biofvm_microenvironment->agent_container = container;
+}
+
+// Metadata access
+std::vector<std::string>& Microenvironment_Adapter::get_density_names()
+{
+	return biofvm_microenvironment->density_names;
+}
+
+const std::vector<std::string>& Microenvironment_Adapter::get_density_names() const
+{
+	return biofvm_microenvironment->density_names;
+}
+
+std::vector<std::string>& Microenvironment_Adapter::get_density_units()
+{
+	return biofvm_microenvironment->density_units;
+}
+
+const std::vector<std::string>& Microenvironment_Adapter::get_density_units() const
+{
+	return biofvm_microenvironment->density_units;
+}
+
+std::vector<double>& Microenvironment_Adapter::get_diffusion_coefficients()
+{
+	return biofvm_microenvironment->diffusion_coefficients;
+}
+
+const std::vector<double>& Microenvironment_Adapter::get_diffusion_coefficients() const
+{
+	return biofvm_microenvironment->diffusion_coefficients;
+}
+
+std::vector<double>& Microenvironment_Adapter::get_decay_rates()
+{
+	return biofvm_microenvironment->decay_rates;
+}
+
+const std::vector<double>& Microenvironment_Adapter::get_decay_rates() const
+{
+	return biofvm_microenvironment->decay_rates;
+}
+
+// Display and I/O
+void Microenvironment_Adapter::display_information(std::ostream& os) const
+{
+	biofvm_microenvironment->display_information(os);
+}
+
+// Spatial setup methods
+void Microenvironment_Adapter::resize_space(int x_nodes, int y_nodes, int z_nodes)
+{
+	biofvm_microenvironment->resize_space(x_nodes, y_nodes, z_nodes);
+}
+
+void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
+                                                   double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes)
+{
+	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, x_nodes, y_nodes, z_nodes);
+}
+
+void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
+                                                   double z_start, double z_end, double dx_new, double dy_new, double dz_new)
+{
+	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, dx_new, dy_new, dz_new);
+}
+
+void Microenvironment_Adapter::resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
+                                                           double z_start, double z_end, double dx_new)
+{
+	biofvm_microenvironment->resize_space_uniform(x_start, x_end, y_start, y_end, z_start, z_end, dx_new);
+}
+
+// Update methods
+void Microenvironment_Adapter::update_rates()
+{
+	biofvm_microenvironment->update_rates();
+}
+
+
+// Static adapter instance that wraps the global BioFVM microenvironment
+static BioFVM::Microenvironment_Adapter* global_adapter = nullptr;
+
+void initialize_microenvironment_interface()
+{
+	// Get the global BioFVM microenvironment
+	BioFVM::Microenvironment* biofvm_env = &BioFVM::microenvironment;
+
+	// Create an adapter wrapping it (don't take ownership since it's global)
+	if (global_adapter == nullptr)
+	{
+		global_adapter = new BioFVM::Microenvironment_Adapter(biofvm_env, false);
+		set_default_microenvironment_interface(global_adapter);
+	}
+}
+
+void initialize_microenvironment_interface_from_biofvm(BioFVM::Microenvironment* biofvm_env, bool take_ownership)
+{
+	if (biofvm_env == nullptr)
+	{
+		throw std::invalid_argument("Cannot initialize microenvironment interface from null BioFVM microenvironment");
+	}
+
+	// Clean up any existing adapter
+	if (global_adapter != nullptr)
+	{
+		delete global_adapter;
+	}
+
+	// Create new adapter
+	global_adapter = new BioFVM::Microenvironment_Adapter(biofvm_env, take_ownership);
+	set_default_microenvironment_interface(global_adapter);
+}
+
+BioFVM::Microenvironment* get_biofvm_microenvironment()
+{
+	if (global_adapter == nullptr)
+	{
+		return nullptr;
+	}
+	return global_adapter->get_biofvm_microenvironment();
+}
+
+} // namespace BioFVM

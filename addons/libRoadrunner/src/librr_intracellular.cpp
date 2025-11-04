@@ -3,6 +3,8 @@
 #include <sstream>
 #include <iostream>
 
+#include "../../../bio_interface/Bio_microenvironment_interface.h"
+
 RoadRunnerIntracellular::RoadRunnerIntracellular() : Intracellular()
 {
 	intracellular_type = "sbml";
@@ -380,7 +382,7 @@ int RoadRunnerIntracellular::update_phenotype_parameters(PhysiCell::Phenotype& p
                 token = s.substr(0, pos);
                 s.erase(0, pos + delimiter.length());
             }
-            int sub_index = microenvironment.find_density_index(s);
+            int sub_index = PhysiCell::get_microenvironment_i()->find_density_index(s);
 
             //transport types
             //uptake rate
@@ -533,7 +535,7 @@ int RoadRunnerIntracellular::validate_PhysiCell_tokens(PhysiCell::Phenotype& phe
                 token = s.substr(0, pos);
                 s.erase(0, pos + delimiter.length());
             }
-            int sub_index = microenvironment.find_density_index(s);
+            int sub_index = PhysiCell::get_microenvironment_i()->find_density_index(s);
             //std::cout << "SUBSTRATE_INDEX = : " << sub_index << std::endl;
             if ( sub_index < 0 )
             {

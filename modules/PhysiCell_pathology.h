@@ -74,7 +74,6 @@
 #include "../core/PhysiCell.h"
 
 #include "./PhysiCell_SVG.h"
-#include "../BioFVM/BioFVM_utilities.h"
 
 namespace PhysiCell{
 	
@@ -122,9 +121,9 @@ std::vector<std::string> paint_by_number_cell_coloring( Cell* pCell ); // done
 
 std::string formatted_minutes_to_DDHHMM( double minutes ); 
 
-void SVG_plot( std::string filename , Microenvironment& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*), std::string (*substrate_coloring_function)(double, double, double) = paint_by_density_percentage, void (*cell_counts_function) (char*) = NULL); // done
+void SVG_plot( std::string filename ,  double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*), std::string (*substrate_coloring_function)(double, double, double) = paint_by_density_percentage, void (*cell_counts_function) (char*) = NULL); // done
 
-void SVG_plot_with_stroma( std::string filename , Microenvironment& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*) , 
+void SVG_plot_with_stroma( std::string filename , Microenvironment_Interface& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*) , 
 	int ECM_index, std::vector<std::string> (*ECM_coloring_function)(double) ); // planned
 	
 void create_plot_legend( std::string filename , std::vector<std::string> (*cell_coloring_function)(Cell*) ); 

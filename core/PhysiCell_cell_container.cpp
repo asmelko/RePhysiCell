@@ -65,10 +65,11 @@
 ###############################################################################
 */
 
-#include "../BioFVM/BioFVM_agent_container.h"
 #include "PhysiCell_constants.h"
-#include "../BioFVM/BioFVM_vector.h"
 #include "PhysiCell_cell.h"
+
+#include "../BioFVM/BioFVM_microenvironment.h"
+#include "../bio_interface/Bio_microenvironment_interface.h"
 
 #include <algorithm>
 #include <iterator> 
@@ -211,7 +212,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		// new February 2018 
 		// if we need gradients, compute them
 		if( default_microenvironment_options.calculate_gradients ) 
-		{ microenvironment.compute_all_gradient_vectors();  }
+		{ PhysiCell::get_microenvironment_i()->compute_all_gradient_vectors();  }
 		// end of new in Feb 2018 
 		
 		// perform interactions -- new in June 2020 
@@ -409,19 +410,23 @@ void Cell_Container::flag_cell_for_removal( Cell* pCell )
 	return; 
 }
 
-Cell_Container* create_cell_container_for_microenvironment( BioFVM::Microenvironment& m , double mechanics_voxel_size )
+Cell_Container* create_cell_container( double mechanics_voxel_size )
 {
-	Cell_Container* cell_container = new Cell_Container;
-	cell_container->initialize( m.mesh.bounding_box[0], m.mesh.bounding_box[3], 
-		m.mesh.bounding_box[1], m.mesh.bounding_box[4], 
-		m.mesh.bounding_box[2], m.mesh.bounding_box[5],  mechanics_voxel_size );
-	m.agent_container = (Agent_Container*) cell_container; 
+	// Get the default microenvironment via our interface
+	Microenvironment_Interface* m = PhysiCell::get_microenvironment_i();
 	
-	if( BioFVM::get_default_microenvironment() == NULL )
-	{ 
-		BioFVM::set_default_microenvironment( &m ); 
+	if( m == nullptr )
+	{
+		std::cerr << "Error: Cannot create cell container - no microenvironment available" << std::endl;
+		return nullptr;
 	}
 	
+	Cell_Container* cell_container = new Cell_Container;
+	cell_container->initialize( m->get_mesh().bounding_box[0], m->get_mesh().bounding_box[3],
+		m->get_mesh().bounding_box[1], m->get_mesh().bounding_box[4],
+		m->get_mesh().bounding_box[2], m->get_mesh().bounding_box[5],  mechanics_voxel_size );
+	m->set_agent_container( (Agent_Container*) cell_container );
+
 	return cell_container; 
 }
 

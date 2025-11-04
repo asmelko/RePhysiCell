@@ -66,6 +66,7 @@
 */
 
 #include "./custom.h"
+#include "../BioFVM/BioFVM.h"
 
 void create_cell_types( void )
 {
@@ -165,13 +166,13 @@ void setup_microenvironment( void )
 
 void setup_tissue( void )
 {
-	double Xmin = microenvironment.mesh.bounding_box[0]; 
-	double Ymin = microenvironment.mesh.bounding_box[1]; 
-	double Zmin = microenvironment.mesh.bounding_box[2]; 
+	double Xmin = get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double Ymin = get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	double Zmin = get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	double Xmax = microenvironment.mesh.bounding_box[3]; 
-	double Ymax = microenvironment.mesh.bounding_box[4]; 
-	double Zmax = microenvironment.mesh.bounding_box[5]; 
+	double Xmax = get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	if( default_microenvironment_options.simulate_2D == true )
 	{
@@ -275,9 +276,9 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 void weighted_motility_function( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// find the indices for each major substrate 
-	static int prey_index = microenvironment.find_density_index( "prey signal"); 
-	static int predator_index = microenvironment.find_density_index( "predator signal"); 
-	static int food_index = microenvironment.find_density_index( "food"); 
+	static int prey_index = get_microenvironment_i()->find_density_index( "prey signal"); 
+	static int predator_index = get_microenvironment_i()->find_density_index( "predator signal"); 
+	static int food_index = get_microenvironment_i()->find_density_index( "food"); 
 	
 	// zero out the motility bias direction. use a pointer to make this easier 
 	std::vector<double>* pV = &phenotype.motility.migration_bias_direction; 
@@ -297,13 +298,13 @@ void weighted_motility_function( Cell* pCell, Phenotype& phenotype, double dt )
 void avoid_boundaries( Cell* pCell )
 {
 	// add velocity to steer clear of the boundaries 
-	static double Xmin = microenvironment.mesh.bounding_box[0]; 
-	static double Ymin = microenvironment.mesh.bounding_box[1]; 
-	static double Zmin = microenvironment.mesh.bounding_box[2]; 
+	static double Xmin = get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	static double Ymin = get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	static double Zmin = get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	static double Xmax = microenvironment.mesh.bounding_box[3]; 
-	static double Ymax = microenvironment.mesh.bounding_box[4]; 
-	static double Zmax = microenvironment.mesh.bounding_box[5]; 
+	static double Xmax = get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	static double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	static double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	static double avoid_zone = 25; 
 	static double avoid_speed = -0.5; // must be negative 
@@ -336,13 +337,13 @@ void wrap_boundaries( Cell* pCell )
 	return avoid_boundaries( pCell ); 
 	
 	// add velocity to steer clear of the boundaries 
-	static double Xmin = microenvironment.mesh.bounding_box[0]; 
-	static double Ymin = microenvironment.mesh.bounding_box[1]; 
-	static double Zmin = microenvironment.mesh.bounding_box[2]; 
+	static double Xmin = get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	static double Ymin = get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	static double Zmin = get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	static double Xmax = microenvironment.mesh.bounding_box[3]; 
-	static double Ymax = microenvironment.mesh.bounding_box[4]; 
-	static double Zmax = microenvironment.mesh.bounding_box[5]; 
+	static double Xmax = get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	static double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	static double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	static double avoid_zone = 20; 
 
@@ -446,7 +447,7 @@ std::vector<Cell*> get_possible_neighbors( Cell* pCell)
 void prey_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// sample food
-	static int nFood = microenvironment.find_density_index("food"); 
+	static int nFood = get_microenvironment_i()->find_density_index("food"); 
 	double food = pCell->nearest_density_vector()[nFood]; 
 	
 	// death based on food

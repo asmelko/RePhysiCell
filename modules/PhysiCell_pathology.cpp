@@ -67,6 +67,9 @@
 
 #include "./PhysiCell_pathology.h"
 
+#include "../BioFVM/BioFVM_microenvironment.h" // options
+#include "../BioFVM/BioFVM_utilities.h" // utils
+
 namespace PhysiCell{
 
 PhysiCell_SVG_options_struct PhysiCell_SVG_options;
@@ -402,13 +405,14 @@ std::string formatted_minutes_to_DDHHMM( double minutes )
 	return output ;
 }
 
-void SVG_plot(std::string filename, Microenvironment &M, double z_slice, double time, std::vector<std::string> (*cell_coloring_function)(Cell *), std::string (*substrate_coloring_function)(double, double, double), void(cell_counts_function)(char *))
+void SVG_plot(std::string filename, double z_slice, double time, std::vector<std::string> (*cell_coloring_function)(Cell *), std::string (*substrate_coloring_function)(double, double, double), void(cell_counts_function)(char *))
 {
-	double X_lower = M.mesh.bounding_box[0];
-	double X_upper = M.mesh.bounding_box[3];
+	Microenvironment_Interface& M = *get_microenvironment_i();
+	double X_lower = M.get_mesh().bounding_box[0];
+	double X_upper = M.get_mesh().bounding_box[3];
 
-	double Y_lower = M.mesh.bounding_box[1];
-	double Y_upper = M.mesh.bounding_box[4];
+	double Y_lower = M.get_mesh().bounding_box[1];
+	double Y_upper = M.get_mesh().bounding_box[4];
 
 	double plot_width = X_upper - X_lower;
 	double plot_height = Y_upper - Y_lower;
@@ -482,8 +486,8 @@ void SVG_plot(std::string filename, Microenvironment &M, double z_slice, double 
 
 	// prepare to do mesh-based plot (later)
 
-	double dx_stroma = M.mesh.dx;
-	double dy_stroma = M.mesh.dy;
+	double dx_stroma = M.get_mesh().dx;
+	double dy_stroma = M.get_mesh().dy;
 
 	os << "  <g id=\"ECM\">" << std::endl;
 
@@ -499,7 +503,7 @@ void SVG_plot(std::string filename, Microenvironment &M, double z_slice, double 
 	// color in the background ECM
 	if(PhysiCell_settings.enable_substrate_plot == true && (*substrate_coloring_function) != NULL)
 	{
-		double dz_stroma = M.mesh.dz;
+		double dz_stroma = M.get_mesh().dz;
 
 		std::string sub = PhysiCell_settings.substrate_to_monitor;
 		int sub_index = M.find_density_index(sub); // check the substrate does actually exist

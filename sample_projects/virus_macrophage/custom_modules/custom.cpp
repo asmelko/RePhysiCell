@@ -66,6 +66,7 @@
 */
 
 #include "./custom.h"
+#include "../BioFVM/BioFVM.h"
 
 void create_cell_types( void )
 {
@@ -83,7 +84,7 @@ void create_cell_types( void )
 	*/ 
 	
 	initialize_default_cell_definition(); 
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( PhysiCell::get_microenvironment_i() ); 
 
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
@@ -108,8 +109,8 @@ void create_cell_types( void )
 	*/ 
 	
 	// first find index for a few key variables. 
-	int virus_index = microenvironment.find_density_index( "virus" ); 
-	int nInterferon = microenvironment.find_density_index( "interferon" ); 
+	int virus_index = get_microenvironment_i()->find_density_index( "virus" ); 
+	int nInterferon = get_microenvironment_i()->find_density_index( "interferon" ); 
 	
 	Cell_Definition* pEpithelial = find_cell_definition( "epithelial cell" ); 
 	Cell_Definition* pMacrophage = find_cell_definition( "macrophage" ); 
@@ -174,14 +175,14 @@ void setup_microenvironment( void )
 
 void setup_tissue( void )
 {
-	int nVirus = microenvironment.find_density_index( "virus" ); 
+	int nVirus = get_microenvironment_i()->find_density_index( "virus" ); 
 	// create some cells near the origin
 	
-	double length_x = microenvironment.mesh.bounding_box[3] - 
-		microenvironment.mesh.bounding_box[0]; 
+	double length_x = get_microenvironment_i()->get_mesh().bounding_box[3] - 
+		get_microenvironment_i()->get_mesh().bounding_box[0]; 
 		
-	double length_y = microenvironment.mesh.bounding_box[4] - 
-		microenvironment.mesh.bounding_box[1]; 
+	double length_y = get_microenvironment_i()->get_mesh().bounding_box[4] - 
+		get_microenvironment_i()->get_mesh().bounding_box[1]; 
 		
 	Cell* pC;
 	
@@ -192,8 +193,8 @@ void setup_tissue( void )
 	for( int n = 0 ; n < number_of_infected_cells; n++ )
 	{
 		pC = create_cell(*pCD); 
-		double x = microenvironment.mesh.bounding_box[0] + UniformRandom() * length_x; 
-		double y = microenvironment.mesh.bounding_box[1] + UniformRandom() * length_y; 
+		double x = get_microenvironment_i()->get_mesh().bounding_box[0] + UniformRandom() * length_x; 
+		double y = get_microenvironment_i()->get_mesh().bounding_box[1] + UniformRandom() * length_y; 
 		pC->assign_position( x,y, 0.0 );
 		pC->phenotype.molecular.internalized_total_substrates[ nVirus ] = 1; 
 	}
@@ -202,8 +203,8 @@ void setup_tissue( void )
 
 	for( int n = 0 ; n < number_of_uninfected_cells ; n++ )
 	{
-		double x = microenvironment.mesh.bounding_box[0] + UniformRandom() * length_x; 
-		double y = microenvironment.mesh.bounding_box[1] + UniformRandom() * length_y; 
+		double x = get_microenvironment_i()->get_mesh().bounding_box[0] + UniformRandom() * length_x; 
+		double y = get_microenvironment_i()->get_mesh().bounding_box[1] + UniformRandom() * length_y; 
 		pC = create_cell(*pCD); 
 		pC->assign_position( x,y, 0.0 );
 	}
@@ -212,8 +213,8 @@ void setup_tissue( void )
 	
 	for( int n= 0 ; n < parameters.ints( "number_of_macrophages" ); n++ )
 	{
-		double x = microenvironment.mesh.bounding_box[0] + UniformRandom() * length_x; 
-		double y = microenvironment.mesh.bounding_box[1] + UniformRandom() * length_y; 
+		double x = get_microenvironment_i()->get_mesh().bounding_box[0] + UniformRandom() * length_x; 
+		double y = get_microenvironment_i()->get_mesh().bounding_box[1] + UniformRandom() * length_y; 
 		pC = create_cell( *pCD ); 
 		pC->assign_position( x,y, 0.0 );
 	}
@@ -241,7 +242,7 @@ std::vector<std::string> viral_coloring_function( Cell* pCell )
 	// start with flow cytometry coloring 
 	
 	std::vector<std::string> output = { "magenta" , "black" , "magenta", "black" }; 
-	static int nVirus = microenvironment.find_density_index( "virus" ); 
+	static int nVirus = get_microenvironment_i()->find_density_index( "virus" ); 
 	
 	static double min_virus = pCell->custom_data[ "min_virion_count" ];
 	static double max_virus = pCell->custom_data[ "burst_virion_count" ]; 
@@ -290,7 +291,7 @@ std::vector<std::string> viral_coloring_function_bar( Cell* pCell )
 	// start with flow cytometry coloring 
 	
 	std::vector<std::string> output = { "magenta" , "black" , "magenta", "black" }; 
-	static int nVirus = microenvironment.find_density_index( "virus" ); 
+	static int nVirus = get_microenvironment_i()->find_density_index( "virus" ); 
 	
 	static double min_virus = pCell->custom_data[ "min_virion_count" ];
 	static double max_virus = pCell->custom_data[ "burst_virion_count" ]; 
@@ -378,7 +379,7 @@ void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// bookkeeping 
 	
-	static int nVirus = microenvironment.find_density_index( "virus" ); 
+	static int nVirus = get_microenvironment_i()->find_density_index( "virus" ); 
 	
 	static Cell_Definition* pMacrophage = find_cell_definition( "macrophage" ); 
 	
@@ -429,8 +430,8 @@ void epithelial_function( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// bookkeeping
 	
-	static int nVirus = microenvironment.find_density_index( "virus" ); 
-	static int nInterferon = microenvironment.find_density_index( "interferon" ); 
+	static int nVirus = get_microenvironment_i()->find_density_index( "virus" ); 
+	static int nInterferon = get_microenvironment_i()->find_density_index( "interferon" ); 
 	int apoptosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Apoptosis" );
 	
 	// compare against viral load. Should I commit apoptosis? 
@@ -472,13 +473,13 @@ void epithelial_function( Cell* pCell, Phenotype& phenotype, double dt )
 std::vector<double> integrate_total_substrates( void )
 {
 	// start with 0 vector 
-	std::vector<double> out( microenvironment.number_of_densities() , 0.0 ); 
+	std::vector<double> out( get_microenvironment_i()->number_of_densities() , 0.0 ); 
 
 	// integrate extracellular substrates 
-	for( unsigned int n = 0; n < microenvironment.number_of_voxels() ; n++ )
+	for( unsigned int n = 0; n < get_microenvironment_i()->number_of_voxels() ; n++ )
 	{
 		// out = out + microenvironment(n) * dV(n) 
-		axpy( &out , microenvironment.mesh.voxels[n].volume , microenvironment(n) ); 
+		axpy( &out , get_microenvironment_i()->get_mesh().voxels[n].volume , microenvironment(n) ); 
 	}
 
 	// inte
@@ -494,13 +495,13 @@ std::vector<double> integrate_total_substrates( void )
 void avoid_boundaries( Cell* pCell )
 {
 	// add velocity to steer clear of the boundaries 
-	static double Xmin = microenvironment.mesh.bounding_box[0]; 
-	static double Ymin = microenvironment.mesh.bounding_box[1]; 
-	static double Zmin = microenvironment.mesh.bounding_box[2]; 
+	static double Xmin = get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	static double Ymin = get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	static double Zmin = get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	static double Xmax = microenvironment.mesh.bounding_box[3]; 
-	static double Ymax = microenvironment.mesh.bounding_box[4]; 
-	static double Zmax = microenvironment.mesh.bounding_box[5]; 
+	static double Xmax = get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	static double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	static double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	static double avoid_zone = 25; 
 	static double avoid_speed = -0.5; // must be negative 

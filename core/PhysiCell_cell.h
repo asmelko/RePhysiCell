@@ -70,7 +70,6 @@
 
 #include "./PhysiCell_custom.h" 
 
-#include "../BioFVM/BioFVM.h"
 #include "./PhysiCell_phenotype.h"
 #include "./PhysiCell_cell_container.h"
 #include "./PhysiCell_constants.h"
@@ -78,7 +77,6 @@
 #include "../modules/PhysiCell_settings.h" 
 
 #include "./PhysiCell_standard_models.h" 
-#include "./PhysiCell_rules.h"
 
 using namespace BioFVM; 
 
@@ -124,7 +122,7 @@ class Cell_Definition
 
 	bool is_movable; 
  
-	Microenvironment* pMicroenvironment; 
+	Microenvironment_Interface* pMicroenvironment; 
 	
 	Cell_Parameters parameters; 
 	Custom_Cell_Data custom_data; 
@@ -251,6 +249,7 @@ class Cell : public Basic_Agent
 	std::vector<Cell*> nearby_interacting_cells( void ); // new in 1.8.0 
 	
 	void convert_to_cell_definition( Cell_Definition& cd ); 
+	void register_microenvironment( Microenvironment_Interface* interface );
 };
 
 Cell* create_cell( Cell* (*custom_instantiate)() = NULL );  

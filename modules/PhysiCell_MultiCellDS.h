@@ -78,16 +78,15 @@
 #include <chrono>
 
 #include "../core/PhysiCell.h"
-#include "../BioFVM/BioFVM_MultiCellDS.h"
 
 namespace PhysiCell{
 
 void add_PhysiCell_cell_to_open_xml_pugi(  pugi::xml_document& xml_dom, Cell& C ); // not implemented -- future edition 
-void add_PhysiCell_cells_to_open_xml_pugi( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment& M  ); 
-void add_PhysiCell_to_open_xml_pugi( pugi::xml_document& xml_dom , std::string filename_base, double current_simulation_time , Microenvironment& M );
+void add_PhysiCell_cells_to_open_xml_pugi( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment_Interface& M  ); 
+void add_PhysiCell_to_open_xml_pugi( pugi::xml_document& xml_dom , std::string filename_base, double current_simulation_time , Microenvironment_Interface& M );
 
 	
-void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvironment& M , double current_simulation_time); 
+void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base ,  double current_simulation_time); 
 
 
 /* V2 functions */ 
@@ -100,8 +99,8 @@ void add_PhysiCell_to_open_xml_pugi_v2( pugi::xml_document& xml_dom , std::strin
 void save_PhysiCell_to_MultiCellDS_xml_pugi_v2( std::string filename_base , Microenvironment& M , double current_simulation_time); 
 */
 
-void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment& M  ); 
-void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , Microenvironment& M , double current_simulation_time);
+void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment_Interface& M  ); 
+void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , double current_simulation_time);
 void write_neighbor_graph( std::string filename ); 
 void write_attached_cells_graph( std::string filename ); 
 void write_spring_attached_cells_graph( std::string filename ); 

@@ -69,6 +69,9 @@
 #include "PhysiCell_cell_container.h"
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
+#include "PhysiCell_rules.h"
+#include "../BioFVM/BioFVM_microenvironment.h" //options
+#include "../BioFVM/microenvironment_adapter.h" 
 #include "../BioFVM/BioFVM_vector.h" 
 
 #ifdef ADDON_PHYSIBOSS
@@ -131,8 +134,8 @@ Cell_Definition::Cell_Definition()
 {
 	// set the microenvironment pointer 
 	pMicroenvironment = NULL;
-	if( BioFVM::get_default_microenvironment() != NULL )
-	{ pMicroenvironment = BioFVM::get_default_microenvironment(); }
+	if( PhysiCell::get_microenvironment_i() != NULL )
+	{ pMicroenvironment = PhysiCell::get_microenvironment_i(); }
 
 //	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 //	int number_of_cell_defs = cell_definition_indices_by_name.size(); 
@@ -1084,9 +1087,9 @@ Cell* create_cell( Cell* (*custom_instantiate)())
 	
 	// new usability enhancements in May 2017 
 	
-	if( BioFVM::get_default_microenvironment() )
+	if( PhysiCell::get_microenvironment_i() )
 	{
-		pNew->register_microenvironment( BioFVM::get_default_microenvironment() );
+		pNew->register_microenvironment( PhysiCell::get_microenvironment_i() );
 	}
 
 	// All the phenotype and other data structures are already set 
@@ -1187,6 +1190,21 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
         }
 	}
 	return; 
+}
+
+void Cell::register_microenvironment( Microenvironment_Interface* interface )
+{
+	// Get the BioFVM microenvironment from our interface adapter
+	auto biofvm_adapter = dynamic_cast<Microenvironment_Adapter*>(interface);
+
+	if( biofvm_adapter == nullptr )
+	{
+		std::cerr << "Warning: Cannot register microenvironment - BioFVM environment is null" << std::endl;
+		return;
+	}
+
+	// Call the base class method with the BioFVM pointer
+	Basic_Agent::register_microenvironment( biofvm_adapter->get_biofvm_microenvironment() );
 }
 
 void delete_cell( int index )
@@ -2089,8 +2107,8 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 
 	// sync to microenvironment
 	pCD->pMicroenvironment = NULL;
-	if( BioFVM::get_default_microenvironment() != NULL )
-	{ pCD->pMicroenvironment = BioFVM::get_default_microenvironment(); }
+	if( PhysiCell::get_microenvironment_i() != NULL )
+	{ pCD->pMicroenvironment = PhysiCell::get_microenvironment_i(); }
 
 	// figure out if this ought to be 2D
 	if( default_microenvironment_options.simulate_2D )

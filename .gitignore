@@ -1,4 +1,5 @@
 *.asv
+.cache
 ._.DS_Store
 .DS_Store
 *.o

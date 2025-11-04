@@ -66,6 +66,9 @@
 */
  
 #include "PhysiCell_MultiCellDS.h"
+#include "../BioFVM/BioFVM_MultiCellDS.h"
+#include "../BioFVM/microenvironment_adapter.h"
+#include "../bio_interface/Bio_microenvironment_interface.h"
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"	
 #endif
@@ -82,8 +85,10 @@ void add_PhysiCell_cells_to_open_xml_pugi( pugi::xml_document& xml_dom, std::str
 
 void add_PhysiCell_to_open_xml_pugi( pugi::xml_document& xml_dom , std::string filename_base, double current_simulation_time , Microenvironment& M );
 
-void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvironment& M , double current_simulation_time)
+void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base ,  double current_simulation_time)
 {
+	Microenvironment_Interface& M = *get_microenvironment_i();
+
 	std::cout << __LINE__ << " " << __FUNCTION__ << std::endl; 
 
 	// start with a standard BioFVM save
@@ -105,11 +110,13 @@ void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base , Microen
 }
 
 
-void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , Microenvironment& M , double current_simulation_time)
+void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , double current_simulation_time)
 {
 	// std::cout << __LINE__ << " " << __FUNCTION__ << std::endl; // we use this one July 2024
 
 	// set some metadata
+
+	Microenvironment_Interface& M = *get_microenvironment_i();
 
 	BioFVM::MultiCellDS_version_string = "2"; 
 	BioFVM::BioFVM_metadata.program.program_name = "PhysiCell"; 
@@ -138,7 +145,7 @@ void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , Microenvironm
 		// save metadata 
 	BioFVM_metadata.add_to_open_xml_pugi( current_simulation_time , BioFVM::biofvm_doc ); 
 		// save diffusing substrates 
-	add_BioFVM_substrates_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base, M  ); 
+	add_BioFVM_substrates_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base, *dynamic_cast<Microenvironment_Adapter&>( M ).get_biofvm_microenvironment() );
 
 		// add_BioFVM_agents_to_open_xml_pugi( xml_dom , filename_base, M); 
 	
@@ -190,12 +197,12 @@ void add_variable_to_labels( std::vector<std::string>& data_names ,
 	return; 
 }
 
-void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment& M  ) 
+void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment_Interface& M  )
 {
 	// std::cout << __LINE__ << " " << __FUNCTION__ << std::endl; // we use this one July 2024
 
 	// get number of substrates 
-	static int m =  microenvironment.number_of_densities(); // number_of_substrates  
+	static int m =  M.number_of_densities(); // number_of_substrates  
 	// get number of cell types
 	static int n = cell_definition_indices_by_name.size(); // number_of_cell_types
 	// get number of death models 
@@ -629,9 +636,9 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		temp = new char [1024]; 
 		initialized = true; 
 		
-		sprintf( rate_chars, "1/%s" , M.time_units.c_str() ); 
-		sprintf( volume_chars, "%s^3" , M.spatial_units.c_str() ); 
-		sprintf( diffusion_chars , "%s^2/%s", M.spatial_units.c_str() , M.time_units.c_str() ); 
+		sprintf( rate_chars, "1/%s" , M.get_time_units().c_str() ); 
+		sprintf( volume_chars, "%s^3" , M.get_spatial_units().c_str() ); 
+		sprintf( diffusion_chars , "%s^2/%s", M.get_spatial_units().c_str() , M.get_time_units().c_str() ); 
 	}
 
 	node = node.child( "cell_populations" ); 

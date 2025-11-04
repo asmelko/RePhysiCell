@@ -65,10 +65,10 @@
 ###############################################################################
 */
 
-#include "../core/PhysiCell.h"
 #include "./PhysiCell_various_outputs.h"
 
 #include "./PhysiCell_settings.h"
+#include "../BioFVM/BioFVM_utilities.h" //utils
 
 namespace PhysiCell{
 
@@ -166,7 +166,7 @@ void display_simulation_status( std::ostream& os )
 	return;
 }
 
-void log_output(double t, int output_index, Microenvironment microenvironment, std::ofstream& report_file)
+void log_output(double t, int output_index, std::ofstream& report_file)
 {
 	double scale=1000;
 	int num_new_cells= 0;
@@ -182,14 +182,14 @@ void log_output(double t, int output_index, Microenvironment microenvironment, s
 //	std::cout << std::endl;
 	
 	std::cout << "time: "<<t<<std::endl;
-	num_new_cells=t==0?all_basic_agents.size():((Cell_Container *)microenvironment.agent_container)->num_divisions_in_current_step;
-	num_deaths=((Cell_Container *)microenvironment.agent_container)->num_deaths_in_current_step;
+	num_new_cells=t==0?all_basic_agents.size():((Cell_Container *)get_microenvironment_i()->get_agent_container())->num_divisions_in_current_step;
+	num_deaths=((Cell_Container *)get_microenvironment_i()->get_agent_container())->num_deaths_in_current_step;
 	std::cout<<"total number of agents (newly born, deaths): " << (*all_cells).size()<<"("<<num_new_cells<<", "<<num_deaths<<")" << std::endl; 
 	report_file<<t<<"\t"<<(*all_cells).size()<<"\t"<<num_new_cells<<"\t"<<num_deaths<<"\t"<<BioFVM::stopwatch_value()<< std::endl; 
 //	BioFVM::TIC();
 	
-	((Cell_Container *)microenvironment.agent_container)->num_divisions_in_current_step=0;
-	((Cell_Container *)microenvironment.agent_container)->num_deaths_in_current_step=0;
+	((Cell_Container *)get_microenvironment_i()->get_agent_container())->num_divisions_in_current_step=0;
+	((Cell_Container *)get_microenvironment_i()->get_agent_container())->num_deaths_in_current_step=0;
 	writePov(*all_cells, t, scale);
 	writeCellReport(*all_cells, t);
 	std::string filename; 
@@ -198,7 +198,7 @@ void log_output(double t, int output_index, Microenvironment microenvironment, s
 	filename.resize( strlen( filename.c_str() ) ); 
 	// std::cout << "\tWriting to file " << filename << " ... " << std::endl; 
 	// microenvironment.write_to_matlab( filename ); 
-	
+
 	return;
 }
 

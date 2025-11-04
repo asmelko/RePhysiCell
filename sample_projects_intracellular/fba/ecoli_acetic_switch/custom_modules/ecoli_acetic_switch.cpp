@@ -112,17 +112,17 @@ void create_bacteria_cell ( void )
 	bacteria_cell.parameters.o2_reference = 38.0;
 
 	// set oxygen uptake and secretion to zero
-	static int oxygen_idx = microenvironment.find_density_index( "oxygen" ); // 0
+	static int oxygen_idx = get_microenvironment_i()->find_density_index( "oxygen" ); // 0
 	bacteria_cell.phenotype.secretion.secretion_rates[oxygen_idx] = 0;
 	bacteria_cell.phenotype.secretion.uptake_rates[oxygen_idx] = 0;
 	bacteria_cell.phenotype.secretion.saturation_densities[oxygen_idx] = 0;
 
-	static int glucose_idx = microenvironment.find_density_index( "glucose" );
+	static int glucose_idx = get_microenvironment_i()->find_density_index( "glucose" );
 	bacteria_cell.phenotype.secretion.secretion_rates[glucose_idx] = 0;
 	bacteria_cell.phenotype.secretion.uptake_rates[glucose_idx] = 0;
 	bacteria_cell.phenotype.secretion.saturation_densities[glucose_idx] = 0;
 	
-	static int acetate_idx = microenvironment.find_density_index( "acetate" );
+	static int acetate_idx = get_microenvironment_i()->find_density_index( "acetate" );
 	bacteria_cell.phenotype.secretion.secretion_rates[acetate_idx] = 0;
 	bacteria_cell.phenotype.secretion.uptake_rates[acetate_idx] = 0;
 	bacteria_cell.phenotype.secretion.saturation_densities[acetate_idx] = 0;
@@ -143,7 +143,7 @@ void create_cell_types( void )
 	
 	// housekeeping 
 	initialize_default_cell_definition();
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( PhysiCell::get_microenvironment_i() ); 
 	
 	// turn the default cycle model to live, 
 	// so it's easier to turn off proliferation
@@ -255,9 +255,9 @@ void update_cell(PhysiCell::Cell* pCell, PhysiCell::Phenotype& phenotype, double
   std::string glucose_flux_id = FBA::exchange_flux_density_map[glucose_name];
   std::string acetate_flux_id = FBA::exchange_flux_density_map[acetate_name];
 
-  static int oxygen_idx = microenvironment.find_density_index( oxygen_name );
-  static int glucose_idx = microenvironment.find_density_index( glucose_name );
-  static int acetate_idx = microenvironment.find_density_index( acetate_name );
+  static int oxygen_idx = get_microenvironment_i()->find_density_index( oxygen_name );
+  static int glucose_idx = get_microenvironment_i()->find_density_index( glucose_name );
+  static int acetate_idx = get_microenvironment_i()->find_density_index( acetate_name );
 
   double oxygen_density = pCell->nearest_density_vector()[oxygen_idx];
   double glucose_density = pCell->nearest_density_vector()[glucose_idx]; // dived by voxel size?

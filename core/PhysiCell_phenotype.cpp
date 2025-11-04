@@ -67,10 +67,12 @@
 
 #include "./PhysiCell_phenotype.h"
 
-#include "../BioFVM/BioFVM.h"
 #include "./PhysiCell_constants.h"
 #include "./PhysiCell_utilities.h"
 #include "./PhysiCell_cell.h"
+#include "../bio_interface/Bio_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_microenvironment.h" // secretion advancement
+#include "../BioFVM/microenvironment_adapter.h"
 
 using namespace BioFVM; 
 
@@ -865,7 +867,7 @@ Motility::Motility()
 
 void Motility::sync_to_current_microenvironment( void )
 {
-	Microenvironment* pMicroenvironment = get_default_microenvironment(); 
+	Microenvironment_Interface* pMicroenvironment = PhysiCell::get_microenvironment_i(); 
 	if( pMicroenvironment )
 	{ sync_to_microenvironment( pMicroenvironment ); } 
 	else
@@ -874,7 +876,7 @@ void Motility::sync_to_current_microenvironment( void )
 	return; 
 }
 
-void Motility::sync_to_microenvironment( Microenvironment* pNew_Microenvironment )
+void Motility::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
 {
 	chemotactic_sensitivities.resize( pNew_Microenvironment->number_of_densities() , 0.0 ); 
 	return; 
@@ -888,7 +890,7 @@ double& Motility::chemotactic_sensitivity( std::string name )
 
 Secretion::Secretion()
 {
-	pMicroenvironment = get_default_microenvironment(); 
+	pMicroenvironment = PhysiCell::get_microenvironment_i(); 
 	
 	sync_to_current_microenvironment(); 
 	return; 
@@ -910,14 +912,14 @@ void Secretion::sync_to_current_microenvironment( void )
 	return; 
 }
 	
-void Secretion::sync_to_microenvironment( Microenvironment* pNew_Microenvironment )
+void Secretion::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
 {
 	pMicroenvironment = pNew_Microenvironment;
-	
-	secretion_rates.resize( pMicroenvironment->number_of_densities() , 0.0 ); 
-	uptake_rates.resize( pMicroenvironment->number_of_densities() , 0.0 ); 
-	saturation_densities.resize( pMicroenvironment->number_of_densities() , 0.0 ); 
-	net_export_rates.resize( pMicroenvironment->number_of_densities() , 0.0 ); 
+
+	secretion_rates.resize( PhysiCell::get_microenvironment_i()->number_of_densities() , 0.0 ); 
+	uptake_rates.resize( PhysiCell::get_microenvironment_i()->number_of_densities() , 0.0 ); 
+	saturation_densities.resize( PhysiCell::get_microenvironment_i()->number_of_densities() , 0.0 ); 
+	net_export_rates.resize( PhysiCell::get_microenvironment_i()->number_of_densities() , 0.0 ); 
 	
 	return; 
 }
@@ -931,16 +933,7 @@ void Secretion::advance( Basic_Agent* pCell, Phenotype& phenotype , double dt )
 	// if there is no microenvironment, attempt to sync. 
 	if( pMicroenvironment == NULL )
 	{
-		// first, try the cell's microenvironment
-		if( pCell->get_microenvironment() )
-		{
-			sync_to_microenvironment( pCell->get_microenvironment() ); 
-		}
-		// otherwise, try the default microenvironment
-		else
-		{
-			sync_to_microenvironment( get_default_microenvironment() ); 
-		}
+		sync_to_microenvironment( PhysiCell::get_microenvironment_i() ); 
 
 		// if we've still failed, return. 
 		if( pMicroenvironment == NULL ) 
@@ -968,7 +961,10 @@ void Secretion::advance( Basic_Agent* pCell, Phenotype& phenotype , double dt )
 
 	// now, call the BioFVM secretion/uptake function 
 	
-	pCell->simulate_secretion_and_uptake( pMicroenvironment , dt ); 
+	if (Microenvironment_Adapter* m = dynamic_cast<Microenvironment_Adapter*>(pMicroenvironment))
+		pCell->simulate_secretion_and_uptake( m->get_biofvm_microenvironment() , dt );
+	else
+		std::cerr << "Warning: Secretion::advance() could not cast Microenvironment_Interface to Microenvironment." << std::endl;
 	
 	return; 
 }
@@ -1034,7 +1030,7 @@ double& Secretion::net_export_rate( std::string name )
 
 Molecular::Molecular()
 {
-	pMicroenvironment = get_default_microenvironment(); 
+	pMicroenvironment = PhysiCell::get_microenvironment_i();
 	sync_to_current_microenvironment(); 
 
 	return; 
@@ -1055,11 +1051,11 @@ void Molecular::sync_to_current_microenvironment( void )
 	return; 
 }
 	
-void Molecular::sync_to_microenvironment( Microenvironment* pNew_Microenvironment )
+void Molecular::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
 {
 	pMicroenvironment = pNew_Microenvironment;
-	
-	int number_of_densities = pMicroenvironment->number_of_densities() ; 
+
+	int number_of_densities = PhysiCell::get_microenvironment_i()->number_of_densities() ; 
 
 	internalized_total_substrates.resize( number_of_densities , 0.0 ); 
 	fraction_released_at_death.resize( number_of_densities , 0.0 ); 
@@ -1099,16 +1095,7 @@ void Molecular::advance( Basic_Agent* pCell, Phenotype& phenotype , double dt )
 	// if there is no microenvironment, attempt to sync. 
 	if( pMicroenvironment == NULL )
 	{
-		// first, try the cell's microenvironment
-		if( pCell->get_microenvironment() )
-		{
-			sync_to_microenvironment( pCell->get_microenvironment() ); 
-		}
-		// otherwise, try the default microenvironment
-		else
-		{
-			sync_to_microenvironment( get_default_microenvironment() ); 
-		}
+		sync_to_microenvironment( PhysiCell::get_default_microenvironment_interface() ); 
 
 		// if we've still failed, return. 
 		if( pMicroenvironment == NULL ) 
@@ -1255,12 +1242,12 @@ int Bools::size( void )
 { return values.size(); } 
 
 
-void Phenotype::sync_to_microenvironment( Microenvironment* pMicroenvironment )
+void Phenotype::sync_to_microenvironment( Microenvironment_Interface* pMicroenvironment )
 {
-	secretion.sync_to_microenvironment( pMicroenvironment ); 
-	molecular.sync_to_microenvironment( pMicroenvironment ); 
+	secretion.sync_to_microenvironment( pMicroenvironment );
+	molecular.sync_to_microenvironment( pMicroenvironment );
 
-	return; 
+	return;
 }
 
 Cell_Interactions::Cell_Interactions()
