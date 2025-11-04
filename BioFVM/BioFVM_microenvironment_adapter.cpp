@@ -68,7 +68,11 @@
 #include "BioFVM_microenvironment_adapter.h"
 #include "BioFVM.h"
 
-namespace PhysiCell{
+// ============================================================================
+// BioFVM_Microenvironment_Adapter implementation
+// ============================================================================
+
+namespace BioFVM{
 
 // Global pointer to the default microenvironment interface
 static Microenvironment_Interface* default_microenvironment_interface = nullptr;
@@ -82,14 +86,6 @@ Microenvironment_Interface* get_microenvironment_i()
 {
 	return default_microenvironment_interface;
 }
-
-} // namespace PhysiCell
-
-// ============================================================================
-// BioFVM_Microenvironment_Adapter implementation
-// ============================================================================
-
-namespace BioFVM{
 
 Microenvironment_Adapter::Microenvironment_Adapter(BioFVM::Microenvironment* env, bool take_ownership)
 	: biofvm_microenvironment(env), owns_microenvironment(take_ownership)
@@ -307,11 +303,6 @@ void Microenvironment_Adapter::simulate_bulk_sources_and_sinks(double dt)
 	biofvm_microenvironment->simulate_bulk_sources_and_sinks(dt);
 }
 
-void Microenvironment_Adapter::simulate_cell_sources_and_sinks(std::vector<BioFVM::Basic_Agent*>& basic_agent_list, double dt)
-{
-	biofvm_microenvironment->simulate_cell_sources_and_sinks(basic_agent_list, dt);
-}
-
 void Microenvironment_Adapter::simulate_cell_sources_and_sinks(double dt)
 {
 	biofvm_microenvironment->simulate_cell_sources_and_sinks(dt);
@@ -379,11 +370,6 @@ bool& Microenvironment_Adapter::is_dirichlet_node(int voxel_index)
 }
 
 // Mesh access
-BioFVM::Cartesian_Mesh& Microenvironment_Adapter::get_mesh()
-{
-	return biofvm_microenvironment->mesh;
-}
-
 const BioFVM::Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
 {
 	return biofvm_microenvironment->mesh;

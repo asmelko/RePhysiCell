@@ -51,6 +51,7 @@
 #include "BioFVM_vector.h" 
 #include "BioFVM_microenvironment.h"
 #include "BioFVM_matlab.h"
+#include "BioFVM_microenvironment_adapter.h"
 
 namespace BioFVM{
 
@@ -176,6 +177,15 @@ void Basic_Agent::set_internal_uptake_constants( double dt )
 	volume_is_changed = false; 
 	
 	return; 
+}
+
+void Basic_Agent::register_microenvironment( Microenvironment_Interface* microenvironment_in )
+{
+	auto adapter = dynamic_cast<BioFVM::Microenvironment_Adapter*>(microenvironment_in);
+	if (!adapter) {
+		throw std::invalid_argument("Basic_Agent::register_microenvironment: Provided Microenvironment_Interface is not a BioFVM::Microenvironment_Adapter.");
+	}
+	register_microenvironment(adapter->get_biofvm_microenvironment());
 }
 
 void Basic_Agent::register_microenvironment( Microenvironment* microenvironment_in )
@@ -312,7 +322,7 @@ const std::vector<double>& Basic_Agent::get_previous_velocity( void ) {
 	return previous_velocity;
 }
 
-void Basic_Agent::simulate_secretion_and_uptake( Microenvironment* pS, double dt )
+void Basic_Agent::simulate_secretion_and_uptake( double dt )
 {
 	if(!is_active)
 	{ return; }
@@ -328,19 +338,19 @@ void Basic_Agent::simulate_secretion_and_uptake( Microenvironment* pS, double dt
 		total_extracellular_substrate_change.assign( total_extracellular_substrate_change.size() , 1.0 ); // 1
 
 		total_extracellular_substrate_change -= cell_source_sink_solver_temp2; // 1-c2
-		total_extracellular_substrate_change *= (*pS)(current_voxel_index); // (1-c2)*rho 
+		total_extracellular_substrate_change *= (*microenvironment)(current_voxel_index); // (1-c2)*rho 
 		total_extracellular_substrate_change += cell_source_sink_solver_temp1; // (1-c2)*rho+c1 
 		total_extracellular_substrate_change /= cell_source_sink_solver_temp2; // ((1-c2)*rho+c1)/c2
-		total_extracellular_substrate_change *= pS->voxels(current_voxel_index).volume; // W*((1-c2)*rho+c1)/c2 
+		total_extracellular_substrate_change *= microenvironment->voxels(current_voxel_index).volume; // W*((1-c2)*rho+c1)/c2 
 		
 		*internalized_substrates -= total_extracellular_substrate_change; // opposite of net extracellular change 	
 	}
 	
-	(*pS)(current_voxel_index) += cell_source_sink_solver_temp1; 
-	(*pS)(current_voxel_index) /= cell_source_sink_solver_temp2; 
+	(*microenvironment)(current_voxel_index) += cell_source_sink_solver_temp1; 
+	(*microenvironment)(current_voxel_index) /= cell_source_sink_solver_temp2; 
 	
 	// now do net export 
-	(*pS)(current_voxel_index) += cell_source_sink_solver_temp_export2; 
+	(*microenvironment)(current_voxel_index) += cell_source_sink_solver_temp_export2; 
 	if( default_microenvironment_options.track_internalized_substrates_in_each_agent == true ) 
 	{
 		*internalized_substrates -= cell_source_sink_solver_temp_export1; 

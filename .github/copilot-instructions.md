@@ -12,7 +12,7 @@
 ### Key Architectural Innovation: Interface/Adapter Pattern
 **CRITICAL**: This fork introduces an abstraction layer separating PhysiCell from BioFVM:
 
-- **`bio_interface/Bio_microenvironment_interface.h`**: Abstract interface defining microenvironment operations
+- **`BioFVM/BioFVM_microenvironment_interface.h`**: Abstract interface defining microenvironment operations
   - Pure virtual interface with ~50 methods for microenvironment access
   - Allows swapping BioFVM for alternative solvers without modifying PhysiCell core
   - All PhysiCell code accesses microenvironment via `get_microenvironment_i()`

@@ -74,7 +74,7 @@
 #include <sys/stat.h>
 #include "./PhysiCell_settings.h"
 #include "../core/PhysiCell_cell.h"
-#include "../bio_interface/Bio_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "../BioFVM/BioFVM_microenvironment.h" //options
 
 using namespace BioFVM;

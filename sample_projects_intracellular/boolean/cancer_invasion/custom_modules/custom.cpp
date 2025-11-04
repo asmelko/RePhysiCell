@@ -86,7 +86,7 @@ void create_cell_types( void )
 	*/ 
 	
 	initialize_default_cell_definition(); 
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( PhysiCell::get_microenvironment_i() ); 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( get_microenvironment_i() ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
@@ -253,8 +253,8 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 	if ( ecm_index >= 0 ){
 		add_ecm_interaction( pCell, ecm_index, pCell->get_current_voxel_index() );
 		//add_TGFbeta_interaction(pCell, pCell->get_current_mechanics_voxel_index());
-		std::vector<int>::iterator neighbor_voxel_index;
-		std::vector<int>::iterator neighbor_voxel_index_end = 
+		std::vector<int>::const_iterator neighbor_voxel_index;
+		std::vector<int>::const_iterator neighbor_voxel_index_end = 
 		get_microenvironment_i()->get_mesh().moore_connected_voxel_indices[pCell->get_current_voxel_index()].end();
 
 		for( neighbor_voxel_index = 

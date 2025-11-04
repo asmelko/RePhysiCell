@@ -84,7 +84,7 @@ void create_cell_types( void )
 	*/ 
 	
 	initialize_default_cell_definition(); 
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( PhysiCell::get_microenvironment_i() ); 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( get_microenvironment_i() ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
@@ -218,31 +218,31 @@ void treatment_function ()
 {
 	if (PhysiCell::parameters.bools.find_index("treatment") != -1) 
 	{
-		int treatment_substrate_index = PhysiCell::get_microenvironment_i()->find_density_index(PhysiCell::parameters.strings("treatment_substrate"));
+		int treatment_substrate_index = BioFVM::get_microenvironment_i()->find_density_index(PhysiCell::parameters.strings("treatment_substrate"));
 
 		if (PhysiCell::parameters.bools("treatment")){
 		
 			if (
 				(((int)PhysiCell::PhysiCell_globals.current_time) % PhysiCell::parameters.ints("treatment_period")) == 0 
-				&& !PhysiCell::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index)
+				&& !BioFVM::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index)
 			)
 			{
 				std::cout << PhysiCell::parameters.strings("treatment_substrate") << " activation at t=" << PhysiCell::PhysiCell_globals.current_time << std::endl;
-				PhysiCell::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, true);	
+				BioFVM::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, true);	
 			}
 
 			if (
 				(((int)PhysiCell::PhysiCell_globals.current_time) % PhysiCell::parameters.ints("treatment_period")) == PhysiCell::parameters.ints("treatment_duration") 
-				&& PhysiCell::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index)
+				&& BioFVM::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index)
 			)
 			{
 				std::cout << PhysiCell::parameters.strings("treatment_substrate") << " inactivation at t=" << PhysiCell::PhysiCell_globals.current_time << std::endl;
-				PhysiCell::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, false);	
+				BioFVM::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, false);	
 			}
 			
-		} else if ( PhysiCell::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index) ){
+		} else if ( BioFVM::get_microenvironment_i()->get_substrate_dirichlet_activation(treatment_substrate_index) ){
 			std::cout << PhysiCell::parameters.strings("treatment_substrate") << " inactivation (NO TREATMENT) at t=" << PhysiCell::PhysiCell_globals.current_time << std::endl;
-			PhysiCell::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, false);	
+			BioFVM::get_microenvironment_i()->set_substrate_dirichlet_activation(treatment_substrate_index, false);	
 		}
 	}
 }

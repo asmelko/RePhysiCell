@@ -78,6 +78,8 @@
 
 #include "./PhysiCell_standard_models.h" 
 
+#include "../BioFVM/BioFVM_basic_agent.h"
+
 using namespace BioFVM; 
 
 namespace PhysiCell{
@@ -249,7 +251,6 @@ class Cell : public Basic_Agent
 	std::vector<Cell*> nearby_interacting_cells( void ); // new in 1.8.0 
 	
 	void convert_to_cell_definition( Cell_Definition& cd ); 
-	void register_microenvironment( Microenvironment_Interface* interface );
 };
 
 Cell* create_cell( Cell* (*custom_instantiate)() = NULL );  

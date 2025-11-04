@@ -192,7 +192,7 @@ int main( int argc, char* argv[] )
 	for(int i=0;i<cell_positions.size();i++)
 	{
 		Cell* pCell = create_cell();
-		pCell->register_microenvironment( PhysiCell::get_microenvironment_i() );
+		pCell->register_microenvironment( get_microenvironment_i() );
 		pCell->assign_position(tumor_center+ cell_positions[i]);
 		// pCell->functions.volume_update_function=empty_function;
 		// pCell->functions.update_phenotype=do_nothing;

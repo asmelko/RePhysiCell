@@ -68,8 +68,6 @@
 #include "PhysiCell_constants.h"
 #include "PhysiCell_cell.h"
 
-#include "../bio_interface/Bio_microenvironment_interface.h"
-
 #include <algorithm>
 #include <iterator> 
 
@@ -210,8 +208,8 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		
 		// new February 2018 
 		// if we need gradients, compute them
-		if( PhysiCell::get_microenvironment_i()->calculate_gradients() ) 
-		{ PhysiCell::get_microenvironment_i()->compute_all_gradient_vectors();  }
+		if( BioFVM::get_microenvironment_i()->calculate_gradients() ) 
+		{ BioFVM::get_microenvironment_i()->compute_all_gradient_vectors();  }
 		// end of new in Feb 2018 
 		
 		// perform interactions -- new in June 2020 
@@ -412,7 +410,7 @@ void Cell_Container::flag_cell_for_removal( Cell* pCell )
 Cell_Container* create_cell_container( double mechanics_voxel_size )
 {
 	// Get the default microenvironment via our interface
-	Microenvironment_Interface* m = PhysiCell::get_microenvironment_i();
+	Microenvironment_Interface* m = BioFVM::get_microenvironment_i();
 	
 	if( m == nullptr )
 	{

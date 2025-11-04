@@ -68,7 +68,7 @@
 #ifndef __microenvironment_adapter_h__
 #define __microenvironment_adapter_h__
 
-#include "../bio_interface/Bio_microenvironment_interface.h"
+#include "BioFVM_microenvironment_interface.h"
 
 namespace BioFVM{
 
@@ -79,7 +79,7 @@ namespace BioFVM{
  * as the underlying implementation. It delegates all method calls to
  * the wrapped BioFVM::Microenvironment object.
  */
-class Microenvironment_Adapter : public PhysiCell::Microenvironment_Interface
+class Microenvironment_Adapter : public Microenvironment_Interface
 {
 private:
 	BioFVM::Microenvironment* biofvm_microenvironment;
@@ -168,7 +168,6 @@ public:
 	// Simulation methods
 	void simulate_diffusion_decay(double dt) override;
 	void simulate_bulk_sources_and_sinks(double dt) override;
-	void simulate_cell_sources_and_sinks(std::vector<Basic_Agent*>& basic_agent_list, double dt) override;
 	void simulate_cell_sources_and_sinks(double dt) override;
 
 	// Dirichlet boundary conditions
@@ -186,7 +185,6 @@ public:
 	bool& is_dirichlet_node(int voxel_index) override;
 
 	// Mesh access
-	Cartesian_Mesh& get_mesh() override;
 	const Cartesian_Mesh& get_mesh() const override;
 
 	// Agent container access
@@ -234,9 +232,9 @@ public:
  *
  * @note Returns nullptr if no microenvironment has been initialized.
  */
-inline PhysiCell::Microenvironment_Interface* get_microenvironment()
+inline BioFVM::Microenvironment_Interface* get_microenvironment()
 {
-	return PhysiCell::get_microenvironment_i();
+	return BioFVM::get_microenvironment_i();
 }
 
 /**

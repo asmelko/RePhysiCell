@@ -71,16 +71,9 @@
 #include <string>
 #include <vector>
 #include "../BioFVM/BioFVM_mesh.h"
-#include "../BioFVM/BioFVM_basic_agent.h" 
 #include "../BioFVM/BioFVM_agent_container.h"
 
-namespace PhysiCell{
-
-// Use BioFVM types directly in the interface
-using BioFVM::Basic_Agent;
-using BioFVM::Agent_Container;
-using BioFVM::Voxel;
-using BioFVM::Cartesian_Mesh;
+namespace BioFVM{
 
 /**
  * @brief Abstract interface for microenvironment implementations
@@ -232,9 +225,6 @@ public:
 	/** @brief Simulate bulk sources and sinks for time step dt */
 	virtual void simulate_bulk_sources_and_sinks(double dt) = 0;
 
-	/** @brief Simulate cell sources and sinks with provided agent list */
-	virtual void simulate_cell_sources_and_sinks(std::vector<Basic_Agent*>& basic_agent_list, double dt) = 0;
-
 	/** @brief Simulate cell sources and sinks using global agent list */
 	virtual void simulate_cell_sources_and_sinks(double dt) = 0;
 
@@ -281,9 +271,6 @@ public:
 	// ========================================================================
 	// Mesh access
 	// ========================================================================
-
-	/** @brief Get reference to the mesh */
-	virtual Cartesian_Mesh& get_mesh() = 0;
 
 	/** @brief Get const reference to the mesh */
 	virtual const Cartesian_Mesh& get_mesh() const = 0;

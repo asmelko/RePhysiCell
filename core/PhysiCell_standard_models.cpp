@@ -68,7 +68,7 @@
 #include "PhysiCell_standard_models.h" 
 #include "PhysiCell_cell.h" 
 #include "../modules/PhysiCell_pathology.h"
-#include "../bio_interface/Bio_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 
 namespace PhysiCell{
 	
@@ -729,8 +729,8 @@ void initialize_default_cell_definition( void )
 	
 	// set the microenvironment pointer 
 	cell_defaults.pMicroenvironment = NULL;
-	if( PhysiCell::get_microenvironment_i() != NULL )
-	{ cell_defaults.pMicroenvironment = PhysiCell::get_microenvironment_i(); }
+	if( BioFVM::get_microenvironment_i() != NULL )
+	{ cell_defaults.pMicroenvironment = BioFVM::get_microenvironment_i(); }
 	
 	// make sure phenotype.secretions are correctly sized 
 	

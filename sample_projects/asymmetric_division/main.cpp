@@ -80,7 +80,7 @@
 // put custom code modules here! 
 
 #include "./custom_modules/custom.h" 
-#include "bio_interface/Bio_microenvironment_interface.h"
+#include "BioFVM/BioFVM_microenvironment_interface.h"
 	
 using namespace BioFVM;
 using namespace PhysiCell;

@@ -177,7 +177,7 @@ int main( int argc, char* argv[] )
 	
 	// disable cell's movement
 	cell_defaults.functions.update_velocity=empty_function;
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( PhysiCell::get_microenvironment_i() );
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( get_microenvironment_i() );
 	cell_defaults.phenotype.sync_to_functions( cell_defaults.functions ); 
 	// first find index for a few key variables. 
 	int apoptosis_model_index = cell_defaults.phenotype.death.find_death_model_index( "Apoptosis" );
@@ -226,7 +226,7 @@ int main( int argc, char* argv[] )
 		for(int j=0;j<3;j++)
 			temp_position[j]= uniform_random()*1000+500;
 		Cell* pCell = create_cell();
-		pCell->register_microenvironment( PhysiCell::get_microenvironment_i() );
+		pCell->register_microenvironment( get_microenvironment_i() );
 		pCell->assign_position(temp_position);
 		//pCell->advance_cell_current_phase=ki67_advanced_cycle_model_stochastic;
 		if(i<num_ki67_positive_pre)

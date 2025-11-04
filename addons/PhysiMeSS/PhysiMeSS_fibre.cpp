@@ -2,8 +2,7 @@
 #include "PhysiMeSS_cell.h"
 #include <algorithm>
 
-#include "../../bio_interface/Bio_microenvironment_interface.h"
-#include "../../BioFVM/BioFVM_microenvironment.h"
+#include "../../BioFVM/BioFVM_microenvironment_interface.h"
 
 bool isFibre(PhysiCell::Cell* pCell) 
 {
@@ -71,7 +70,7 @@ void PhysiMeSS_Fibre::assign_fibre_orientation()
     mLength = PhysiCell::NormalRandom(this->custom_data["fibre_length"], this->custom_data["length_normdist_sd"]) / 2.0;
     mRadius = this->custom_data["fibre_radius"];
     this->assign_orientation();
-    if (PhysiCell::get_microenvironment_i()->simulate_2D()) {
+    if (BioFVM::get_microenvironment_i()->simulate_2D()) {
         if (this->custom_data["anisotropic_fibres"] > 0.5){
             double theta = PhysiCell::NormalRandom(this->custom_data["fibre_angle"], this->custom_data["angle_normdist_sd"]);
             this->state.orientation[0] = cos(theta);
@@ -103,15 +102,15 @@ void PhysiMeSS_Fibre::assign_fibre_orientation()
 
 void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
 {
-    double Xmin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[0]; 
-	double Ymin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[1]; 
-	double Zmin = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[2]; 
+    double Xmin = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double Ymin = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	double Zmin = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	double Xmax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[3]; 
-	double Ymax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[4]; 
-	double Zmax = PhysiCell::get_microenvironment_i()->get_mesh().bounding_box[5]; 
+	double Xmax = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	double Ymax = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	double Zmax = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
-	if( PhysiCell::get_microenvironment_i()->simulate_2D() == true )
+	if( BioFVM::get_microenvironment_i()->simulate_2D() == true )
 	{
 		Zmin = 0.0; 
 		Zmax = 0.0; 
@@ -124,11 +123,11 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
     double ye = position[1] + this->mLength * this->state.orientation[1];
     double zs = 0.0;
     double ze = 0.0;
-    if (PhysiCell::get_microenvironment_i()->simulate_2D()) {
+    if (BioFVM::get_microenvironment_i()->simulate_2D()) {
         /*std::cout << " fibre endpoints in 2D are " << xs << " " << ys <<
                         " and " << xe << " " << ye << std::endl; */
     }
-    else if (!PhysiCell::get_microenvironment_i()->simulate_2D()) {
+    else if (!BioFVM::get_microenvironment_i()->simulate_2D()) {
         zs = position[2] - this->mLength * this->state.orientation[2];
         ze = position[2] + this->mLength * this->state.orientation[2];
         /*std::cout << " fibre endpoints in 3D are " << xs << " " << ys << " " << zs <<
@@ -147,7 +146,7 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
         }
     }
     else{
-        if (PhysiCell::get_microenvironment_i()->simulate_2D()) {
+        if (BioFVM::get_microenvironment_i()->simulate_2D()) {
             while (fail_count < 10) {
                 if (xs < Xmin || xe > Xmax || xe < Xmin || xs > Xmax ||
                     ys < Ymin || ye > Ymax || ye < Ymin || ys > Ymax) {
@@ -164,7 +163,7 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
             }
         }
 
-        if (!PhysiCell::get_microenvironment_i()->simulate_2D()) {
+        if (!BioFVM::get_microenvironment_i()->simulate_2D()) {
             while (fail_count < 10) {
                 if (xs < Xmin || xe > Xmax || xe < Xmin || xs > Xmax ||
                     ys < Ymin || ye > Ymax || ye < Ymin || ys > Ymax ||

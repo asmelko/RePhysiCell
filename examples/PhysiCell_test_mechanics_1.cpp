@@ -163,7 +163,7 @@ int main( int argc, char* argv[] )
 	point2[0]= num2; point2[1]= num2; point2[2]= num2; 
 	
 	Cell* pCell1 = create_cell();
-	pCell1->register_microenvironment( PhysiCell::get_microenvironment_i() );
+	pCell1->register_microenvironment( get_microenvironment_i() );
 	pCell1->assign_position(point1);
 	pCell1->phenotype.cycle.data.current_phase_index = Q_index; 
 	/* NOTE: for this experiment, you need to disable volume update function 
@@ -172,7 +172,7 @@ int main( int argc, char* argv[] )
 	pCell1->set_total_volume(volume);
 	
 	Cell* pCell2 = create_cell();
-	 pCell2->register_microenvironment( PhysiCell::get_microenvironment_i() );
+	 pCell2->register_microenvironment( get_microenvironment_i() );
 	pCell2->assign_position(point2);
 	pCell2->phenotype.cycle.data.current_phase_index = Q_index; 
 	//pCell2->functions.volume_update_function=do_nothing;
