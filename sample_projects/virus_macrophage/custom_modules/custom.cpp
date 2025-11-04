@@ -514,7 +514,7 @@ void avoid_boundaries( Cell* pCell )
 	if( pCell->position[1] < Ymin + avoid_zone || pCell->position[1] > Ymax - avoid_zone )
 	{ near_edge = true; } 
 	
-	if( default_microenvironment_options.simulate_2D == false )
+	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		if( pCell->position[2] < Zmin + avoid_zone || pCell->position[2] > Zmax - avoid_zone )
 		{ near_edge = true; } 

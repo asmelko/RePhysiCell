@@ -482,6 +482,17 @@ void Microenvironment_Adapter::update_rates()
 	biofvm_microenvironment->update_rates();
 }
 
+// Configuration query methods
+bool Microenvironment_Adapter::simulate_2D() const
+{
+	return default_microenvironment_options.simulate_2D;
+}
+
+bool Microenvironment_Adapter::calculate_gradients() const
+{
+	return default_microenvironment_options.calculate_gradients;
+}
+
 
 // Static adapter instance that wraps the global BioFVM microenvironment
 static BioFVM::Microenvironment_Adapter* global_adapter = nullptr;

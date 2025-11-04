@@ -67,7 +67,6 @@
 
 #include "./PhysiCell_pathology.h"
 
-#include "../BioFVM/BioFVM_microenvironment.h" // options
 #include "../BioFVM/BioFVM_utilities.h" // utils
 
 namespace PhysiCell{
@@ -545,7 +544,7 @@ void SVG_plot(std::string filename, double z_slice, double time, std::vector<std
 
 				double z_compare = z_displ;
 
-				if (default_microenvironment_options.simulate_2D == true){
+				if (get_microenvironment_i()->simulate_2D() == true){
 					z_compare = z_center;
 				};
 

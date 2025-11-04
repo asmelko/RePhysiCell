@@ -170,7 +170,7 @@ void create_cell_types( void )
 void setup_microenvironment( void )
 {
 
-	if( default_microenvironment_options.simulate_2D == false )
+	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		std::cout << "WARNING: overriding from 3-D to 2-D" << std::endl;
 		default_microenvironment_options.simulate_2D = true;

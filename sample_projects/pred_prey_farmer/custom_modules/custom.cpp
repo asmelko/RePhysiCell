@@ -174,7 +174,7 @@ void setup_tissue( void )
 	double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
 	double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
-	if( default_microenvironment_options.simulate_2D == true )
+	if( get_microenvironment_i()->simulate_2D() == true )
 	{
 		Zmin = 0.0; 
 		Zmax = 0.0; 
@@ -317,7 +317,7 @@ void avoid_boundaries( Cell* pCell )
 	if( pCell->position[1] < Ymin + avoid_zone || pCell->position[1] > Ymax - avoid_zone )
 	{ near_edge = true; } 
 	
-	if( default_microenvironment_options.simulate_2D == false )
+	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		if( pCell->position[2] < Zmin + avoid_zone || pCell->position[2] > Zmax - avoid_zone )
 		{ near_edge = true; } 
@@ -391,7 +391,7 @@ void wrap_boundaries( Cell* pCell )
 		wrapped = true; 
 	}
 
-	if( default_microenvironment_options.simulate_2D == false )
+	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		while( p[2] < Zmin )
 		{

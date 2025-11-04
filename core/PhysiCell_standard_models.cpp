@@ -69,7 +69,6 @@
 #include "PhysiCell_cell.h" 
 #include "../modules/PhysiCell_pathology.h"
 #include "../bio_interface/Bio_microenvironment_interface.h"
-#include "../BioFVM/BioFVM_microenvironment.h" // options
 
 namespace PhysiCell{
 	
@@ -804,7 +803,7 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 	static int end_phase_index; // K_phase_index;
 	static int necrosis_index; 
 	
-	static int oxygen_substrate_index = pCell->get_microenvironment()->find_density_index( "oxygen" ); 
+	static int oxygen_substrate_index = get_microenvironment_i()->find_density_index( "oxygen" ); 
 	
 	if( indices_initiated == false )
 	{
@@ -1057,13 +1056,13 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 	int nearest_boundary = -1; 
 	
 	// check against xL and xU
-	double temp_distance = pCell->position[0] - microenvironment.mesh.bounding_box[0]; 
+	double temp_distance = pCell->position[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 0; 
 	}
-	temp_distance = microenvironment.mesh.bounding_box[3] - pCell->position[0]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - pCell->position[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
@@ -1071,29 +1070,29 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 	}
 	
 	// check against yL and yU
-	temp_distance = pCell->position[1] - microenvironment.mesh.bounding_box[1]; 
+	temp_distance = pCell->position[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 2; 
 	}
-	temp_distance = microenvironment.mesh.bounding_box[4] - pCell->position[1]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - pCell->position[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 3; 
 	}	
 	
-	if( default_microenvironment_options.simulate_2D == false )
+	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		// if in 3D, check against zL and zU
-		temp_distance = pCell->position[2] - microenvironment.mesh.bounding_box[2]; 
+		temp_distance = pCell->position[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 
 			nearest_boundary = 4; 
 		}
-		temp_distance = microenvironment.mesh.bounding_box[5] - pCell->position[2]; 
+		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - pCell->position[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 

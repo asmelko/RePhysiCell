@@ -320,7 +320,7 @@ void PhysiCell_Settings::read_from_pugixml( void )
 
 	default_microenvironment_options.simulate_2D = xml_get_bool_value( node, "use_2D" );
 
-	if( default_microenvironment_options.simulate_2D == true )
+	if( get_microenvironment_i()->simulate_2D() == true )
 	{
 		zmin = -0.5 * dz;
 		zmax = 0.5 * dz;

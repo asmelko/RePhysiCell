@@ -175,7 +175,7 @@ void setup_tissue( void )
 	if( Zmin < -max_radius )
 	{ Zmin = -max_radius; }
 	
-	if( default_microenvironment_options.simulate_2D == true )
+	if( get_microenvironment_i()->simulate_2D() == true )
 	{
 		Zmin = 0.0; 
 		Zmax = 0.0; 

@@ -218,6 +218,10 @@ public:
 
 	// Update methods
 	void update_rates() override;
+
+	// Configuration query methods
+	bool simulate_2D() const override;
+	bool calculate_gradients() const override;
 };
 
 /**

@@ -68,7 +68,6 @@
 #include "PhysiCell_constants.h"
 #include "PhysiCell_cell.h"
 
-#include "../BioFVM/BioFVM_microenvironment.h"
 #include "../bio_interface/Bio_microenvironment_interface.h"
 
 #include <algorithm>
@@ -211,7 +210,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		
 		// new February 2018 
 		// if we need gradients, compute them
-		if( default_microenvironment_options.calculate_gradients ) 
+		if( PhysiCell::get_microenvironment_i()->calculate_gradients() ) 
 		{ PhysiCell::get_microenvironment_i()->compute_all_gradient_vectors();  }
 		// end of new in Feb 2018 
 		

@@ -70,7 +70,6 @@
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
 #include "PhysiCell_rules.h"
-#include "../BioFVM/BioFVM_microenvironment.h" //options
 #include "../BioFVM/microenvironment_adapter.h" 
 #include "../BioFVM/BioFVM_vector.h" 
 
@@ -834,7 +833,7 @@ Cell_Container * Cell::get_container()
 {
 	if(container == NULL)
 	{
-		container = (Cell_Container *)get_microenvironment()->agent_container;
+		container = (Cell_Container *)get_microenvironment_i()->get_agent_container();
 	}
 	
 	return container;
@@ -867,7 +866,7 @@ void Cell::update_position( double dt )
 	}
 	
 	// new AUgust 2017
-	if( default_microenvironment_options.simulate_2D == true )
+	if( get_microenvironment_i()->simulate_2D() == true )
 	{ velocity[2] = 0.0; }
 	
 	std::vector<double> old_position(position); 
@@ -1532,21 +1531,21 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->position ); // vol_B*x_B + vol_S*x_S
 		new_position /= total_volume; // (vol_B*x_B+vol_S*x_S)/(vol_B+vol_S);
 
-		static double xL = get_default_microenvironment()->mesh.bounding_box[0];		 
-		static double xU = get_default_microenvironment()->mesh.bounding_box[3]; 
+		static double xL = get_microenvironment_i()->get_mesh().bounding_box[0];		 
+		static double xU = get_microenvironment_i()->get_mesh().bounding_box[3]; 
 
-		static double yL = get_default_microenvironment()->mesh.bounding_box[1];		 
-		static double yU = get_default_microenvironment()->mesh.bounding_box[4]; 
+		static double yL = get_microenvironment_i()->get_mesh().bounding_box[1];		 
+		static double yU = get_microenvironment_i()->get_mesh().bounding_box[4]; 
 
-		static double zL = get_default_microenvironment()->mesh.bounding_box[2];		 
-		static double zU = get_default_microenvironment()->mesh.bounding_box[5]; 
+		static double zL = get_microenvironment_i()->get_mesh().bounding_box[2];		 
+		static double zU = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 
 		if( new_position[0] < xL || new_position[0] > xU || 
 		    new_position[1] < yL || new_position[1] > yU || 
 			new_position[2] < zL || new_position[2] > zU )
 		{
 			std::cout << "cell fusion at " << new_position << " violates domain bounds" << std::endl; 
-			std::cout << get_default_microenvironment()->mesh.bounding_box << std::endl << std::endl; 
+			std::cout << get_microenvironment_i()->get_mesh().bounding_box << std::endl << std::endl; 
 		}
 		position = new_position; 
 		update_voxel_in_container();
@@ -1878,7 +1877,7 @@ void display_cell_definitions( std::ostream& os )
 		os << val << ")" << std::endl 
 			<< "\t\t\talong " 
 			<< pM->chemotaxis_direction << " * grad(" 
-			<< microenvironment.density_names[ pM->chemotaxis_index ] << ") " << std::endl; 
+			<< get_microenvironment_i()->get_density_names()[ pM->chemotaxis_index ] << ") " << std::endl; 
 			
 		// secretion
 		
@@ -2065,7 +2064,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 
 		if( disable_bugfix == false )
 		{
-			int number_of_substrates = microenvironment.density_names.size(); 
+			int number_of_substrates = get_microenvironment_i()->get_density_names().size(); 
 			int number_of_cell_defs = cell_definition_indices_by_name.size(); 
 
 			// motility 
@@ -2111,7 +2110,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	{ pCD->pMicroenvironment = PhysiCell::get_microenvironment_i(); }
 
 	// figure out if this ought to be 2D
-	if( default_microenvironment_options.simulate_2D )
+	if( get_microenvironment_i()->simulate_2D() )
 	{
 		std::cout << "Note: setting cell definition to 2D based on microenvironment domain settings ... "
 		<< std::endl; 
@@ -2743,7 +2742,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				pMot->restrict_to_2D = xml_get_my_bool_value( node_mot1 ); 
 			}
 			
-			if( default_microenvironment_options.simulate_2D && pMot->restrict_to_2D == false )
+			if( get_microenvironment_i()->simulate_2D() && pMot->restrict_to_2D == false )
 			{
 				std::cout << "Note: Overriding to set cell motility for " << pCD->name << " to 2D based on " 
 						  << "microenvironment domain settings ... " << std::endl; 				
@@ -2763,7 +2762,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				// search for the right chemo index 
 				
 				std::string substrate_name = xml_get_string_value( node_mot1 , "substrate" ); 
-				pMot->chemotaxis_index = microenvironment.find_density_index( substrate_name ); 
+				pMot->chemotaxis_index = get_microenvironment_i()->find_density_index( substrate_name ); 
 				if( pMot->chemotaxis_index < 0)
 				{
 					std::cout << __FUNCTION__ << ": Error: parsing phenotype:motility:options:chemotaxis:  invalid substrate" << std::endl; 
@@ -2771,7 +2770,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 					exit(-1); 
 				}
 				
-				std::string actual_name = microenvironment.density_names[ pMot->chemotaxis_index ]; 
+				std::string actual_name = get_microenvironment_i()->get_density_names()[ pMot->chemotaxis_index ]; 
 				
 				// error check 
 				if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )
@@ -2818,10 +2817,10 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 					while( node_cs )
 					{
 						std::string substrate_name = node_cs.attribute( "substrate").value(); 
-						int index = microenvironment.find_density_index( substrate_name ); 
+						int index = get_microenvironment_i()->find_density_index( substrate_name ); 
 						std::string actual_name = ""; 
 						if( index > -1 )
-						{ actual_name = microenvironment.density_names[ index ]; }
+						{ actual_name = get_microenvironment_i()->get_density_names()[ index ]; }
 			
 						// error check 
 						if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )						
@@ -2854,35 +2853,35 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		{
 			std::cout << "Cells of type " << pCD->name << " use standard chemotaxis: " << std::endl 
 			<< "\t d_bias (before normalization) = " << pMot->chemotaxis_direction << " * grad(" 
-			<< microenvironment.density_names[pMot->chemotaxis_index] << ")" << std::endl; 
+			<< get_microenvironment_i()->get_density_names()[pMot->chemotaxis_index] << ")" << std::endl; 
 		}
 
 		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function && pMot->is_motile == true )
 		{
-			int number_of_substrates = microenvironment.density_names.size(); 
+			int number_of_substrates = get_microenvironment_i()->get_density_names().size(); 
 
 			std::cout << "Cells of type " << pCD->name << " use advanced chemotaxis: " << std::endl 
 			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")"; 
+			<< pMot->chemotactic_sensitivities[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")"; 
 
 			for( int n=1; n < number_of_substrates; n++ )
-			{ std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"; }
+			{ std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"; }
 			std::cout << std::endl; 
 		}		
 
 		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function_normalized && pMot->is_motile == true )
 		{
-			int number_of_substrates = microenvironment.density_names.size(); 
+			int number_of_substrates = get_microenvironment_i()->get_density_names().size(); 
 
 			std::cout << "Cells of type " << pCD->name << " use normalized advanced chemotaxis: " << std::endl 
 			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << microenvironment.density_names[0] << ")" 
-			<< " / ||grad(" << microenvironment.density_names[0] << ")||"; 
+			<< pMot->chemotactic_sensitivities[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")" 
+			<< " / ||grad(" << get_microenvironment_i()->get_density_names()[0] << ")||"; 
 
 			for( int n=1; n < number_of_substrates; n++ )
 			{
-				std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << microenvironment.density_names[n] << ")"
-				<< " / ||grad(" << microenvironment.density_names[n] << ")||"; 
+				std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"
+				<< " / ||grad(" << get_microenvironment_i()->get_density_names()[n] << ")||"; 
 			}
 			std::cout << std::endl; 
 		}		
@@ -2903,8 +2902,8 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			// which substrate? 
 			
 			std::string substrate_name = node_sec.attribute( "name").value(); 
-			int index = microenvironment.find_density_index( substrate_name ); 
-			std::string actual_name = microenvironment.density_names[ index ]; 
+			int index = get_microenvironment_i()->find_density_index( substrate_name ); 
+			std::string actual_name = get_microenvironment_i()->get_density_names()[ index ]; 
 			
 			// error check 
 			if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )

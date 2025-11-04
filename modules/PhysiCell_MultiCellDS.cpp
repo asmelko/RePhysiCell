@@ -76,7 +76,7 @@ namespace PhysiCell{
 
 void add_PhysiCell_cell_to_open_xml_pugi(  pugi::xml_document& xml_dom, Cell& C ); // not implemented -- future edition 
 
-void add_PhysiCell_cells_to_open_xml_pugi( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment& M  )
+void add_PhysiCell_cells_to_open_xml_pugi( pugi::xml_document& xml_dom, std::string filename_base, Microenvironment_Interface& M  )
 {
 	std::cout << "Warning: " << __FUNCTION__ << " is deprecated and has been removed." << std::endl; 
 		
@@ -93,7 +93,7 @@ void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base ,  double
 
 	// start with a standard BioFVM save
 	
-	add_BioFVM_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base , current_simulation_time , M ); 
+	add_BioFVM_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base , current_simulation_time , *dynamic_cast<Microenvironment_Adapter&>(M).get_biofvm_microenvironment()  ); 
 	
 	// now, add the PhysiCell data 
 

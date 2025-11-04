@@ -361,6 +361,16 @@ public:
 
 	/** @brief Update supply and uptake rates based on current state */
 	virtual void update_rates() = 0;
+
+	// ========================================================================
+	// Configuration query methods
+	// ========================================================================
+
+	/** @brief Check if simulating in 2D mode */
+	virtual bool simulate_2D() const = 0;
+
+	/** @brief Check if gradient calculation is enabled */
+	virtual bool calculate_gradients() const = 0;
 };
 
 // Global accessors for the microenvironment interface
