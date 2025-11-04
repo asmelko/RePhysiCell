@@ -1,7 +1,22 @@
 add_library(BioFVM OBJECT)
+add_library(BioFVM_utils OBJECT)
 
-file(GLOB SOURCES "*.cpp")
-target_sources(BioFVM PRIVATE ${SOURCES})
+target_sources(
+  BioFVM
+  PRIVATE BioFVM_agent_container.cpp
+          BioFVM_basic_agent.cpp
+          BioFVM_mesh.cpp
+          BioFVM_microenvironment_adapter.cpp
+          BioFVM_microenvironment.cpp
+          BioFVM_MultiCellDS.cpp
+          BioFVM_solvers.cpp)
+
+target_sources(
+  BioFVM_utils
+  PRIVATE BioFVM_matlab.cpp
+          BioFVM_utilities.cpp
+          BioFVM_vector.cpp
+          pugixml.cpp)
 
 find_package(OpenMP 4)
 if(OpenMP_CXX_FOUND)
