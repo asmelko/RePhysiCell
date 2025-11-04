@@ -70,7 +70,7 @@
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
 #include "PhysiCell_rules.h"
-#include "../BioFVM/microenvironment_adapter.h" 
+#include "../BioFVM/BioFVM_microenvironment_adapter.h" 
 #include "../BioFVM/BioFVM_vector.h" 
 
 #ifdef ADDON_PHYSIBOSS

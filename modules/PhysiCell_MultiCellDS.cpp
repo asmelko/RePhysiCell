@@ -67,7 +67,7 @@
  
 #include "PhysiCell_MultiCellDS.h"
 #include "../BioFVM/BioFVM_MultiCellDS.h"
-#include "../BioFVM/microenvironment_adapter.h"
+#include "../BioFVM/BioFVM_microenvironment_adapter.h"
 #include "../bio_interface/Bio_microenvironment_interface.h"
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"	

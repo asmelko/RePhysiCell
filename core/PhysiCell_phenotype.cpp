@@ -72,7 +72,7 @@
 #include "./PhysiCell_cell.h"
 #include "../bio_interface/Bio_microenvironment_interface.h"
 #include "../BioFVM/BioFVM_microenvironment.h" // secretion advancement
-#include "../BioFVM/microenvironment_adapter.h"
+#include "../BioFVM/BioFVM_microenvironment_adapter.h"
 
 using namespace BioFVM; 
 

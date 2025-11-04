@@ -65,7 +65,7 @@
 ###############################################################################
 */
 
-#include "microenvironment_adapter.h"
+#include "BioFVM_microenvironment_adapter.h"
 #include "BioFVM.h"
 
 namespace PhysiCell{
