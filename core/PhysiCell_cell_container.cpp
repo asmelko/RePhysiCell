@@ -422,7 +422,7 @@ Cell_Container* create_cell_container( double mechanics_voxel_size )
 	cell_container->initialize( m->get_mesh().bounding_box[0], m->get_mesh().bounding_box[3],
 		m->get_mesh().bounding_box[1], m->get_mesh().bounding_box[4],
 		m->get_mesh().bounding_box[2], m->get_mesh().bounding_box[5],  mechanics_voxel_size );
-	m->set_agent_container( (Agent_Container*) cell_container );
+	m->set_agent_container( cell_container );
 
 	return cell_container; 
 }

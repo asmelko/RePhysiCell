@@ -69,14 +69,14 @@
 #define __PhysiCell_cell_container_h__
 
 #include <vector>
-#include "../BioFVM/BioFVM_agent_container.h" //itf
+#include "../BioFVM/BioFVM_agent_container_interface.h"
 #include "../BioFVM/BioFVM_mesh.h" // mesh
 
 namespace PhysiCell{
 
 class Cell; 
 
-class Cell_Container : public BioFVM::Agent_Container
+class Cell_Container : public BioFVM::Agent_Container_Interface
 {
  private:	
 	std::vector<Cell*> cells_ready_to_divide; // the index of agents ready to divide

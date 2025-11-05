@@ -67,6 +67,7 @@
 
 #include "BioFVM_microenvironment_adapter.h"
 #include "BioFVM.h"
+#include "BioFVM_agent_container.h"
 
 // ============================================================================
 // BioFVM_Microenvironment_Adapter implementation
@@ -87,7 +88,7 @@ Microenvironment_Interface* get_microenvironment_i()
 	return default_microenvironment_interface;
 }
 
-Microenvironment_Adapter::Microenvironment_Adapter(BioFVM::Microenvironment* env, bool take_ownership)
+Microenvironment_Adapter::Microenvironment_Adapter(Microenvironment* env, bool take_ownership)
 	: biofvm_microenvironment(env), owns_microenvironment(take_ownership)
 {
 	if (biofvm_microenvironment == nullptr)
@@ -97,7 +98,7 @@ Microenvironment_Adapter::Microenvironment_Adapter(BioFVM::Microenvironment* env
 }
 
 Microenvironment_Adapter::Microenvironment_Adapter()
-	: biofvm_microenvironment(new BioFVM::Microenvironment()), owns_microenvironment(true)
+	: biofvm_microenvironment(new Microenvironment()), owns_microenvironment(true)
 {
 }
 
@@ -207,17 +208,17 @@ std::vector<unsigned int> Microenvironment_Adapter::nearest_cartesian_indices(co
 	return biofvm_microenvironment->nearest_cartesian_indices(const_cast<std::vector<double>&>(position));
 }
 
-BioFVM::Voxel& Microenvironment_Adapter::voxels(int voxel_index)
+Voxel& Microenvironment_Adapter::voxels(int voxel_index)
 {
 	return biofvm_microenvironment->voxels(voxel_index);
 }
 
-const BioFVM::Voxel& Microenvironment_Adapter::voxels(int voxel_index) const
+const Voxel& Microenvironment_Adapter::voxels(int voxel_index) const
 {
 	return biofvm_microenvironment->voxels(voxel_index);
 }
 
-BioFVM::Voxel& Microenvironment_Adapter::nearest_voxel(const std::vector<double>& position)
+Voxel& Microenvironment_Adapter::nearest_voxel(const std::vector<double>& position)
 {
 	// Need to cast away const for BioFVM's API
 	return biofvm_microenvironment->nearest_voxel(const_cast<std::vector<double>&>(position));
@@ -271,22 +272,22 @@ void Microenvironment_Adapter::reset_all_gradient_vectors()
 	biofvm_microenvironment->reset_all_gradient_vectors();
 }
 
-std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int n)
+std::vector<gradient>& Microenvironment_Adapter::gradient_vector(int n)
 {
 	return biofvm_microenvironment->gradient_vector(n);
 }
 
-std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int i, int j)
+std::vector<gradient>& Microenvironment_Adapter::gradient_vector(int i, int j)
 {
 	return biofvm_microenvironment->gradient_vector(i, j);
 }
 
-std::vector<BioFVM::gradient>& Microenvironment_Adapter::gradient_vector(int i, int j, int k)
+std::vector<gradient>& Microenvironment_Adapter::gradient_vector(int i, int j, int k)
 {
 	return biofvm_microenvironment->gradient_vector(i, j, k);
 }
 
-std::vector<BioFVM::gradient>& Microenvironment_Adapter::nearest_gradient_vector(const std::vector<double>& position)
+std::vector<gradient>& Microenvironment_Adapter::nearest_gradient_vector(const std::vector<double>& position)
 {
 	// Need to cast away const for BioFVM's API
 	return biofvm_microenvironment->nearest_gradient_vector(const_cast<std::vector<double>&>(position));
@@ -370,25 +371,29 @@ bool& Microenvironment_Adapter::is_dirichlet_node(int voxel_index)
 }
 
 // Mesh access
-const BioFVM::Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
+const Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
 {
 	return biofvm_microenvironment->mesh;
 }
 
 // Agent container access
-BioFVM::Agent_Container* Microenvironment_Adapter::get_agent_container()
+Agent_Container_Interface* Microenvironment_Adapter::get_agent_container()
 {
 	return biofvm_microenvironment->agent_container;
 }
 
-const BioFVM::Agent_Container* Microenvironment_Adapter::get_agent_container() const
+const Agent_Container_Interface* Microenvironment_Adapter::get_agent_container() const
 {
 	return biofvm_microenvironment->agent_container;
 }
 
-void Microenvironment_Adapter::set_agent_container(BioFVM::Agent_Container* container)
+void Microenvironment_Adapter::set_agent_container(Agent_Container_Interface* container)
 {
-	biofvm_microenvironment->agent_container = container;
+	if (dynamic_cast<Agent_Container*>(container) == nullptr)
+	{
+		throw std::invalid_argument("Microenvironment_Adapter::set_agent_container: container is not of type Agent_Container");
+	}
+	biofvm_microenvironment->agent_container = dynamic_cast<Agent_Container*>(container);
 }
 
 // Metadata access
@@ -481,22 +486,22 @@ bool Microenvironment_Adapter::calculate_gradients() const
 
 
 // Static adapter instance that wraps the global BioFVM microenvironment
-static BioFVM::Microenvironment_Adapter* global_adapter = nullptr;
+static Microenvironment_Adapter* global_adapter = nullptr;
 
 void initialize_microenvironment_interface()
 {
 	// Get the global BioFVM microenvironment
-	BioFVM::Microenvironment* biofvm_env = &BioFVM::microenvironment;
+	Microenvironment* biofvm_env = &microenvironment;
 
 	// Create an adapter wrapping it (don't take ownership since it's global)
 	if (global_adapter == nullptr)
 	{
-		global_adapter = new BioFVM::Microenvironment_Adapter(biofvm_env, false);
+		global_adapter = new Microenvironment_Adapter(biofvm_env, false);
 		set_default_microenvironment_interface(global_adapter);
 	}
 }
 
-void initialize_microenvironment_interface_from_biofvm(BioFVM::Microenvironment* biofvm_env, bool take_ownership)
+void initialize_microenvironment_interface_from_biofvm(Microenvironment* biofvm_env, bool take_ownership)
 {
 	if (biofvm_env == nullptr)
 	{
@@ -510,11 +515,11 @@ void initialize_microenvironment_interface_from_biofvm(BioFVM::Microenvironment*
 	}
 
 	// Create new adapter
-	global_adapter = new BioFVM::Microenvironment_Adapter(biofvm_env, take_ownership);
+	global_adapter = new Microenvironment_Adapter(biofvm_env, take_ownership);
 	set_default_microenvironment_interface(global_adapter);
 }
 
-BioFVM::Microenvironment* get_biofvm_microenvironment()
+Microenvironment* get_biofvm_microenvironment()
 {
 	if (global_adapter == nullptr)
 	{

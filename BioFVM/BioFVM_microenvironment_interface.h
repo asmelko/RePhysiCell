@@ -70,8 +70,8 @@
 
 #include <string>
 #include <vector>
-#include "../BioFVM/BioFVM_mesh.h"
-#include "../BioFVM/BioFVM_agent_container.h"
+#include "BioFVM_mesh.h"
+#include "BioFVM_agent_container_interface.h"
 
 namespace BioFVM{
 
@@ -280,13 +280,13 @@ public:
 	// ========================================================================
 
 	/** @brief Get pointer to the agent container */
-	virtual Agent_Container* get_agent_container() = 0;
+	virtual Agent_Container_Interface* get_agent_container() = 0;
 
 	/** @brief Get const pointer to the agent container */
-	virtual const Agent_Container* get_agent_container() const = 0;
+	virtual const Agent_Container_Interface* get_agent_container() const = 0;
 
 	/** @brief Set the agent container */
-	virtual void set_agent_container(Agent_Container* container) = 0;
+	virtual void set_agent_container(Agent_Container_Interface* container) = 0;
 
 	// ========================================================================
 	// Metadata access

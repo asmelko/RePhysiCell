@@ -72,6 +72,8 @@
 
 namespace BioFVM{
 
+class Microenvironment;
+
 /**
  * @brief Adapter class that wraps BioFVM::Microenvironment
  *
@@ -188,9 +190,9 @@ public:
 	const Cartesian_Mesh& get_mesh() const override;
 
 	// Agent container access
-	Agent_Container* get_agent_container() override;
-	const Agent_Container* get_agent_container() const override;
-	void set_agent_container(Agent_Container* container) override;
+	Agent_Container_Interface* get_agent_container() override;
+	const Agent_Container_Interface* get_agent_container() const override;
+	void set_agent_container(Agent_Container_Interface* container) override;
 
 	// Metadata access
 	std::vector<std::string>& get_density_names() override;

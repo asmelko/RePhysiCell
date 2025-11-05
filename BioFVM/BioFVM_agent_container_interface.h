@@ -46,34 +46,26 @@
 #############################################################################
 */
 
-#ifndef __BioFVM_agent_container_h__
-#define __BioFVM_agent_container_h__
+#ifndef __BioFVM_agent_container_interface_h__
+#define __BioFVM_agent_container_interface_h__
 
 #include <vector>
-
-#include "BioFVM_agent_container_interface.h"
 
 namespace BioFVM{
 
 class Basic_Agent; 
 
-class Agent_Container : public Agent_Container_Interface
+class Agent_Container_Interface
 {
- private:	
-
  public:
-	std::vector<std::vector<Basic_Agent*> > agent_grid;
-	Agent_Container();	
-	void register_agent( Basic_Agent* agent );
-	void initialize( int num_voxels );
-	void remove_agent(Basic_Agent* agent );
-	void add_agent_to_outer_voxel(Basic_Agent* agent);
-	void remove_agent_from_voxel(Basic_Agent* agent, int voxel_index);
-	void add_agent_to_voxel(Basic_Agent* agent, int voxel_index);
-	void update_all_cells(double dt);
+	virtual void register_agent( Basic_Agent* agent ) {}
+	virtual void initialize( int num_voxels ) {}
+	virtual void remove_agent(Basic_Agent* agent ) {}
+	virtual void add_agent_to_outer_voxel(Basic_Agent* agent) {}
+	virtual void remove_agent_from_voxel(Basic_Agent* agent, int voxel_index) {}
+	virtual void add_agent_to_voxel(Basic_Agent* agent, int voxel_index) {}
+	virtual void update_all_cells(double dt) = 0;
 };
-
-int find_escaping_face_index(Basic_Agent* agent);
 
 };
 #endif
