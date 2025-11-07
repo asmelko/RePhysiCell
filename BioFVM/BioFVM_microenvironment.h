@@ -50,6 +50,7 @@
 #define __BioFVM_microenvironment_h__
 
 #include <sstream>
+#include "BioFVM_agent_container_interface.h"
 #include "BioFVM_mesh.h"
 #include "BioFVM_agent_container.h"
 #include "BioFVM_MultiCellDS.h"
@@ -138,7 +139,8 @@ class Microenvironment
 	
 	/*! The mesh for the diffusing quantities */ 
 	Cartesian_Mesh mesh;
-	Agent_Container * agent_container;	
+	Agent_Container base_agent_container;
+	Agent_Container_Interface * agent_container;	
 	std::string spatial_units; 
 	std::string time_units; 
 	std::string name; 

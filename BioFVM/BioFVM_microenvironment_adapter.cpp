@@ -389,11 +389,7 @@ const Agent_Container_Interface* Microenvironment_Adapter::get_agent_container()
 
 void Microenvironment_Adapter::set_agent_container(Agent_Container_Interface* container)
 {
-	if (dynamic_cast<Agent_Container*>(container) == nullptr)
-	{
-		throw std::invalid_argument("Microenvironment_Adapter::set_agent_container: container is not of type Agent_Container");
-	}
-	biofvm_microenvironment->agent_container = dynamic_cast<Agent_Container*>(container);
+	biofvm_microenvironment->agent_container = container;
 }
 
 // Metadata access

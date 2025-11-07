@@ -51,13 +51,8 @@
 
 namespace BioFVM{
 
-Basic_Agent_Adapter::Basic_Agent_Adapter(Basic_Agent* agent) 
-	: wrapped_agent(agent), owns_agent(false)
-{
-}
-
-Basic_Agent_Adapter::Basic_Agent_Adapter()
-	: wrapped_agent(create_basic_agent()), owns_agent(true)
+Basic_Agent_Adapter::Basic_Agent_Adapter(Basic_Agent* agent, bool take_ownership) 
+	: wrapped_agent(agent), owns_agent(take_ownership)
 {
 }
 
@@ -65,7 +60,7 @@ Basic_Agent_Adapter::~Basic_Agent_Adapter()
 {
 	if (owns_agent && wrapped_agent != nullptr)
 	{
-		delete_basic_agent(wrapped_agent);
+		delete wrapped_agent;
 		wrapped_agent = nullptr;
 	}
 }
@@ -281,7 +276,7 @@ std::vector<std::vector<double>>& Basic_Agent_Adapter::nearest_gradient_vector( 
 
 Basic_Agent_Adapter* create_basic_agent_adapter( void )
 {
-	return new Basic_Agent_Adapter();
+	return new Basic_Agent_Adapter(new Basic_Agent(), true);
 }
 
 };

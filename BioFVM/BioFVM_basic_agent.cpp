@@ -117,7 +117,7 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 	update_voxel_index();
 	
 	// make sure the agent is not already registered
-	get_microenvironment()->agent_container->register_agent(this);
+	get_microenvironment()->base_agent_container.register_agent(this);
 	return true;
 }
 
@@ -252,7 +252,7 @@ Basic_Agent* create_basic_agent( void )
 void delete_basic_agent( int index )
 {
 	// deregister agent in microenvironment
-	all_basic_agents[index]->get_microenvironment()->agent_container->remove_agent(all_basic_agents[index]);
+	all_basic_agents[index]->get_microenvironment()->base_agent_container.remove_agent(all_basic_agents[index]);
 	// de-allocate (delete) the Basic_Agent; 
 	
 	delete all_basic_agents[index]; 

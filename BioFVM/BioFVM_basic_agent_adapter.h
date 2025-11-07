@@ -73,14 +73,10 @@ private:
 public:
 	/**
 	 * @brief Construct adapter that wraps an existing Basic_Agent
-	 * @param agent Pointer to the Basic_Agent to wrap (ownership not transferred)
+	 * @param agent Pointer to the Basic_Agent to wrap 
+	 * @param take_ownership If true, this adapter will delete the agent when destroyed
 	 */
-	explicit Basic_Agent_Adapter(Basic_Agent* agent);
-	
-	/**
-	 * @brief Construct adapter and create a new Basic_Agent
-	 */
-	Basic_Agent_Adapter();
+	explicit Basic_Agent_Adapter(Basic_Agent* agent, bool take_ownership = false);
 	
 	virtual ~Basic_Agent_Adapter();
 	

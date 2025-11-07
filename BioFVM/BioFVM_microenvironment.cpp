@@ -174,6 +174,8 @@ Microenvironment::Microenvironment()
 	if(default_microenvironment==NULL)
 	{ default_microenvironment=this; }
 
+	agent_container = &base_agent_container;
+
 	return; 
 }
 
