@@ -67,8 +67,6 @@
 
 #include "./PhysiCell_pathology.h"
 
-#include "../BioFVM/BioFVM_utilities.h" // utils
-
 namespace PhysiCell{
 
 PhysiCell_SVG_options_struct PhysiCell_SVG_options;

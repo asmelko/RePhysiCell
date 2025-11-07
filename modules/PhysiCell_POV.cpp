@@ -66,9 +66,6 @@
 */
 
 #include "./PhysiCell_POV.h" 
-
-#include "../BioFVM/BioFVM_vector.h" 
-
 using namespace BioFVM; 
 	
 Clipping_Plane::Clipping_Plane()

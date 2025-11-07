@@ -151,9 +151,6 @@ void setup_microenvironment( void )
 	
 	initialize_microenvironment(); 	
 	
-
-	// Initialize PhysiCell microenvironment interface
-	BioFVM::initialize_microenvironment_interface();
 	return; 
 }
 

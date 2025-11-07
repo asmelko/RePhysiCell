@@ -75,6 +75,8 @@
 #ifndef _PhysiCell_POV_h_
 #define _PhysiCell_POV_h_
 
+#include "../BioFVM/BioFVM_vector.h" 
+
 class Clipping_Plane
 {
  private:

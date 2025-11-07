@@ -65,10 +65,10 @@
 ###############################################################################
 */
 
+#include "../core/PhysiCell.h"
 #include "./PhysiCell_various_outputs.h"
 
 #include "./PhysiCell_settings.h"
-#include "../BioFVM/BioFVM_utilities.h"
 
 namespace PhysiCell{
 

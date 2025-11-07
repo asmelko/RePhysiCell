@@ -74,6 +74,7 @@
 #include "../core/PhysiCell.h"
 
 #include "./PhysiCell_SVG.h"
+#include "../BioFVM/BioFVM_utilities.h"
 
 namespace PhysiCell{
 	
