@@ -48,6 +48,7 @@
 
 #include "BioFVM_agent_container.h"
 #include "BioFVM_basic_agent.h"
+#include "BioFVM_vector.h"
 
 
 namespace BioFVM{
@@ -65,8 +66,4 @@ void Agent_Container::remove_agent_from_voxel(Basic_Agent* agent, int voxel_inde
 void Agent_Container::add_agent_to_voxel(Basic_Agent* agent, int voxel_index){}
 void Agent_Container::update_all_cells(double dt){}
 
-std::vector<Basic_Agent_Interface*>* Agent_Container_Interface::get_all_basic_agents()
-{
-    return (std::vector<Basic_Agent_Interface*>*)&all_basic_agents;
-}
 };

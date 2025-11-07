@@ -70,7 +70,7 @@
 
 #include <vector>
 #include "../BioFVM/BioFVM_agent_container_interface.h"
-#include "../BioFVM/BioFVM_mesh.h" // mesh
+#include "../BioFVM/BioFVM_mesh.h"
 
 namespace PhysiCell{
 

@@ -50,13 +50,11 @@
 #define __BioFVM_basic_agent_h__
 
 #include <vector>
+#include "BioFVM_microenvironment.h"
 #include "BioFVM_matlab.h"
+#include "BioFVM_vector.h"
 
 namespace BioFVM{
-
-class Microenvironment;
-class Microenvironment_Interface;
-class Basic_Agent_Adapter;
 
 void reset_max_basic_agent_ID( void );
 

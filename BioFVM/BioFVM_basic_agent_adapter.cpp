@@ -279,4 +279,9 @@ Basic_Agent_Adapter* create_basic_agent_adapter( void )
 	return new Basic_Agent_Adapter(new Basic_Agent(), true);
 }
 
+std::vector<Basic_Agent_Interface*>* Agent_Container_Interface::get_all_basic_agents()
+{
+    return (std::vector<Basic_Agent_Interface*>*)&all_basic_agents;
+}
+
 };

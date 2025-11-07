@@ -64,7 +64,6 @@ extern std::string BioFVM_URL;
 #include "BioFVM_microenvironment.h"
 #include "BioFVM_solvers.h"
 #include "BioFVM_basic_agent.h" 
-#include "BioFVM_microenvironment_adapter.h" 
 
 
 #endif

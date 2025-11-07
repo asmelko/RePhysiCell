@@ -67,10 +67,10 @@
 
 #include "./PhysiCell_phenotype.h"
 
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "./PhysiCell_constants.h"
 #include "./PhysiCell_utilities.h"
 #include "./PhysiCell_cell.h"
-#include "../BioFVM/BioFVM_microenvironment_interface.h"
 
 using namespace BioFVM; 
 

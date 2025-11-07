@@ -2,7 +2,6 @@
 #include "PhysiMeSS_cell.h"
 #include <algorithm>
 
-#include "../../BioFVM/BioFVM_microenvironment_interface.h"
 #include "../../BioFVM/BioFVM_vector.h"
 
 bool isFibre(PhysiCell::Cell* pCell) 

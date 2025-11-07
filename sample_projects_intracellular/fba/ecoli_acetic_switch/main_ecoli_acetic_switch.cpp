@@ -75,6 +75,7 @@
 #include <string>
 
 #include "./BioFVM/BioFVM.h"
+#include "./BioFVM/BioFVM_microenvironment_adapter.h"
 #include "./core/PhysiCell.h"
 #include "./modules/PhysiCell_standard_modules.h"
 

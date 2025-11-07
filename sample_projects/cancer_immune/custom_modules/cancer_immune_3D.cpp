@@ -66,6 +66,7 @@
 */
 
 #include "./BioFVM/BioFVM.h"
+#include "./BioFVM/BioFVM_microenvironment_adapter.h"
 #include "./cancer_immune_3D.h"
 
 Cell_Definition* pImmuneCell; 

@@ -73,9 +73,10 @@
 #include <unordered_map>
 #include <map> 
 
-#include "../modules/PhysiCell_settings.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "../BioFVM/BioFVM_basic_agent_interface.h"
+
+#include "../modules/PhysiCell_settings.h"
 
 using namespace BioFVM; 
 
