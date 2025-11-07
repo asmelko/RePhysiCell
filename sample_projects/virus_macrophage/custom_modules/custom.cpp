@@ -228,7 +228,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 	
 	std::vector<std::string> output = false_cell_coloring_cytometry(pCell); 
 		
-	if( pCell->phenotype.death.dead == false && pCell->type == 1 )
+	if( pCell->phenotype.death.dead == false && pCell->get_type() == 1 )
 	{
 		 output[0] = "black"; 
 		 output[2] = "black"; 
@@ -258,7 +258,7 @@ std::vector<std::string> viral_coloring_function( Cell* pCell )
 		 return output; 
 	}
 	
-	if( pCell->type != pMacrophage->type )
+	if( pCell->get_type() != pMacrophage->type )
 	{
 		output[0] = "blue"; 
 		output[2] = "darkblue"; 
@@ -307,7 +307,7 @@ std::vector<std::string> viral_coloring_function_bar( Cell* pCell )
 		 return output; 
 	}
 	
-	if( pCell->type != pMacrophage->type )
+	if( pCell->get_type() != pMacrophage->type )
 	{
 		output[0] = "blue"; 
 		output[2] = "darkblue"; 
@@ -399,11 +399,11 @@ void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 	{
 		pTestCell = neighbors[n]; 
 		// if it is not me and not a macrophage 
-		if( pTestCell != pCell && pTestCell->type != pMacrophage->type )
+		if( pTestCell != pCell && pTestCell->get_type() != pMacrophage->type )
 		{
 			// calculate distance to the cell 
-			std::vector<double> displacement = pTestCell->position;
-			displacement -= pCell->position;
+			std::vector<double> displacement = pTestCell->get_position();
+			displacement -= pCell->get_position();
 			double distance = norm( displacement ); 
 			
 			double max_distance = pCell->phenotype.geometry.radius + 
@@ -508,22 +508,22 @@ void avoid_boundaries( Cell* pCell )
 	
 	// near edge: 
 	bool near_edge = false; 
-	if( pCell->position[0] < Xmin + avoid_zone || pCell->position[0] > Xmax - avoid_zone )
+	if( pCell->get_position()[0] < Xmin + avoid_zone || pCell->get_position()[0] > Xmax - avoid_zone )
 	{ near_edge = true; } 
 	
-	if( pCell->position[1] < Ymin + avoid_zone || pCell->position[1] > Ymax - avoid_zone )
+	if( pCell->get_position()[1] < Ymin + avoid_zone || pCell->get_position()[1] > Ymax - avoid_zone )
 	{ near_edge = true; } 
 	
 	if( get_microenvironment_i()->simulate_2D() == false )
 	{
-		if( pCell->position[2] < Zmin + avoid_zone || pCell->position[2] > Zmax - avoid_zone )
+		if( pCell->get_position()[2] < Zmin + avoid_zone || pCell->get_position()[2] > Zmax - avoid_zone )
 		{ near_edge = true; } 
 	}
 	
 	if( near_edge )
 	{
-		pCell->velocity = pCell->position; // move towards origin 
-		pCell->velocity *= avoid_speed; // move towards origin 
+		pCell->get_velocity() = pCell->get_position(); // move towards origin 
+		pCell->get_velocity() *= avoid_speed; // move towards origin 
 	}
 	
 	return; 

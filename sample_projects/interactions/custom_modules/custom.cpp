@@ -481,7 +481,7 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		{ num_dead++; }
 		else
 		{ 
-			if( pC->type == bacteria_type )
+			if( pC->get_type() == bacteria_type )
 			{ num_bacteria++; }
 		}
 	}
@@ -679,11 +679,11 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		{ num_dead++; }
 		else
 		{ 
-			if( pC->type == stem_type )
+			if( pC->get_type() == stem_type )
 			{ num_stem++; }
-			if( pC->type == num_differentiated )
+			if( pC->get_type() == num_differentiated )
 			{ num_differentiated++; }
-			if( pC->type == bacteria_type )
+			if( pC->get_type() == bacteria_type )
 			{ num_bacteria++; }
 		}
 	}

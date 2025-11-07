@@ -625,9 +625,9 @@ void SVG_plot(std::string filename, double z_slice, double time, std::vector<std
 	{
 		Cell* pC = (*all_cells)[i]; // global_cell_list[i]; 
 
-		if( fabs( (pC->position)[2] - z_slice ) < pC->phenotype.geometry.radius )
+		if( fabs( (pC->get_position())[2] - z_slice ) < pC->phenotype.geometry.radius )
 		{
-			os << "   <g id=\"cell" << pC->ID << "\" "
+			os << "   <g id=\"cell" << pC->get_ID() << "\" "
 			   << "type=\"" << pC->type_name << "\" "; // new April 2022
 			if( pC->phenotype.death.dead == true )
 			{ os << "dead=\"true\" " ; } 
@@ -768,7 +768,7 @@ void standard_agent_SVG(std::ofstream& os, PhysiCell::Cell* pC, double z_slice, 
 
 	double r = pC->phenotype.geometry.radius ; 
 	double rn = pC->phenotype.geometry.nuclear_radius ; 
-	double z = fabs( (pC->position)[2] - z_slice) ; 
+	double z = fabs( (pC->get_position())[2] - z_slice) ; 
 
 	std::vector<std::string> Colors = cell_coloring_function( pC ); 
 	
@@ -776,13 +776,13 @@ void standard_agent_SVG(std::ofstream& os, PhysiCell::Cell* pC, double z_slice, 
 	double plot_radius = sqrt( r*r - z*z );
 
 	// then normal cell, plot sphere if it intersects z = 0;
-	Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower,
+	Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower,
 						plot_radius , 0.5, Colors[1], Colors[0] );
 	// plot the nucleus if it, too intersects z = 0;
 	if( fabs(z) < rn && PhysiCell_SVG_options.plot_nuclei == true )
 	{
 		plot_radius = sqrt( rn*rn - z*z );
-		Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower,
+		Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower,
 							plot_radius, 0.5, Colors[3],Colors[2]);
 	}
 }
@@ -1735,8 +1735,8 @@ std::vector<std::string> paint_by_number_cell_coloring( Cell* pCell )
 	// paint by number -- by cell type 
 	
 	std::string interior_color = "white"; 
-	if( pCell->type < 13 )
-	{ interior_color = colors[ pCell->type ]; }
+	if( pCell->get_type() < 13 )
+	{ interior_color = colors[ pCell->get_type() ]; }
 	
 	output[0] = interior_color; // set cytoplasm color 
 	

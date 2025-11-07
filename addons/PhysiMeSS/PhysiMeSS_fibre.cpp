@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "../../BioFVM/BioFVM_microenvironment_interface.h"
+#include "../../BioFVM/BioFVM_vector.h"
 
 bool isFibre(PhysiCell::Cell* pCell) 
 {
@@ -194,7 +195,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
     }
 
     double distance = 0.0;
-    nearest_point_on_fibre(cell->position, displacement);
+    nearest_point_on_fibre(cell->get_position(), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -204,7 +205,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
     if (distance <= R) {
         std::vector<double> point_of_impact(3, 0.0);
         for (int index = 0; index < 3; index++) {
-            point_of_impact[index] = (*cell).position[index] - displacement[index];
+            point_of_impact[index] = (*cell).get_position()[index] - displacement[index];
         }
         // cell-fibre pushing only if fibre no crosslinks
         if (X_crosslink_count == 0) {
@@ -227,7 +228,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
 
                 if (fabs(temp_r) < 1e-16) { return; }
                 temp_r /= distance;
-                naxpy(&velocity, temp_r, displacement);
+                naxpy(&get_velocity(), temp_r, displacement);
             }
 
             // fibre rotation turned on (2D)
@@ -254,7 +255,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
             double distance_fibre_centre_to_crosslink = 0.0;
             std::vector<double> fibre_centre_to_crosslink(3, 0.0);
             for (int i = 0; i < 2; i++) {
-                fibre_centre_to_crosslink[i] = fibres_crosslink_point[i]-position[i];
+                fibre_centre_to_crosslink[i] = fibres_crosslink_point[i]-get_position()[i];
                 distance_fibre_centre_to_crosslink += fibre_centre_to_crosslink[i]*fibre_centre_to_crosslink[i];
             }
             distance_fibre_centre_to_crosslink = sqrt(distance_fibre_centre_to_crosslink);
@@ -272,8 +273,8 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
             state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
             state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
             normalize(&state.orientation);
-            position[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*state.orientation[0];
-            position[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*state.orientation[1];
+            get_position()[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*state.orientation[0];
+            get_position()[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*state.orientation[1];
         }
     }
 
@@ -298,8 +299,8 @@ void PhysiMeSS_Fibre::register_fibre_voxels() {
     std::vector<double> fibre_start(3, 0.0);
     std::vector<double> fibre_end(3, 0.0);
     for (unsigned int i = 0; i < 3; i++) {
-        fibre_start[i] = this->position[i] - this->mLength * this->state.orientation[i];
-        fibre_end[i] = this->position[i] + this->mLength * this->state.orientation[i];
+        fibre_start[i] = this->get_position()[i] - this->mLength * this->state.orientation[i];
+        fibre_end[i] = this->get_position()[i] + this->mLength * this->state.orientation[i];
     }
     // first add the voxel of the fibre end point
     voxel = this->get_container()->underlying_mesh.nearest_voxel_index(fibre_end);
@@ -333,7 +334,7 @@ void PhysiMeSS_Fibre::register_fibre_voxels() {
 
 void PhysiMeSS_Fibre::deregister_fibre_voxels() 
 {
-    int centre_voxel = this->get_container()->underlying_mesh.nearest_voxel_index(this->position);
+    int centre_voxel = this->get_container()->underlying_mesh.nearest_voxel_index(this->get_position());
     for (int voxel: physimess_voxels) {
         if (voxel != centre_voxel) {
             this->get_container()->remove_agent_from_voxel(this, voxel);
@@ -358,7 +359,7 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
 
     double distance = 0;
     for (unsigned int i = 0; i < 3; i++) {
-        fibre_to_agent[i] = point[i] - (this->position[i]
+        fibre_to_agent[i] = point[i] - (this->get_position()[i]
                                         - this->mLength * this->state.orientation[i]);
         fibre_to_agent_length_squared += fibre_to_agent[i] * fibre_to_agent[i];
         fibre_to_agent_dot_fibre_vector += fibre_to_agent[i] * fibre_length * this->state.orientation[i];
@@ -375,7 +376,7 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
         // “point” is closest to the other endpoint of “fibre_agent”
     else if (fibre_to_agent_dot_fibre_vector > fibre_length * fibre_length) {
         for (unsigned int i = 0; i < 3; i++) {
-            displacement[i] = point[i] - (this->position[i]
+            displacement[i] = point[i] - (this->get_position()[i]
                                             + this->mLength * this->state.orientation[i]);
         }
         //std::cout << "The point is closest to the end of the fibre" << std::endl;
@@ -413,11 +414,11 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
         std::vector<double> point4(3, 0.0);
         for (int i = 0; i < 3; i++) {
             // endpoints of "this" fibre
-            point1[i] = this->position[i] - mLength * this->state.orientation[i];
-            point2[i] = this->position[i] + mLength * this->state.orientation[i];
+            point1[i] = this->get_position()[i] - mLength * this->state.orientation[i];
+            point2[i] = this->get_position()[i] + mLength * this->state.orientation[i];
             // endpoints of "neighbor" fibre
-            point3[i] = fibre_neighbor->position[i] - fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
-            point4[i] = fibre_neighbor->position[i] + fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
+            point3[i] = fibre_neighbor->get_position()[i] - fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
+            point4[i] = fibre_neighbor->get_position()[i] + fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
         }
 
         //vectors between fibre endpoints
@@ -433,7 +434,7 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
             // vector from "fibre" to "neighbor"
             p1_to_p3[i] = point3[i] - point1[i];
             // vector between fibre centres
-            centre_to_centre[i] = fibre_neighbor->position[i] - this->position[i];
+            centre_to_centre[i] = fibre_neighbor->get_position()[i] - this->get_position()[i];
         }
 
         double co_radius = this->mRadius + fibre_neighbor->mRadius;
@@ -460,7 +461,7 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
                 this->fibres_crosslinkers.end()) {
                 this->fibres_crosslinkers.push_back(fibre_neighbor);
             }
-            this->fibres_crosslink_point = this->position + this->mLength * centre_to_centre;
+            this->fibres_crosslink_point = this->get_position() + this->mLength * centre_to_centre;
         }
         /* (2) parallel fibres may sit on top of one another
             we check the distance between fibre end points and

@@ -5,6 +5,8 @@ target_sources(
   BioFVM
   PRIVATE BioFVM_agent_container.cpp
           BioFVM_basic_agent.cpp
+          BioFVM_basic_agent_adapter.cpp
+          BioFVM_basic_agent_PIMPL.cpp
           BioFVM_mesh.cpp
           BioFVM_microenvironment_adapter.cpp
           BioFVM_microenvironment.cpp

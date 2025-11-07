@@ -99,7 +99,7 @@ int write_test_report(std::vector<Cell*> all_cells, double timepoint)
     for(int i=0;i<all_cells.size();i++)
     {
         phenotype_code=all_cells[i]->phenotype.cycle.current_phase().code;
-        outputFile<<i<<"\t"<<all_cells[i]->ID<<"\t"<<all_cells[i]->position[0]<<"\t" << all_cells[i]->position[1] <<"\t"<< all_cells[i]->position[2]<<"\t";
+        outputFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->get_position()[0]<<"\t" << all_cells[i]->get_position()[1] <<"\t"<< all_cells[i]->get_position()[2]<<"\t";
         outputFile<<all_cells[i]->phenotype.geometry.radius<<"\t"<<phenotype_code<< "\t"<< all_cells[i]->
         phenotype.cycle.data.elapsed_time_in_phase <<std::endl;
          

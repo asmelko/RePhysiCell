@@ -49,22 +49,17 @@
 #ifndef __BioFVM_agent_container_interface_h__
 #define __BioFVM_agent_container_interface_h__
 
-#include <vector>
-
+#include "BioFVM_basic_agent_interface.h"
 namespace BioFVM{
-
-class Basic_Agent; 
 
 class Agent_Container_Interface
 {
  public:
-	virtual void register_agent( Basic_Agent* agent ) {}
-	virtual void initialize( int num_voxels ) {}
-	virtual void remove_agent(Basic_Agent* agent ) {}
-	virtual void add_agent_to_outer_voxel(Basic_Agent* agent) {}
-	virtual void remove_agent_from_voxel(Basic_Agent* agent, int voxel_index) {}
-	virtual void add_agent_to_voxel(Basic_Agent* agent, int voxel_index) {}
 	virtual void update_all_cells(double dt) = 0;
+
+	static std::vector<Basic_Agent_Interface*>* get_all_basic_agents();
+
+	virtual ~Agent_Container_Interface() = default;
 };
 
 };

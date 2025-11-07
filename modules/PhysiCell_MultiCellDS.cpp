@@ -792,14 +792,14 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		// fwrite( (char*) &( ID_temp ) , sizeof(double) , 1 , fp ); 
 
 		// name = "ID"; 
-		dTemp = (double) pCell->ID;
+		dTemp = (double) pCell->get_ID();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "position";    NOTE very different syntax for writing vectors!
-        std::fwrite( pCell->position.data() , sizeof(double) , 3 , fp );
+        std::fwrite( pCell->get_position().data() , sizeof(double) , 3 , fp );
 		// name = "total_volume"; 
 		std::fwrite( &( pCell->phenotype.volume.total ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_type"; 
-		dTemp = (double) pCell->type;
+		dTemp = (double) pCell->get_type();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "cycle_model"; 
 		dTemp = (double) pCell->phenotype.cycle.model().code; 
@@ -825,7 +825,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
  /* state variables to save */ 
 // state
 		// name = "velocity"; 
-		std::fwrite( pCell->velocity.data() , sizeof(double) , 3 , fp ); 
+		std::fwrite( pCell->get_velocity().data() , sizeof(double) , 3 , fp ); 
 		// name = "pressure"; 
 		std::fwrite( &( pCell->state.simple_pressure ) , sizeof(double) , 1 , fp ); 
 		// name = "number_of_nuclei"; 
@@ -971,7 +971,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		Cell* pTarget = pCell->phenotype.cell_interactions.pAttackTarget; 
 		int AttackID = -1; 
 		if( pTarget )
-		{ AttackID = pTarget->ID; }
+		{ AttackID = pTarget->get_ID(); }
 		dTemp = (double) AttackID; 
 		std::fwrite( &(dTemp) , sizeof(double) , 1 , fp ); 
  		// name = "attack_damage_rate"; 
@@ -1232,11 +1232,11 @@ void write_neighbor_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->ID << ": " ; 
+		buffer << (*all_cells)[i]->get_ID() << ": " ; 
 		int size = (*all_cells)[i]->state.neighbors.size(); 
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.neighbors[j]->ID; 
+			buffer << (*all_cells)[i]->state.neighbors[j]->get_ID(); 
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1259,11 +1259,11 @@ void write_attached_cells_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->ID << ": " ; 
+		buffer << (*all_cells)[i]->get_ID() << ": " ; 
 		int size = (*all_cells)[i]->state.attached_cells.size(); 
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.attached_cells[j]->ID; 
+			buffer << (*all_cells)[i]->state.attached_cells[j]->get_ID(); 
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1285,11 +1285,11 @@ void write_spring_attached_cells_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->ID << ": " ; 
+		buffer << (*all_cells)[i]->get_ID() << ": " ; 
 		int size = (*all_cells)[i]->state.spring_attachments.size();
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.spring_attachments[j]->ID; 
+			buffer << (*all_cells)[i]->state.spring_attachments[j]->get_ID(); 
 			if( j != size-1 )
 			{ buffer << ","; }
 		}

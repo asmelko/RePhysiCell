@@ -321,7 +321,7 @@ void RoadRunnerIntracellular::save_libRR(std::string path, std::string index)
 	state_file << "---------  dummy output from save_libRR  ---------" << std::endl;
 	state_file << "ID,state" << std::endl;
 	for( auto cell : *PhysiCell::all_cells )
-		state_file << cell->ID << "," << cell->phenotype.intracellular->get_state() << std::endl;
+		state_file << cell->get_ID() << "," << cell->phenotype.intracellular->get_state() << std::endl;
 	state_file.close();
 }
 

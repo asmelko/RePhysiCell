@@ -277,8 +277,8 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt )
 { 
 
-	std::vector<double> displacement = pOther->position;
-	displacement -= pMe->position;
+	std::vector<double> displacement = pOther->get_position();
+	displacement -= pMe->get_position();
 	double distance = norm( displacement ); 
 			
 	double max_distance = pMe->phenotype.geometry.radius + 
@@ -315,13 +315,13 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 	// Check if there is ECM material in given voxel
 	//double dens2 = get_microenvironment_i()->density_vector(index_voxel)[index_ecm];
 	double dens = pC->get_microenvironment()->nearest_density_vector(index_voxel)[index_ecm];
-	double ecmrad = sqrt(3.0) * pC->get_microenvironment()->mesh.dx * 0.5;
+	double ecmrad = sqrt(3.0) * pC->get_microenvironment()->get_mesh().dx * 0.5;
 	// if voxel is "full", density is 1
 	dens = std::min( dens, 1.0 ); 
 	if ( dens > EPSILON )
 	{
 		// Distance between agent center and ECM voxel center
-		pC->displacement = pC->position - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
+		pC->displacement = pC->get_position() - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
 		double distance = norm(pC->displacement);
 		// Make sure that the distance is not zero
 		distance = std::max(distance, EPSILON);
@@ -374,7 +374,7 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 			return;
 		tmp_r/=distance;
 
-		axpy( &pC->velocity , tmp_r , pC->displacement ); 
+		axpy( &pC->get_velocity() , tmp_r , pC->displacement ); 
 	}
 
 }

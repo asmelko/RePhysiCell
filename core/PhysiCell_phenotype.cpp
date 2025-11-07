@@ -922,7 +922,7 @@ void Secretion::sync_to_microenvironment( Microenvironment_Interface* pNew_Micro
 	return; 
 }
 
-void Secretion::advance( Basic_Agent* pCell, Phenotype& phenotype , double dt )
+void Secretion::advance( Basic_Agent_Interface* pCell, Phenotype& phenotype , double dt )
 {
 	// if this phenotype is not associated with a cell, exit 
 	if( pCell == NULL )
@@ -941,18 +941,13 @@ void Secretion::advance( Basic_Agent* pCell, Phenotype& phenotype , double dt )
 	}
 
 	// make sure the associated cell has the correct rate vectors 
-	if( pCell->secretion_rates != &secretion_rates )
+	if( pCell->get_secretion_rates() != &secretion_rates )
 	{
-		delete pCell->secretion_rates; 
-		delete pCell->uptake_rates; 
-		delete pCell->saturation_densities; 
-		delete pCell->net_export_rates; 
-		
-		pCell->secretion_rates = &secretion_rates; 
-		pCell->uptake_rates = &uptake_rates; 
-		pCell->saturation_densities = &saturation_densities; 
-		pCell->net_export_rates = &net_export_rates; 
-		
+		pCell->set_secretion_rates( &secretion_rates );
+		pCell->set_uptake_rates( &uptake_rates );
+		pCell->set_saturation_densities( &saturation_densities );
+		pCell->set_net_export_rates( &net_export_rates );
+
 		pCell->set_total_volume( phenotype.volume.total ); 
 		pCell->set_internal_uptake_constants( dt );
 	}
@@ -1059,16 +1054,13 @@ void Molecular::sync_to_microenvironment( Microenvironment_Interface* pNew_Micro
 	return; 
 }
 
-void Molecular::sync_to_cell( Basic_Agent* pCell )
+void Molecular::sync_to_cell( Basic_Agent_Interface* pCell )
 {
-	delete pCell->internalized_substrates;
-	pCell->internalized_substrates = &internalized_total_substrates;
+	pCell->set_internalized_substrates( &internalized_total_substrates );
 	
-	delete pCell->fraction_released_at_death;
-	pCell->fraction_released_at_death = &fraction_released_at_death; 
+	pCell->set_fraction_released_at_death( &fraction_released_at_death );
 	
-	delete pCell->fraction_transferred_when_ingested; 
-	pCell->fraction_transferred_when_ingested = &fraction_transferred_when_ingested; 
+	pCell->set_fraction_transferred_when_ingested( &fraction_transferred_when_ingested );
 
 	return; 
 }

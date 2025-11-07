@@ -336,9 +336,9 @@ void head_migration_direction( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	// use this for fun rotational paths 
 	/*
-	double r = norm( pCell->position ) + 1e-16; 
-	phenotype.motility.migration_bias_direction[0] = - pCell->position[1] / r; 
-	phenotype.motility.migration_bias_direction[1] = pCell->position[0] / r; 
+	double r = norm( pCell->get_position() ) + 1e-16; 
+	phenotype.motility.migration_bias_direction[0] = - pCell->get_position()[1] / r; 
+	phenotype.motility.migration_bias_direction[1] = pCell->get_position()[0] / r; 
 
 	normalize( &(phenotype.motility.migration_bias_direction) ); 
 	return; 

@@ -78,7 +78,7 @@
 
 #include "./PhysiCell_standard_models.h" 
 
-#include "../BioFVM/BioFVM_basic_agent.h"
+#include "../BioFVM/BioFVM_basic_agent_PIMPL.h"
 
 using namespace BioFVM; 
 
@@ -161,7 +161,7 @@ class Cell_State
 	Cell_State(); 
 };
 
-class Cell : public Basic_Agent 
+class Cell : public Basic_Agent_PIMPL
 {
  private: 
 	Cell_Container * container;

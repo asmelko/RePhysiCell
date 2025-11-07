@@ -75,6 +75,7 @@
 
 #include "../modules/PhysiCell_settings.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_basic_agent_interface.h"
 
 using namespace BioFVM; 
 
@@ -471,7 +472,7 @@ class Secretion
 	// pMicroenvironment
 	void sync_to_current_microenvironment( void ); // done 
 	
-	void advance( Basic_Agent* pCell, Phenotype& phenotype , double dt ); 
+	void advance( Basic_Agent_Interface* pCell, Phenotype& phenotype , double dt ); 
 	
 	// use this to properly size the secretion parameters to the microenvironment 
 	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); // done 
@@ -606,7 +607,7 @@ class Molecular
 		void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); // done 
 		
 		// use this 
-		void sync_to_cell( Basic_Agent* pCell ); 
+		void sync_to_cell( Basic_Agent_Interface* pCell ); 
 
 		// ease of access 
 		double&  internalized_total_substrate( std::string name ); 

@@ -80,6 +80,7 @@
 // put custom code modules here! 
 
 #include "./custom_modules/custom.h" 
+#include "BioFVM/BioFVM_microenvironment_interface.h"
 	
 using namespace BioFVM;
 using namespace PhysiCell;
@@ -148,7 +149,7 @@ int main( int argc, char* argv[] )
 	
 	
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot_dark( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+	SVG_plot_dark( filename , *get_microenvironment_i(), 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
 	
 	if( parameters.bools("standard_plots") )
 	{
@@ -296,7 +297,7 @@ int main( int argc, char* argv[] )
 	save_PhysiCell_to_MultiCellDS_v2( filename , PhysiCell_globals.current_time );
 	
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
-	SVG_plot_dark( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
+	SVG_plot_dark( filename , *get_microenvironment_i(), 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
 	
 	if( parameters.bools("standard_plots") )
 	{

@@ -46,102 +46,84 @@
 #############################################################################
 */
 
-#ifndef __BioFVM_basic_agent_h__
-#define __BioFVM_basic_agent_h__
+#ifndef __BioFVM_basic_agent_interface_h__
+#define __BioFVM_basic_agent_interface_h__
 
 #include <vector>
-#include "BioFVM_matlab.h"
 
 namespace BioFVM{
 
-class Microenvironment;
 class Microenvironment_Interface;
-class Basic_Agent_Adapter;
 
-void reset_max_basic_agent_ID( void );
-
-class Basic_Agent
+class Basic_Agent_Interface
 {
- private:
-	friend class Basic_Agent_Adapter;
-
-	Microenvironment* microenvironment; 
-	int selected_microenvironment; 
-	
-	int current_microenvironment_voxel_index;
-	double volume;
-	bool volume_is_changed;
-	int current_voxel_index;	
-	
- protected:
-	std::vector<double> cell_source_sink_solver_temp1;
-	std::vector<double> cell_source_sink_solver_temp2;
-	std::vector<double> cell_source_sink_solver_temp_export1; 
-	std::vector<double> cell_source_sink_solver_temp_export2; 	
-	std::vector<double> previous_velocity; 
-//	bool is_active;
-	
-	std::vector<double> total_extracellular_substrate_change; 
-	
  public:
-	bool is_active;
+	// Volume methods
+	virtual double& get_total_volume() = 0;
+	virtual void set_total_volume(double) = 0;
+	virtual void update_voxel_index() = 0;
 
-	std::vector<double> * secretion_rates; 
-	std::vector<double> * saturation_densities; 
-	std::vector<double> * uptake_rates;  
-	std::vector<double> * net_export_rates; 
-	double& get_total_volume();
-	void set_total_volume(double);
-	void update_voxel_index();
+	// Internalized substrates
+	virtual void release_internalized_substrates( void ) = 0; 
+	virtual void set_internal_uptake_constants( double dt ) = 0; 
 
-	/* new for internalized substrates in 1.5.0 */ 
-	std::vector<double> * internalized_substrates; 
-	std::vector<double> * fraction_released_at_death; 
-	std::vector<double> * fraction_transferred_when_ingested; 
-	void release_internalized_substrates( void ); 
+	// Microenvironment registration and access
+	virtual void register_microenvironment( Microenvironment_Interface* ) = 0;
+	virtual Microenvironment_Interface* get_microenvironment( void ) = 0;
 
-	void set_internal_uptake_constants( double dt ); // any time you update the cell volume or rates, should call this function. 
-
-	void register_microenvironment( Microenvironment* );
-	void register_microenvironment( Microenvironment_Interface* );
-	Microenvironment* get_microenvironment( void ); 
-
-	int ID; 
-	int index; 
-	int type;
+	// ID and type accessors
+	virtual int get_ID() const = 0;
+	virtual void set_ID(int new_ID) = 0;
+	virtual int get_index() const = 0;
+	virtual void set_index(int new_index) = 0;
+	virtual int get_type() const = 0;
+	virtual void set_type(int new_type) = 0;
 	
-	bool assign_position(double x, double y, double z);
-	bool assign_position(std::vector<double> new_position);
+	// Position methods
+	virtual bool assign_position(double x, double y, double z) = 0;
+	virtual bool assign_position(std::vector<double> new_position) = 0;
+	virtual std::vector<double>& get_position() = 0;
+	virtual const std::vector<double>& get_position() const = 0;
+	virtual void update_position( double dt ) = 0;
 	
-	std::vector<double> position;  
-	std::vector<double> velocity; 
-	void update_position( double dt );
+	// Velocity methods
+	virtual std::vector<double>& get_velocity() = 0;
+	virtual const std::vector<double>& get_velocity() const = 0;
+	virtual std::vector<double>& get_previous_velocity( void ) = 0;
+	virtual const std::vector<double>& get_previous_velocity( void ) const = 0;
 	
-	Basic_Agent(); 
-	virtual ~Basic_Agent(){};
-	// simulate secretion and uptake at the nearest voxel at the indicated microenvironment.
-	// if no microenvironment indicated, use the currently selected microenvironment. 
-	void simulate_secretion_and_uptake( double dt ); 
+	// Activity status
+	virtual bool get_is_active() const = 0;
+	virtual void set_is_active(bool active) = 0;
+	
+	// Internalized substrates access
+	virtual std::vector<double>& get_internalized_substrates() = 0;
+	virtual const std::vector<double>& get_internalized_substrates() const = 0;
+	
+	// Getter and setter methods for vector pointers
+	virtual std::vector<double>* get_secretion_rates() = 0;
+	virtual const std::vector<double>* get_secretion_rates() const = 0;
+	virtual void set_secretion_rates(std::vector<double>* rates) = 0;
+	virtual void set_saturation_densities(std::vector<double>* densities) = 0;
+	virtual void set_uptake_rates(std::vector<double>* rates) = 0;
+	virtual void set_net_export_rates(std::vector<double>* rates) = 0;
+	virtual void set_internalized_substrates(std::vector<double>* substrates) = 0;
+	virtual void set_fraction_released_at_death(std::vector<double>* fractions) = 0;
+	virtual void set_fraction_transferred_when_ingested(std::vector<double>* fractions) = 0;
+	
+	virtual ~Basic_Agent_Interface(){};
+	
+	// Secretion and uptake simulation
+	virtual void simulate_secretion_and_uptake( double dt ) = 0; 
 
-	int get_current_voxel_index( void ); 
-	// directly access the substrate vector at the nearest voxel at the indicated microenvironment 
-	std::vector<double>& nearest_density_vector( int microenvironment_index ); // not implemented!
-	std::vector<double>& nearest_density_vector( void );
+	// Voxel access
+	virtual int get_current_voxel_index( void ) = 0; 
 	
-	// directly access the gradient of substrate n nearest to the cell 
-	std::vector<double>& nearest_gradient( int substrate_index );
-	// directly access a vector of gradients, one gradient per substrate 
-	std::vector<std::vector<double>>& nearest_gradient_vector( void ); 
-	
-	const std::vector<double>& get_previous_velocity( void );
+	// Density and gradient access
+	virtual std::vector<double>& nearest_density_vector( void ) = 0;
+	virtual std::vector<double>& nearest_gradient( int substrate_index ) = 0;
+	virtual std::vector<std::vector<double>>& nearest_gradient_vector( void ) = 0;
 };
-
-extern std::vector<Basic_Agent*> all_basic_agents; 
-
-Basic_Agent* create_basic_agent( void );
-void delete_basic_agent( int ); 
-void delete_basic_agent( Basic_Agent* ); 
-void save_all_basic_agents_to_matlab( std::string filename ); 
 
 };
 

@@ -70,6 +70,7 @@
 #include "PhysiCell_utilities.h"
 #include "PhysiCell_constants.h"
 #include "PhysiCell_rules.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"
@@ -403,7 +404,7 @@ Cell::Cell()
 {
 	// use the cell defaults; 
 	
-	type = cell_defaults.type; 
+	set_type(cell_defaults.type); 
 	type_name = cell_defaults.name; 
 	
 	custom_data = cell_defaults.custom_data; 
@@ -442,7 +443,7 @@ Cell::~Cell()
 	if( result != std::end(*all_cells) )
 	{
 		std::cout << "Warning: Cell was never removed from data structure " << std::endl ; 
-		std::cout << "I am of type " << this->type << " at " << this->position << std::endl; 
+		std::cout << "I am of type " << this->get_type() << " at " << this->get_position() << std::endl; 
 
 		int temp_index = -1; 
 		bool found = false; 
@@ -470,7 +471,7 @@ Cell::~Cell()
 			// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 			// move last item to index location  
-			(*all_cells)[ (*all_cells).size()-1 ]->index=temp_index;
+			(*all_cells)[ (*all_cells).size()-1 ]->set_index(temp_index);
 			(*all_cells)[temp_index] = (*all_cells)[ (*all_cells).size()-1 ];
 			// shrink the vector
 			(*all_cells).pop_back();	
@@ -575,8 +576,8 @@ Cell* Cell::divide( )
 	
 	// evenly divide internalized substrates 
 	// if these are not actively tracked, they are zero anyway 
-	*internalized_substrates *= 0.5; 
-	*(child->internalized_substrates) = *internalized_substrates ; 
+	get_internalized_substrates() *= 0.5; 
+	child->get_internalized_substrates() = get_internalized_substrates(); 
 	
 	// The following is already performed by create_cell(). JULY 2017 ***
 	// child->register_microenvironment( get_microenvironment() );
@@ -614,21 +615,21 @@ Cell* Cell::divide( )
 		rand_vec[1]*state.orientation[1]+rand_vec[2]*state.orientation[2])*state.orientation;	
 	rand_vec *= phenotype.geometry.radius;
 
-	child->assign_position(position[0] + rand_vec[0],
-						   position[1] + rand_vec[1],
-						   position[2] + rand_vec[2]);
+	child->assign_position(get_position()[0] + rand_vec[0],
+						   get_position()[1] + rand_vec[1],
+						   get_position()[2] + rand_vec[2]);
 						 
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
-	axpy( &position, negative_one_half , rand_vec ); // position = position - 0.5*rand_vec; 
+	axpy( &(get_position()), negative_one_half , rand_vec ); // position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], position[2]))
+	if( !get_container()->underlying_mesh.is_position_valid(get_position()[0], get_position()[1], get_position()[2]))
 	{
 		is_out_of_domain = true;
-		is_active = false;
+		set_is_active(false);
 		is_movable = false;
 	}	
 	 
@@ -671,23 +672,23 @@ bool Cell::assign_position(std::vector<double> new_position)
 
 void Cell::set_previous_velocity(double xV, double yV, double zV)
 {
-	previous_velocity[0] = xV;
-	previous_velocity[1] = yV;
-	previous_velocity[2] = zV;
+	get_previous_velocity()[0] = xV;
+	get_previous_velocity()[1] = yV;
+	get_previous_velocity()[2] = zV;
 
 	return; 
 }
 
 bool Cell::assign_position(double x, double y, double z)
 {
-	position[0]=x;
-	position[1]=y;
-	position[2]=z;
+	get_position()[0]=x;
+	get_position()[1]=y;
+	get_position()[2]=z;
 	
 	// update microenvironment current voxel index
 	update_voxel_index();
 	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index= get_container()->underlying_mesh.nearest_voxel_index( position );
+	current_mechanics_voxel_index= get_container()->underlying_mesh.nearest_voxel_index( get_position() );
 
     // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
 	// which was not initialized at cell creation
@@ -704,7 +705,7 @@ bool Cell::assign_position(double x, double y, double z)
 	if( !get_container()->underlying_mesh.is_position_valid(x,y,z) )
 	{	
 		is_out_of_domain = true; 
-		is_active = false; 
+		set_is_active(false); 
 		is_movable = false; 
 		
 		return false;
@@ -715,7 +716,7 @@ bool Cell::assign_position(double x, double y, double z)
 
 void Cell::set_total_volume(double volume)
 {
-	Basic_Agent::set_total_volume(volume);
+	set_total_volume(volume);
 	
 	// If the new volume is significantly different than the 
 	// current total volume, adjust all the sub-volumes 
@@ -814,7 +815,7 @@ double& Cell::get_total_volume(void)
 
 void Cell::turn_off_reactions(double dt)
 {	
-	is_active = false;  
+	set_is_active(false);  
 	
 	for(int i=0;i< phenotype.secretion.uptake_rates.size();i++)
 	{
@@ -865,28 +866,28 @@ void Cell::update_position( double dt )
 	
 	// new AUgust 2017
 	if( get_microenvironment_i()->simulate_2D() == true )
-	{ velocity[2] = 0.0; }
+	{ get_velocity()[2] = 0.0; }
 	
-	std::vector<double> old_position(position); 
-	axpy( &position , d1 , velocity );  
-	axpy( &position , d2 , previous_velocity );  
+	std::vector<double> old_position(get_position()); 
+	axpy( &(get_position()) , d1 , get_velocity() );  
+	axpy( &(get_position()) , d2 , get_previous_velocity() );  
 	// overwrite previous_velocity for future use 
 	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
 	
-	previous_velocity = velocity; 
+	get_previous_velocity() = get_velocity(); 
 	
-	velocity[0]=0; velocity[1]=0; velocity[2]=0;
-	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2]))
+	get_velocity()[0]=0; get_velocity()[1]=0; get_velocity()[2]=0;
+	if(get_container()->underlying_mesh.is_position_valid(get_position()[0],get_position()[1],get_position()[2]))
 	{
-		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( position );
+		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( get_position() );
 	}
 	else
 	{
 		updated_current_mechanics_voxel_index=-1;
 		
 		is_out_of_domain = true; 
-		is_active = false; 
+		set_is_active(false); 
 		is_movable = false; 
 	}
 	return; 
@@ -916,7 +917,7 @@ void Cell::update_voxel_in_container()
 		// std::cout<<"cell out of boundary..."<< __LINE__<<" "<<ID<<std::endl;
 		current_mechanics_voxel_index=-1;
 		is_out_of_domain=true;
-		is_active=false;
+		set_is_active(false);
 		return;
 	}
 	
@@ -939,16 +940,15 @@ void Cell::update_voxel_in_container()
 void Cell::copy_data(Cell* copy_me)
 {
 	// phenotype=copyMe->phenotype; //it is taken care in set_phenotype
-	type = copy_me->type; 
+	set_type(copy_me->get_type()); 
 	type_name = copy_me->type_name; 
 	
 	custom_data = copy_me->custom_data; 
 	parameters = copy_me->parameters; 
 	
-	velocity = copy_me->velocity; 
+	get_velocity() = copy_me->get_velocity(); 
 	// expected_phenotype = copy_me-> expected_phenotype; //it is taken care in set_phenotype
-	cell_source_sink_solver_temp1 = std::vector<double>(copy_me->cell_source_sink_solver_temp1);
-	cell_source_sink_solver_temp2 = std::vector<double>(copy_me->cell_source_sink_solver_temp2);
+	get_internalized_substrates() = copy_me->get_internalized_substrates();
 	
 	return; 
 }
@@ -977,7 +977,7 @@ void Cell::add_potentials(Cell* other_agent)
 	double distance = 0; 
 	for( int i = 0 ; i < 3 ; i++ ) 
 	{ 
-		displacement[i] = position[i] - (*other_agent).position[i]; 
+		displacement[i] = get_position()[i] - (*other_agent).get_position()[i]; 
 		distance += displacement[i] * displacement[i]; 
 	}
 	// Make sure that the distance is not zero
@@ -1039,8 +1039,8 @@ void Cell::add_potentials(Cell* other_agent)
 		
 		// August 2017 - back to the original if both have same coefficient 
 		// May 2022 - back to oriinal if both affinities are 1
-		int ii = find_cell_definition_index( this->type ); 
-		int jj = find_cell_definition_index( other_agent->type ); 
+		int ii = find_cell_definition_index( this->get_type() ); 
+		int jj = find_cell_definition_index( other_agent->get_type() ); 
 
 		double adhesion_ii = phenotype.mechanics.cell_cell_adhesion_strength * phenotype.mechanics.cell_adhesion_affinities[jj]; 
 		double adhesion_jj = other_agent->phenotype.mechanics.cell_cell_adhesion_strength * other_agent->phenotype.mechanics.cell_adhesion_affinities[ii]; 
@@ -1061,7 +1061,7 @@ void Cell::add_potentials(Cell* other_agent)
 	// {
 	//	velocity[i] += displacement[i] * temp_r; 
 	// }
-	axpy( &velocity , temp_r , displacement ); 
+	axpy( &(get_velocity()) , temp_r , displacement ); 
 	
 	
 	// state.neighbors.push_back(other_agent); // new 1.8.0
@@ -1080,7 +1080,7 @@ Cell* create_cell( Cell* (*custom_instantiate)())
 	}
 	
 	(*all_cells).push_back( pNew ); 
-	pNew->index=(*all_cells).size()-1;
+	pNew->set_index((*all_cells).size()-1);
 	
 	// new usability enhancements in May 2017 
 	
@@ -1104,7 +1104,7 @@ Cell* create_cell( Cell_Definition& cd )
 	Cell* pNew = create_cell(cd.functions.instantiate_cell); 
 	
 	// use the cell defaults; 
-	pNew->type = cd.type; 
+	pNew->set_type(cd.type); 
 	pNew->type_name = cd.name; 
 	
 	pNew->custom_data = cd.custom_data; 
@@ -1133,7 +1133,7 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	Molecular cell_molecular = phenotype.molecular;
 	Custom_Cell_Data cell_custom_data = custom_data;
 	// use the cell defaults; 
-	type = cd.type; 
+	set_type(cd.type); 
 	type_name = cd.name; 
 	
 	custom_data = cd.custom_data; // this is kinda risky since users may want to be updating custom_data throughout
@@ -1211,7 +1211,7 @@ void delete_cell( int index )
 	// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 	// move last item to index location  
-	(*all_cells)[ (*all_cells).size()-1 ]->index=index;
+	(*all_cells)[ (*all_cells).size()-1 ]->set_index(index);
 	(*all_cells)[index] = (*all_cells)[ (*all_cells).size()-1 ];
 	// shrink the vector
 	(*all_cells).pop_back();	
@@ -1247,7 +1247,7 @@ void delete_cell_original( int index ) // before June 11, 2020
 	// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 	// move last item to index location  
-	(*all_cells)[ (*all_cells).size()-1 ]->index=index;
+	(*all_cells)[ (*all_cells).size()-1 ]->set_index(index);
 	(*all_cells)[index] = (*all_cells)[ (*all_cells).size()-1 ];
 	// shrink the vector
 	(*all_cells).pop_back();	
@@ -1256,7 +1256,7 @@ void delete_cell_original( int index ) // before June 11, 2020
 
 void delete_cell( Cell* pDelete )
 {
-	delete_cell(pDelete->index);
+	delete_cell(pDelete->get_index());
 	return; 
 }
 
@@ -1282,7 +1282,7 @@ bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::ve
 	if(comparing_dimension != -1) 
 	{ //then it is an immediate neighbor (through side faces)
 		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->position[comparing_dimension] - surface_coord) > max_interactive_distance)
+		if(std::fabs(pCell->get_position()[comparing_dimension] - surface_coord) > max_interactive_distance)
 		{ return false; }
 		return true;
 	}
@@ -1304,15 +1304,15 @@ bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::ve
 	{
 		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
 		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->position[comparing_dimension] - line_coord1,2)+ std::pow( pCell->position[comparing_dimension2] - line_coord2,2);
+		double distance_squared= std::pow( pCell->get_position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->get_position()[comparing_dimension2] - line_coord2,2);
 		if(distance_squared > max_interactive_distance * max_interactive_distance)
 		{ return false; }
 		return true;
 	}
 	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->position[0])*(corner_point[0]-pCell->position[0])
-		+(corner_point[1]-pCell->position[1])*(corner_point[1]-pCell->position[1]) 
-		+(corner_point[2]-pCell->position[2]) * (corner_point[2]-pCell->position[2]);
+	double distance_squared= (corner_point[0]-pCell->get_position()[0])*(corner_point[0]-pCell->get_position()[0])
+		+(corner_point[1]-pCell->get_position()[1])*(corner_point[1]-pCell->get_position()[1]) 
+		+(corner_point[2]-pCell->get_position()[2]) * (corner_point[2]-pCell->get_position()[2]);
 	if(distance_squared > max_interactive_distance * max_interactive_distance)
 	{ return false; }
 	return true;
@@ -1368,7 +1368,7 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 
 		// set cell as unmovable and non-secreting 
 		pCell_to_eat->is_movable = false; 
-		pCell_to_eat->is_active = false; 
+		pCell_to_eat->set_is_active(false); 
 
 		// absorb all the volume(s)
 
@@ -1420,12 +1420,12 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 		
 		// multiply by the fraction that is supposed to be ingested (for each substrate) 
 
-		*(pCell_to_eat->internalized_substrates) *= 
-			*(pCell_to_eat->fraction_transferred_when_ingested); // 
+		pCell_to_eat->get_internalized_substrates() *= 
+			pCell_to_eat->custom_data["fraction_transferred_when_ingested"]; // 
 
-		*internalized_substrates += *(pCell_to_eat->internalized_substrates); 
-		static int n_substrates = internalized_substrates->size(); 
-		pCell_to_eat->internalized_substrates->assign( n_substrates , 0.0 ); 	
+		get_internalized_substrates() += pCell_to_eat->get_internalized_substrates(); 
+		static int n_substrates = get_internalized_substrates().size(); 
+		pCell_to_eat->get_internalized_substrates().assign( n_substrates , 0.0 ); 	
 
 		// conserved quantitites in custom data during phagocytosis
 		// so that phagocyte cell absorbs the full amount from the engulfed cell;
@@ -1506,12 +1506,12 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// set new position at center of volume 
 			// x_new = (vol_B * x_B + vol_S * x_S ) / (vol_B + vol_S )
 		
-		std::vector<double> new_position = position; // x_B
+		std::vector<double> new_position = get_position(); // x_B
 		new_position *= phenotype.volume.total; // vol_B * x_B 
 		double total_volume = phenotype.volume.total; 
 		total_volume += pCell_to_fuse->phenotype.volume.total ;  
 
-		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->position ); // vol_B*x_B + vol_S*x_S
+		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->get_position() ); // vol_B*x_B + vol_S*x_S
 		new_position /= total_volume; // (vol_B*x_B+vol_S*x_S)/(vol_B+vol_S);
 
 		static double xL = get_microenvironment_i()->get_mesh().bounding_box[0];		 
@@ -1530,7 +1530,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 			std::cout << "cell fusion at " << new_position << " violates domain bounds" << std::endl; 
 			std::cout << get_microenvironment_i()->get_mesh().bounding_box << std::endl << std::endl; 
 		}
-		position = new_position; 
+		get_position() = new_position; 
 		update_voxel_in_container();
 
 		// set number of nuclei 
@@ -1588,9 +1588,9 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 
 		// absorb the internalized substrates 
 		
-		*internalized_substrates += *(pCell_to_fuse->internalized_substrates); 
-		static int n_substrates = internalized_substrates->size(); 
-		pCell_to_fuse->internalized_substrates->assign( n_substrates , 0.0 ); 	
+		get_internalized_substrates() += pCell_to_fuse->get_internalized_substrates(); 
+		static int n_substrates = get_internalized_substrates().size(); 
+		pCell_to_fuse->get_internalized_substrates().assign( n_substrates , 0.0 ); 	
 
 		// set target volume(s)
 
@@ -1620,7 +1620,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		
 		// set cell as unmovable and non-secreting 
 		pCell_to_fuse->is_movable = false; 
-		pCell_to_fuse->is_active = false; 
+		pCell_to_fuse->set_is_active(false); 
 
 	}
 
@@ -1663,7 +1663,7 @@ void Cell::lyse_cell( void )
 
 	// set cell as unmovable and non-secreting 
 	is_movable = false; 
-	is_active = false; 	
+	set_is_active(false); 	
 
 	return; 
 }
@@ -3501,7 +3501,7 @@ std::vector<Cell*> find_nearby_interacting_cells( Cell* pCell )
 	std::vector<Cell*>::iterator end = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
 	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{
-		std::vector<double> displacement = (*neighbor)->position - pCell->position; 
+		std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position(); 
 		double distance = norm( displacement ); 
 		if( distance <= pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
 			+ (*neighbor)->phenotype.mechanics.relative_maximum_adhesion_distance * (*neighbor)->phenotype.geometry.radius 
@@ -3523,7 +3523,7 @@ std::vector<Cell*> find_nearby_interacting_cells( Cell* pCell )
 		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
 		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
 		{
-			std::vector<double> displacement = (*neighbor)->position - pCell->position; 
+			std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position(); 
 			double distance = norm( displacement ); 
 			if( distance <= pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
 				+ (*neighbor)->phenotype.mechanics.relative_maximum_adhesion_distance * (*neighbor)->phenotype.geometry.radius

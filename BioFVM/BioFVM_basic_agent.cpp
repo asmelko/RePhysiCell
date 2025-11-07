@@ -313,7 +313,7 @@ void Basic_Agent::set_total_volume(double volume)
 	volume_is_changed = true;
 }
 
-double Basic_Agent::get_total_volume()
+double& Basic_Agent::get_total_volume()
 {
 	return volume;
 }

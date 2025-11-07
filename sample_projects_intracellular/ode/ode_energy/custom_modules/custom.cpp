@@ -265,21 +265,21 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 	
 	// color
     // proliferative cell
-	if( pCell->phenotype.death.dead == false && pCell->type == 0 && pCell->custom_data[energy_vi] > 445)
+	if( pCell->phenotype.death.dead == false && pCell->get_type() == 0 && pCell->custom_data[energy_vi] > 445)
 	{
 		output[0] = "rgb(255,255,0)";
 		output[2] = "rgb(125,125,0)";
 	}
 
     // arrested cell
-	if( pCell->phenotype.death.dead == false && pCell->type == 0 && pCell->custom_data[energy_vi] <= 445)
+	if( pCell->phenotype.death.dead == false && pCell->get_type() == 0 && pCell->custom_data[energy_vi] <= 445)
 	{
 		output[0] = "rgb(255,0,0)";
 		output[2] = "rgb(125,0,0)";
 	}     
     
     // dead cell
-	if( pCell->phenotype.death.dead == true && pCell->type == 0)
+	if( pCell->phenotype.death.dead == true && pCell->get_type() == 0)
 	{
 		output[0] = "rgb(20,20,20)";
 		output[2] = "rgb(10,10,10)";

@@ -278,7 +278,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 
 	// color live C 
 		
-	if( pCell->type == A_type )
+	if( pCell->get_type() == A_type )
 	{
 		 output[0] = parameters.strings("A_color");  
 		 output[2] = parameters.strings("A_color");  
@@ -286,7 +286,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 	
 	// color live B
 
-	if( pCell->type == B_type )
+	if( pCell->get_type() == B_type )
 	{
 		 output[0] = parameters.strings("B_color");  
 		 output[2] = parameters.strings("B_color");  
@@ -294,7 +294,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 	
 	// color live C
 
-	if( pCell->type == C_type )
+	if( pCell->get_type() == C_type )
 	{
 		 output[0] = parameters.strings("C_color");  
 		 output[2] = parameters.strings("C_color");  
@@ -343,7 +343,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 
 	// color live A
 		
-	if( pCell->type == A_type )
+	if( pCell->get_type() == A_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates[nA] 
 			/ ( 0.001 + pCD_A->phenotype.secretion.secretion_rates[nA] ) ;
@@ -356,7 +356,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 	
 	// color live B
 
-	if( pCell->type == B_type )
+	if( pCell->get_type() == B_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates[nB] 
 			/ ( 0.001 + pCD_B->phenotype.secretion.secretion_rates[nB] ); 
@@ -368,7 +368,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 	
 	// color live C
 
-	if( pCell->type == C_type )
+	if( pCell->get_type() == C_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates[nC] 
 			/ ( 0.001 + pCD_C->phenotype.secretion.secretion_rates[nC] ); 
@@ -843,13 +843,13 @@ void C_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 }
 
 
-void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*) )
+void SVG_plot_dark( std::string filename , Microenvironment_Interface& M, double z_slice , double time, std::vector<std::string> (*cell_coloring_function)(Cell*) )
 {
-	double X_lower = M.mesh.bounding_box[0];
-	double X_upper = M.mesh.bounding_box[3];
+	double X_lower = M.get_mesh().bounding_box[0];
+	double X_upper = M.get_mesh().bounding_box[3];
  
-	double Y_lower = M.mesh.bounding_box[1]; 
-	double Y_upper = M.mesh.bounding_box[4]; 
+	double Y_lower = M.get_mesh().bounding_box[1]; 
+	double Y_upper = M.get_mesh().bounding_box[4]; 
 
 	double plot_width = X_upper - X_lower; 
 	double plot_height = Y_upper - Y_lower; 
@@ -904,8 +904,8 @@ void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice ,
 	   
 	// prepare to do mesh-based plot (later)
 	
-	double dx_stroma = M.mesh.dx; 
-	double dy_stroma = M.mesh.dy; 
+	double dx_stroma = M.get_mesh().dx; 
+	double dy_stroma = M.get_mesh().dy; 
 	
 	os << "  <g id=\"ECM\">" << std::endl; 
   
@@ -981,28 +981,28 @@ void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice ,
 		Cell* pC = (*all_cells)[i]; // global_cell_list[i]; 
   
 		static std::vector<std::string> Colors; 
-		if( fabs( (pC->position)[2] - z_slice ) < pC->phenotype.geometry.radius )
+		if( fabs( (pC->get_position())[2] - z_slice ) < pC->phenotype.geometry.radius )
 		{
 			double r = pC->phenotype.geometry.radius ; 
 			double rn = pC->phenotype.geometry.nuclear_radius ; 
-			double z = fabs( (pC->position)[2] - z_slice) ; 
+			double z = fabs( (pC->get_position())[2] - z_slice) ; 
    
 			Colors = cell_coloring_function( pC ); 
 
-			os << "   <g id=\"cell" << pC->ID << "\">" << std::endl; 
+			os << "   <g id=\"cell" << pC->get_ID() << "\">" << std::endl; 
   
 			// figure out how much of the cell intersects with z = 0 
    
 			double plot_radius = sqrt( r*r - z*z ); 
 
-			Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower, 
+			Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower, 
 				plot_radius , 0.5, Colors[1], Colors[0] ); 
 
 			// plot the nucleus if it, too intersects z = 0;
 			if( fabs(z) < rn && PhysiCell_SVG_options.plot_nuclei == true )
 			{   
 				plot_radius = sqrt( rn*rn - z*z ); 
-			 	Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower, 
+			 	Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower, 
 					plot_radius, 0.5, Colors[3],Colors[2]); 
 			}					  
 			os << "   </g>" << std::endl;

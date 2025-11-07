@@ -66,6 +66,7 @@
 */
  
 #include "./PhysiCell_signal_behavior.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 using namespace BioFVM; 
 
@@ -827,7 +828,7 @@ std::vector<double> get_signals( Cell* pCell )
 		} 
 		else
 		{ live_cells++; } 
-		int nCT = cell_definition_indices_by_type[pC->type]; 
+		int nCT = cell_definition_indices_by_type[pC->get_type()]; 
 		signals[contact_ind+nCT] += 1; 
 	}
 	other_dead_cells = dead_cells - apop_cells - necro_cells; 
@@ -949,7 +950,7 @@ std::vector<double> get_cell_contact_signals( Cell* pCell )
 		} 
 		else
 		{ live_cells++; } 
-		int nCT = cell_definition_indices_by_type[pC->type]; 
+		int nCT = cell_definition_indices_by_type[pC->get_type()]; 
 		output[nCT] += 1; 
 	}
     other_dead_cells = dead_cells - apop_cells - necro_cells; 
@@ -1089,7 +1090,7 @@ double get_single_signal( Cell* pCell, int index )
 			} 
 			else
 			{ live_cells++; } 
-			int nCT = cell_definition_indices_by_type[pC->type]; 
+			int nCT = cell_definition_indices_by_type[pC->get_type()]; 
 			counts[nCT] += 1; 
 		}
 		other_dead_cells = dead_cells - apop_cells - necro_cells; 		
