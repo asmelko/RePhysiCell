@@ -67,7 +67,7 @@
 
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
-#include "BioFVM/BioFVM_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 
 using namespace BioFVM; 
 using namespace PhysiCell;
