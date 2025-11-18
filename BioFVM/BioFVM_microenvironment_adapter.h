@@ -222,6 +222,8 @@ public:
 	// Configuration query methods
 	bool simulate_2D() const override;
 	bool calculate_gradients() const override;
+
+	bool setup_microenvironment_from_XML( pugi::xml_node root_node ) override;
 };
 
 /**

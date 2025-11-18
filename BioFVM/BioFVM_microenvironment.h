@@ -364,6 +364,8 @@ class Microenvironment_Options
 extern Microenvironment_Options default_microenvironment_options; 
 extern Microenvironment microenvironment;
 
+bool setup_microenvironment_from_XML_node( pugi::xml_node root_node );
+
 void initialize_microenvironment( void );
 void set_microenvironment_initial_condition( void );
 

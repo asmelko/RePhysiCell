@@ -524,4 +524,9 @@ Microenvironment* get_biofvm_microenvironment()
 	return global_adapter->get_biofvm_microenvironment();
 }
 
+bool Microenvironment_Adapter::setup_microenvironment_from_XML( pugi::xml_node root_node )
+{
+	return setup_microenvironment_from_XML_node(root_node);
+};
+
 } // namespace BioFVM

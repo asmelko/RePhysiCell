@@ -72,6 +72,7 @@
 #include <vector>
 #include "BioFVM_mesh.h"
 #include "BioFVM_agent_container_interface.h"
+#include "pugixml.hpp"
 
 namespace BioFVM{
 
@@ -358,6 +359,9 @@ public:
 
 	/** @brief Check if gradient calculation is enabled */
 	virtual bool calculate_gradients() const = 0;
+
+	/** @brief Setup microenvironment from XML configuration */
+	virtual bool setup_microenvironment_from_XML( pugi::xml_node root_node ) = 0;
 };
 
 // Global accessors for the microenvironment interface
