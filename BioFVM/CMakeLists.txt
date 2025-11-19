@@ -10,14 +10,14 @@ target_sources(
           BioFVM_mesh.cpp
           BioFVM_microenvironment_adapter.cpp
           BioFVM_microenvironment.cpp
-          BioFVM_MultiCellDS.cpp
           BioFVM_solvers.cpp)
 
 target_sources(
   BioFVM_utils
-  PRIVATE BioFVM_matlab.cpp
+  PRIVATE BioFVM_vector.cpp
           BioFVM_utilities.cpp
-          BioFVM_vector.cpp
+          BioFVM_matlab.cpp
+          BioFVM_MultiCellDS.cpp
           pugixml.cpp)
 
 find_package(OpenMP 4)
