@@ -376,6 +376,11 @@ const Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
 	return biofvm_microenvironment->mesh;
 }
 
+Cartesian_Mesh& Microenvironment_Adapter::get_mesh()
+{
+	return biofvm_microenvironment->mesh;
+}
+
 // Agent container access
 Agent_Container_Interface* Microenvironment_Adapter::get_agent_container()
 {
@@ -433,10 +438,26 @@ const std::vector<double>& Microenvironment_Adapter::get_decay_rates() const
 	return biofvm_microenvironment->decay_rates;
 }
 
+// Name access
+std::string& Microenvironment_Adapter::get_name()
+{
+	return biofvm_microenvironment->name;
+}
+
+const std::string& Microenvironment_Adapter::get_name() const
+{
+	return biofvm_microenvironment->name;
+}
+
 // Display and I/O
 void Microenvironment_Adapter::display_information(std::ostream& os) const
 {
 	biofvm_microenvironment->display_information(os);
+}
+
+void Microenvironment_Adapter::write_to_matlab(std::string filename)
+{
+	biofvm_microenvironment->write_to_matlab(filename);
 }
 
 // Spatial setup methods
@@ -461,6 +482,11 @@ void Microenvironment_Adapter::resize_space_uniform(double x_start, double x_end
                                                            double z_start, double z_end, double dx_new)
 {
 	biofvm_microenvironment->resize_space_uniform(x_start, x_end, y_start, y_end, z_start, z_end, dx_new);
+}
+
+void Microenvironment_Adapter::resize_voxels(int new_number_of_voxels)
+{
+	biofvm_microenvironment->resize_voxels(new_number_of_voxels);
 }
 
 // Update methods

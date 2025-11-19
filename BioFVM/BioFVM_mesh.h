@@ -159,7 +159,7 @@ class General_Mesh
 	
 	void display_information( std::ostream& os); 
 	
-	void write_to_matlab( std::string filename ); 
+	void write_to_matlab( std::string filename ) const; 
 	void read_from_matlab( std::string filename ); 
 };
 

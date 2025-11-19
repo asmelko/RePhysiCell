@@ -67,7 +67,6 @@
  
 #include "PhysiCell_MultiCellDS.h"
 #include "../BioFVM/BioFVM_MultiCellDS.h"
-#include "../BioFVM/BioFVM_microenvironment_adapter.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"	
@@ -93,7 +92,7 @@ void save_PhysiCell_to_MultiCellDS_xml_pugi( std::string filename_base ,  double
 
 	// start with a standard BioFVM save
 	
-	add_BioFVM_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base , current_simulation_time , *dynamic_cast<Microenvironment_Adapter&>(M).get_biofvm_microenvironment()  ); 
+	add_BioFVM_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base , current_simulation_time , M ); 
 	
 	// now, add the PhysiCell data 
 
@@ -145,7 +144,7 @@ void save_PhysiCell_to_MultiCellDS_v2( std::string filename_base , double curren
 		// save metadata 
 	BioFVM_metadata.add_to_open_xml_pugi( current_simulation_time , BioFVM::biofvm_doc ); 
 		// save diffusing substrates 
-	add_BioFVM_substrates_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base, *dynamic_cast<Microenvironment_Adapter&>( M ).get_biofvm_microenvironment() );
+	add_BioFVM_substrates_to_open_xml_pugi( BioFVM::biofvm_doc , filename_base, M );
 
 		// add_BioFVM_agents_to_open_xml_pugi( xml_dom , filename_base, M); 
 	

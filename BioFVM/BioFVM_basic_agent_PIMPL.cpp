@@ -218,6 +218,26 @@ const std::vector<double>* Basic_Agent_PIMPL::get_secretion_rates() const
 	return pImpl->get_secretion_rates();
 }
 
+std::vector<double>* Basic_Agent_PIMPL::get_saturation_densities()
+{
+	return pImpl->get_saturation_densities();
+}
+
+const std::vector<double>* Basic_Agent_PIMPL::get_saturation_densities() const
+{
+	return pImpl->get_saturation_densities();
+}
+
+std::vector<double>* Basic_Agent_PIMPL::get_uptake_rates()
+{
+	return pImpl->get_uptake_rates();
+}
+
+const std::vector<double>* Basic_Agent_PIMPL::get_uptake_rates() const
+{
+	return pImpl->get_uptake_rates();
+}
+
 void Basic_Agent_PIMPL::set_secretion_rates(std::vector<double>* rates)
 {
 	pImpl->set_secretion_rates(rates);

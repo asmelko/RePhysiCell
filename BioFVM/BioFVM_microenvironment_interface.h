@@ -276,6 +276,8 @@ public:
 	/** @brief Get const reference to the mesh */
 	virtual const Cartesian_Mesh& get_mesh() const = 0;
 
+	virtual Cartesian_Mesh& get_mesh() = 0;
+
 	// ========================================================================
 	// Agent container access
 	// ========================================================================
@@ -318,11 +320,24 @@ public:
 	virtual const std::vector<double>& get_decay_rates() const = 0;
 
 	// ========================================================================
+	// Name access
+	// ========================================================================
+
+	/** @brief Get microenvironment name */
+	virtual std::string& get_name() = 0;
+
+	/** @brief Get const microenvironment name */
+	virtual const std::string& get_name() const = 0;
+
+	// ========================================================================
 	// Display and I/O
 	// ========================================================================
 
 	/** @brief Display microenvironment information */
 	virtual void display_information(std::ostream& os) const = 0;
+
+	/** @brief Write microenvironment data to MATLAB file */
+	virtual void write_to_matlab(std::string filename) = 0;
 
 	// ========================================================================
 	// Spatial setup methods
@@ -342,6 +357,9 @@ public:
 	/** @brief Resize the spatial domain uniformly */
 	virtual void resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
 	                                  double z_start, double z_end, double dx_new) = 0;
+
+	/** @brief Resize the number of voxels */
+	virtual void resize_voxels(int new_number_of_voxels) = 0;
 
 	// ========================================================================
 	// Update methods

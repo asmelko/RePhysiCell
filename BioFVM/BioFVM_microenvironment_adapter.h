@@ -188,6 +188,7 @@ public:
 
 	// Mesh access
 	const Cartesian_Mesh& get_mesh() const override;
+	Cartesian_Mesh& get_mesh() override;
 
 	// Agent container access
 	Agent_Container_Interface* get_agent_container() override;
@@ -204,8 +205,13 @@ public:
 	std::vector<double>& get_decay_rates() override;
 	const std::vector<double>& get_decay_rates() const override;
 
+	// Name access
+	std::string& get_name() override;
+	const std::string& get_name() const override;
+
 	// Display and I/O
 	void display_information(std::ostream& os) const override;
+	void write_to_matlab(std::string filename) override;
 
 	// Spatial setup methods
 	void resize_space(int x_nodes, int y_nodes, int z_nodes) override;
@@ -215,6 +221,7 @@ public:
 	                  double z_start, double z_end, double dx_new, double dy_new, double dz_new) override;
 	void resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
 	                          double z_start, double z_end, double dx_new) override;
+	void resize_voxels(int new_number_of_voxels) override;
 
 	// Update methods
 	void update_rates() override;

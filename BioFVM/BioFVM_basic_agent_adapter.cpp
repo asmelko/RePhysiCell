@@ -207,6 +207,26 @@ const std::vector<double>* Basic_Agent_Adapter::get_secretion_rates() const
 	return wrapped_agent->secretion_rates;
 }
 
+std::vector<double>* Basic_Agent_Adapter::get_saturation_densities()
+{
+	return wrapped_agent->saturation_densities;
+}
+
+const std::vector<double>* Basic_Agent_Adapter::get_saturation_densities() const
+{
+	return wrapped_agent->saturation_densities;
+}
+
+std::vector<double>* Basic_Agent_Adapter::get_uptake_rates()
+{
+	return wrapped_agent->uptake_rates;
+}
+
+const std::vector<double>* Basic_Agent_Adapter::get_uptake_rates() const
+{
+	return wrapped_agent->uptake_rates;
+}
+
 void Basic_Agent_Adapter::set_secretion_rates(std::vector<double>* rates)
 {
 	delete wrapped_agent->secretion_rates;

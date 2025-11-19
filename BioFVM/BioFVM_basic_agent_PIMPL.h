@@ -136,6 +136,10 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	// Getter and setter methods for vector pointers - delegate to pImpl
 	virtual std::vector<double>* get_secretion_rates() override;
 	virtual const std::vector<double>* get_secretion_rates() const override;
+	virtual std::vector<double>* get_saturation_densities() override;
+	virtual const std::vector<double>* get_saturation_densities() const override;
+	virtual std::vector<double>* get_uptake_rates() override;
+	virtual const std::vector<double>* get_uptake_rates() const override;
 	virtual void set_secretion_rates(std::vector<double>* rates) override;
 	virtual void set_saturation_densities(std::vector<double>* densities) override;
 	virtual void set_uptake_rates(std::vector<double>* rates) override;

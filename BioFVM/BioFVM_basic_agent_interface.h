@@ -103,6 +103,10 @@ class Basic_Agent_Interface
 	// Getter and setter methods for vector pointers
 	virtual std::vector<double>* get_secretion_rates() = 0;
 	virtual const std::vector<double>* get_secretion_rates() const = 0;
+	virtual std::vector<double>* get_saturation_densities() = 0;
+	virtual const std::vector<double>* get_saturation_densities() const = 0;
+	virtual std::vector<double>* get_uptake_rates() = 0;
+	virtual const std::vector<double>* get_uptake_rates() const = 0;
 	virtual void set_secretion_rates(std::vector<double>* rates) = 0;
 	virtual void set_saturation_densities(std::vector<double>* densities) = 0;
 	virtual void set_uptake_rates(std::vector<double>* rates) = 0;

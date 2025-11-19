@@ -289,7 +289,7 @@ void General_Mesh::display_information( std::ostream& os )
 	return; 
 }
 
-void General_Mesh::write_to_matlab( std::string filename )
+void General_Mesh::write_to_matlab( std::string filename ) const
 { 
 	unsigned int number_of_data_entries = voxels.size();
 	unsigned int size_of_each_datum = 3 + 1; // x,y,z, volume 
