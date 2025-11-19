@@ -54,6 +54,8 @@
 // #include "BioFVM_strings.h" 
 #include "BioFVM_MultiCellDS.h"
 
+#include <sstream>
+
 namespace BioFVM{
 std::string BioFVM_Version = "1.1.7";
 std::string BioFVM_URL = "http://BioFVM.MathCancer.org"; 
