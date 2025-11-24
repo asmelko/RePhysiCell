@@ -697,7 +697,7 @@ void add_BioFVM_substrates_to_open_xml_pugi( pugi::xml_document& xml_dom , std::
 			buffer = new char [data_size]; 
 			for( unsigned int j=0 ; j < M.get_mesh().voxels.size() ; j++ )
 			{
-				vector_to_list( M.density_vector(j) , buffer , ' ' ); 
+				ptr_to_list( M.density_vector(j) , M.number_of_densities() , buffer , ' ' ); 
 				node = node.append_child( "data_vector"); 
 				attrib = node.append_attribute( "voxel_ID" ); 
 				attrib.set_value( M.get_mesh().voxels[j].mesh_index ); 
@@ -758,7 +758,7 @@ void add_BioFVM_substrates_to_open_xml_pugi( pugi::xml_document& xml_dom , std::
 		node = node.child( "data_vector" );
 		for( unsigned int j=0 ; j < M.get_mesh().voxels.size() ; j++ )
 		{
-			vector_to_list( M.density_vector(j) , buffer , ' ' ); 
+			ptr_to_list( M.density_vector(j) , M.number_of_densities() , buffer , ' ' ); 
 			node = node.first_child(); 
 			
 			node.set_value( buffer ); 
@@ -1073,7 +1073,7 @@ void save_BioFVM_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvir
 	return; 
 }
 
-/* future / not yet supported */
+/* future / not yet supported 
 
 void read_BioFVM_from_open_xml_pugi( pugi::xml_document& xml_dom , std::string filename_base, double& current_simulation_time , Microenvironment_Interface& M );
 void read_BioFVM_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvironment_Interface& M , double& current_simulation_time ); 
@@ -1433,6 +1433,6 @@ bool read_microenvironment_from_matlab( std::string mat_filename )
 
 	std::cout << "done!" << std::endl << std::endl; 
 	return true; 
-}
+}*/
 
 };

@@ -138,6 +138,7 @@ void list_to_vector( const char* buffer , std::vector<double>& vect , char delim
 char* vector_to_list( const std::vector<double>& vect , char delim );
 void vector_to_list_safe( const std::vector<double>& vect , char*& buffer , char delim );
 void vector_to_list( const std::vector<double>& vect , char*& buffer , char delim );
+void ptr_to_list( const double* vect , int size , char*& buffer , char delim );
 
 void vector3_to_list( const std::vector<double>& vect , char*& buffer , char delim ); 
 

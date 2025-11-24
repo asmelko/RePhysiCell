@@ -153,37 +153,37 @@ int Microenvironment_Adapter::find_density_index(const std::string& name) const
 	return biofvm_microenvironment->find_density_index(name);
 }
 
-void Microenvironment_Adapter::add_density()
-{
-	biofvm_microenvironment->add_density();
-}
+// void Microenvironment_Adapter::add_density()
+// {
+// 	biofvm_microenvironment->add_density();
+// }
 
-void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units)
-{
-	biofvm_microenvironment->add_density(name, units);
-}
+// void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units)
+// {
+// 	biofvm_microenvironment->add_density(name, units);
+// }
 
-void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units,
-                                                  double diffusion_constant, double decay_rate)
-{
-	biofvm_microenvironment->add_density(name, units, diffusion_constant, decay_rate);
-}
+// void Microenvironment_Adapter::add_density(const std::string& name, const std::string& units,
+//                                                   double diffusion_constant, double decay_rate)
+// {
+// 	biofvm_microenvironment->add_density(name, units, diffusion_constant, decay_rate);
+// }
 
-void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units)
-{
-	biofvm_microenvironment->set_density(index, name, units);
-}
+// void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units)
+// {
+// 	biofvm_microenvironment->set_density(index, name, units);
+// }
 
-void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units,
-                                                  double diffusion_constant, double decay_rate)
-{
-	biofvm_microenvironment->set_density(index, name, units, diffusion_constant, decay_rate);
-}
+// void Microenvironment_Adapter::set_density(int index, const std::string& name, const std::string& units,
+//                                                   double diffusion_constant, double decay_rate)
+// {
+// 	biofvm_microenvironment->set_density(index, name, units, diffusion_constant, decay_rate);
+// }
 
-void Microenvironment_Adapter::resize_densities(int new_size)
-{
-	biofvm_microenvironment->resize_densities(new_size);
-}
+// void Microenvironment_Adapter::resize_densities(int new_size)
+// {
+// 	biofvm_microenvironment->resize_densities(new_size);
+// }
 
 // Voxel/Position access
 int Microenvironment_Adapter::voxel_index(int i, int j, int k) const
@@ -225,42 +225,42 @@ Voxel& Microenvironment_Adapter::nearest_voxel(const std::vector<double>& positi
 }
 
 // Density vector access
-std::vector<double>& Microenvironment_Adapter::density_vector(int n)
+double* Microenvironment_Adapter::density_vector(int n)
 {
-	return (*biofvm_microenvironment)(n);
+	return (*biofvm_microenvironment)(n).data();
 }
 
-std::vector<double>& Microenvironment_Adapter::density_vector(int i, int j)
+double* Microenvironment_Adapter::density_vector(int i, int j)
 {
-	return (*biofvm_microenvironment)(i, j);
+	return (*biofvm_microenvironment)(i, j).data();
 }
 
-std::vector<double>& Microenvironment_Adapter::density_vector(int i, int j, int k)
+double* Microenvironment_Adapter::density_vector(int i, int j, int k)
 {
-	return (*biofvm_microenvironment)(i, j, k);
+	return (*biofvm_microenvironment)(i, j, k).data();
 }
 
-std::vector<double>& Microenvironment_Adapter::nearest_density_vector(const std::vector<double>& position)
+double* Microenvironment_Adapter::nearest_density_vector(const std::vector<double>& position)
 {
 	// Need to cast away const for BioFVM's API
-	return biofvm_microenvironment->nearest_density_vector(const_cast<std::vector<double>&>(position));
+	return biofvm_microenvironment->nearest_density_vector(const_cast<std::vector<double>&>(position)).data();
 }
 
-std::vector<double>& Microenvironment_Adapter::nearest_density_vector(int voxel_index)
+double* Microenvironment_Adapter::nearest_density_vector(int voxel_index)
 {
-	return biofvm_microenvironment->nearest_density_vector(voxel_index);
+	return biofvm_microenvironment->nearest_density_vector(voxel_index).data();
 }
 
-const std::vector<double>& Microenvironment_Adapter::density_vector(int n) const
+const double* Microenvironment_Adapter::density_vector(int n) const
 {
-	return (*biofvm_microenvironment)(n);
+	return (*biofvm_microenvironment)(n).data();
 }
 
 // Gradient computation and access
-void Microenvironment_Adapter::compute_gradient_vector(int n)
-{
-	biofvm_microenvironment->compute_gradient_vector(n);
-}
+// void Microenvironment_Adapter::compute_gradient_vector(int n)
+// {
+// 	biofvm_microenvironment->compute_gradient_vector(n);
+// }
 
 void Microenvironment_Adapter::compute_all_gradient_vectors()
 {
@@ -310,30 +310,30 @@ void Microenvironment_Adapter::simulate_cell_sources_and_sinks(double dt)
 }
 
 // Dirichlet boundary conditions
-void Microenvironment_Adapter::add_dirichlet_node(int voxel_index, std::vector<double>& value)
-{
-	biofvm_microenvironment->add_dirichlet_node(voxel_index, value);
-}
+// void Microenvironment_Adapter::add_dirichlet_node(int voxel_index, std::vector<double>& value)
+// {
+// 	biofvm_microenvironment->add_dirichlet_node(voxel_index, value);
+// }
 
-void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, std::vector<double>& new_value)
-{
-	biofvm_microenvironment->update_dirichlet_node(voxel_index, new_value);
-}
+// void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, std::vector<double>& new_value)
+// {
+// 	biofvm_microenvironment->update_dirichlet_node(voxel_index, new_value);
+// }
 
-void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, int substrate_index, double new_value)
-{
-	biofvm_microenvironment->update_dirichlet_node(voxel_index, substrate_index, new_value);
-}
+// void Microenvironment_Adapter::update_dirichlet_node(int voxel_index, int substrate_index, double new_value)
+// {
+// 	biofvm_microenvironment->update_dirichlet_node(voxel_index, substrate_index, new_value);
+// }
 
-void Microenvironment_Adapter::remove_dirichlet_node(int voxel_index)
-{
-	biofvm_microenvironment->remove_dirichlet_node(voxel_index);
-}
+// void Microenvironment_Adapter::remove_dirichlet_node(int voxel_index)
+// {
+// 	biofvm_microenvironment->remove_dirichlet_node(voxel_index);
+// }
 
-void Microenvironment_Adapter::apply_dirichlet_conditions()
-{
-	biofvm_microenvironment->apply_dirichlet_conditions();
-}
+// void Microenvironment_Adapter::apply_dirichlet_conditions()
+// {
+// 	biofvm_microenvironment->apply_dirichlet_conditions();
+// }
 
 void Microenvironment_Adapter::set_substrate_dirichlet_activation(int substrate_index, bool new_value)
 {
@@ -376,10 +376,10 @@ const Cartesian_Mesh& Microenvironment_Adapter::get_mesh() const
 	return biofvm_microenvironment->mesh;
 }
 
-Cartesian_Mesh& Microenvironment_Adapter::get_mesh()
-{
-	return biofvm_microenvironment->mesh;
-}
+// Cartesian_Mesh& Microenvironment_Adapter::get_mesh()
+// {
+// 	return biofvm_microenvironment->mesh;
+// }
 
 // Agent container access
 Agent_Container_Interface* Microenvironment_Adapter::get_agent_container()
@@ -398,51 +398,51 @@ void Microenvironment_Adapter::set_agent_container(Agent_Container_Interface* co
 }
 
 // Metadata access
-std::vector<std::string>& Microenvironment_Adapter::get_density_names()
-{
-	return biofvm_microenvironment->density_names;
-}
+// std::vector<std::string>& Microenvironment_Adapter::get_density_names()
+// {
+// 	return biofvm_microenvironment->density_names;
+// }
 
 const std::vector<std::string>& Microenvironment_Adapter::get_density_names() const
 {
 	return biofvm_microenvironment->density_names;
 }
 
-std::vector<std::string>& Microenvironment_Adapter::get_density_units()
-{
-	return biofvm_microenvironment->density_units;
-}
+// std::vector<std::string>& Microenvironment_Adapter::get_density_units()
+// {
+// 	return biofvm_microenvironment->density_units;
+// }
 
 const std::vector<std::string>& Microenvironment_Adapter::get_density_units() const
 {
 	return biofvm_microenvironment->density_units;
 }
 
-std::vector<double>& Microenvironment_Adapter::get_diffusion_coefficients()
+// std::vector<double>& Microenvironment_Adapter::get_diffusion_coefficients()
+// {
+// 	return biofvm_microenvironment->diffusion_coefficients;
+// }
+
+const double* Microenvironment_Adapter::get_diffusion_coefficients() const
 {
-	return biofvm_microenvironment->diffusion_coefficients;
+	return biofvm_microenvironment->diffusion_coefficients.data();
 }
 
-const std::vector<double>& Microenvironment_Adapter::get_diffusion_coefficients() const
-{
-	return biofvm_microenvironment->diffusion_coefficients;
-}
+// std::vector<double>& Microenvironment_Adapter::get_decay_rates()
+// {
+// 	return biofvm_microenvironment->decay_rates;
+// }
 
-std::vector<double>& Microenvironment_Adapter::get_decay_rates()
+const double* Microenvironment_Adapter::get_decay_rates() const
 {
-	return biofvm_microenvironment->decay_rates;
-}
-
-const std::vector<double>& Microenvironment_Adapter::get_decay_rates() const
-{
-	return biofvm_microenvironment->decay_rates;
+	return biofvm_microenvironment->decay_rates.data();
 }
 
 // Name access
-std::string& Microenvironment_Adapter::get_name()
-{
-	return biofvm_microenvironment->name;
-}
+// std::string& Microenvironment_Adapter::get_name()
+// {
+// 	return biofvm_microenvironment->name;
+// }
 
 const std::string& Microenvironment_Adapter::get_name() const
 {
@@ -461,33 +461,33 @@ void Microenvironment_Adapter::write_to_matlab(std::string filename)
 }
 
 // Spatial setup methods
-void Microenvironment_Adapter::resize_space(int x_nodes, int y_nodes, int z_nodes)
-{
-	biofvm_microenvironment->resize_space(x_nodes, y_nodes, z_nodes);
-}
+// void Microenvironment_Adapter::resize_space(int x_nodes, int y_nodes, int z_nodes)
+// {
+// 	biofvm_microenvironment->resize_space(x_nodes, y_nodes, z_nodes);
+// }
 
-void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
-                                                   double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes)
-{
-	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, x_nodes, y_nodes, z_nodes);
-}
+// void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
+//                                                    double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes)
+// {
+// 	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, x_nodes, y_nodes, z_nodes);
+// }
 
-void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
-                                                   double z_start, double z_end, double dx_new, double dy_new, double dz_new)
-{
-	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, dx_new, dy_new, dz_new);
-}
+// void Microenvironment_Adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
+//                                                    double z_start, double z_end, double dx_new, double dy_new, double dz_new)
+// {
+// 	biofvm_microenvironment->resize_space(x_start, x_end, y_start, y_end, z_start, z_end, dx_new, dy_new, dz_new);
+// }
 
-void Microenvironment_Adapter::resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
-                                                           double z_start, double z_end, double dx_new)
-{
-	biofvm_microenvironment->resize_space_uniform(x_start, x_end, y_start, y_end, z_start, z_end, dx_new);
-}
+// void Microenvironment_Adapter::resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
+//                                                            double z_start, double z_end, double dx_new)
+// {
+// 	biofvm_microenvironment->resize_space_uniform(x_start, x_end, y_start, y_end, z_start, z_end, dx_new);
+// }
 
-void Microenvironment_Adapter::resize_voxels(int new_number_of_voxels)
-{
-	biofvm_microenvironment->resize_voxels(new_number_of_voxels);
-}
+// void Microenvironment_Adapter::resize_voxels(int new_number_of_voxels)
+// {
+// 	biofvm_microenvironment->resize_voxels(new_number_of_voxels);
+// }
 
 // Update methods
 void Microenvironment_Adapter::update_rates()
@@ -550,8 +550,17 @@ Microenvironment* get_biofvm_microenvironment()
 	return global_adapter->get_biofvm_microenvironment();
 }
 
-bool Microenvironment_Adapter::setup_microenvironment_from_XML( pugi::xml_node root_node )
+bool Microenvironment_Adapter::setup_microenvironment_from_XML( const std::string& filename )
 {
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file( filename.c_str() );
+	if ( !result )
+	{
+		std::cerr << "Error: Could not load XML file " << filename << ": " << result.description() << std::endl;
+		return false;
+	}
+	pugi::xml_node root_node = doc.child("PhysiCell_settings");
+
 	return setup_microenvironment_from_XML_node(root_node);
 };
 

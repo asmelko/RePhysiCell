@@ -113,7 +113,7 @@ bool load_PhysiCell_config_file( std::string filename )
 	
 	// now read the microenvironment (optional) 
 	
-	if( !get_microenvironment_i()->setup_microenvironment_from_XML( physicell_config_root ) )
+	if( !get_microenvironment_i()->setup_microenvironment_from_XML( filename ) )
 	{
 		std::cout << std::endl
 			<< "Warning: microenvironment_setup not found in " << filename << std::endl

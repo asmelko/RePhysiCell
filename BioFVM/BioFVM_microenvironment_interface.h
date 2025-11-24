@@ -124,25 +124,25 @@ public:
 	/** @brief Find the index of a substrate by name */
 	virtual int find_density_index(const std::string& name) const = 0;
 
-	/** @brief Add a new density substrate */
-	virtual void add_density() = 0;
+	// /** @brief Add a new density substrate */
+	// virtual void add_density() = 0;
 
-	/** @brief Add a new density with name and units */
-	virtual void add_density(const std::string& name, const std::string& units) = 0;
+	// /** @brief Add a new density with name and units */
+	// virtual void add_density(const std::string& name, const std::string& units) = 0;
 
-	/** @brief Add a new density with full parameters */
-	virtual void add_density(const std::string& name, const std::string& units,
-	                         double diffusion_constant, double decay_rate) = 0;
+	// /** @brief Add a new density with full parameters */
+	// virtual void add_density(const std::string& name, const std::string& units,
+	//                          double diffusion_constant, double decay_rate) = 0;
 
-	/** @brief Set density properties at given index */
-	virtual void set_density(int index, const std::string& name, const std::string& units) = 0;
+	// /** @brief Set density properties at given index */
+	// virtual void set_density(int index, const std::string& name, const std::string& units) = 0;
 
-	/** @brief Set density properties with coefficients at given index */
-	virtual void set_density(int index, const std::string& name, const std::string& units,
-	                         double diffusion_constant, double decay_rate) = 0;
+	// /** @brief Set density properties with coefficients at given index */
+	// virtual void set_density(int index, const std::string& name, const std::string& units,
+	//                          double diffusion_constant, double decay_rate) = 0;
 
-	/** @brief Resize the number of densities */
-	virtual void resize_densities(int new_size) = 0;
+	// /** @brief Resize the number of densities */
+	// virtual void resize_densities(int new_size) = 0;
 
 	// ========================================================================
 	// Voxel/Position access
@@ -174,29 +174,29 @@ public:
 	// ========================================================================
 
 	/** @brief Get density vector at voxel index */
-	virtual std::vector<double>& density_vector(int n) = 0;
+	virtual double* density_vector(int n) = 0;
 
 	/** @brief Get density vector at Cartesian position (i,j) */
-	virtual std::vector<double>& density_vector(int i, int j) = 0;
+	virtual double* density_vector(int i, int j) = 0;
 
 	/** @brief Get density vector at Cartesian position (i,j,k) */
-	virtual std::vector<double>& density_vector(int i, int j, int k) = 0;
+	virtual double* density_vector(int i, int j, int k) = 0;
 
 	/** @brief Get the nearest density vector to a position */
-	virtual std::vector<double>& nearest_density_vector(const std::vector<double>& position) = 0;
+	virtual double* nearest_density_vector(const std::vector<double>& position) = 0;
 
 	/** @brief Get the nearest density vector by voxel index */
-	virtual std::vector<double>& nearest_density_vector(int voxel_index) = 0;
+	virtual double* nearest_density_vector(int voxel_index) = 0;
 
 	/** @brief Const version of density_vector at voxel index */
-	virtual const std::vector<double>& density_vector(int n) const = 0;
+	virtual const double* density_vector(int n) const = 0;
 
 	// ========================================================================
 	// Gradient computation and access
 	// ========================================================================
 
 	/** @brief Compute gradient at a specific voxel */
-	virtual void compute_gradient_vector(int n) = 0;
+	// virtual void compute_gradient_vector(int n) = 0;
 
 	/** @brief Compute all gradient vectors */
 	virtual void compute_all_gradient_vectors() = 0;
@@ -234,19 +234,19 @@ public:
 	// ========================================================================
 
 	/** @brief Add a Dirichlet node at a voxel */
-	virtual void add_dirichlet_node(int voxel_index, std::vector<double>& value) = 0;
+	// virtual void add_dirichlet_node(int voxel_index, std::vector<double>& value) = 0;
 
-	/** @brief Update a Dirichlet node value */
-	virtual void update_dirichlet_node(int voxel_index, std::vector<double>& new_value) = 0;
+	// /** @brief Update a Dirichlet node value */
+	// virtual void update_dirichlet_node(int voxel_index, std::vector<double>& new_value) = 0;
 
-	/** @brief Update a Dirichlet node value for a specific substrate */
-	virtual void update_dirichlet_node(int voxel_index, int substrate_index, double new_value) = 0;
+	// /** @brief Update a Dirichlet node value for a specific substrate */
+	// virtual void update_dirichlet_node(int voxel_index, int substrate_index, double new_value) = 0;
 
-	/** @brief Remove a Dirichlet node */
-	virtual void remove_dirichlet_node(int voxel_index) = 0;
+	// /** @brief Remove a Dirichlet node */
+	// virtual void remove_dirichlet_node(int voxel_index) = 0;
 
-	/** @brief Apply Dirichlet boundary conditions */
-	virtual void apply_dirichlet_conditions() = 0;
+	// /** @brief Apply Dirichlet boundary conditions */
+	// virtual void apply_dirichlet_conditions() = 0;
 
 	/** @brief Set Dirichlet activation for all nodes of a substrate */
 	virtual void set_substrate_dirichlet_activation(int substrate_index, bool new_value) = 0;
@@ -276,7 +276,7 @@ public:
 	/** @brief Get const reference to the mesh */
 	virtual const Cartesian_Mesh& get_mesh() const = 0;
 
-	virtual Cartesian_Mesh& get_mesh() = 0;
+	// virtual Cartesian_Mesh& get_mesh() = 0;
 
 	// ========================================================================
 	// Agent container access
@@ -296,35 +296,35 @@ public:
 	// ========================================================================
 
 	/** @brief Get substrate names */
-	virtual std::vector<std::string>& get_density_names() = 0;
+	// virtual std::vector<std::string>& get_density_names() = 0;
 
 	/** @brief Get const substrate names */
 	virtual const std::vector<std::string>& get_density_names() const = 0;
 
 	/** @brief Get substrate units */
-	virtual std::vector<std::string>& get_density_units() = 0;
+	// virtual std::vector<std::string>& get_density_units() = 0;
 
 	/** @brief Get const substrate units */
 	virtual const std::vector<std::string>& get_density_units() const = 0;
 
 	/** @brief Get diffusion coefficients */
-	virtual std::vector<double>& get_diffusion_coefficients() = 0;
+	// virtual std::vector<double>& get_diffusion_coefficients() = 0;
 
 	/** @brief Get const diffusion coefficients */
-	virtual const std::vector<double>& get_diffusion_coefficients() const = 0;
+	virtual const double* get_diffusion_coefficients() const = 0;
 
 	/** @brief Get decay rates */
-	virtual std::vector<double>& get_decay_rates() = 0;
+	// virtual std::vector<double>& get_decay_rates() = 0;
 
 	/** @brief Get const decay rates */
-	virtual const std::vector<double>& get_decay_rates() const = 0;
+	virtual const double* get_decay_rates() const = 0;
 
 	// ========================================================================
 	// Name access
 	// ========================================================================
 
 	/** @brief Get microenvironment name */
-	virtual std::string& get_name() = 0;
+	// virtual std::string& get_name() = 0;
 
 	/** @brief Get const microenvironment name */
 	virtual const std::string& get_name() const = 0;
@@ -343,23 +343,23 @@ public:
 	// Spatial setup methods
 	// ========================================================================
 
-	/** @brief Resize the spatial domain */
-	virtual void resize_space(int x_nodes, int y_nodes, int z_nodes) = 0;
+	// /** @brief Resize the spatial domain */
+	// virtual void resize_space(int x_nodes, int y_nodes, int z_nodes) = 0;
 
-	/** @brief Resize the spatial domain with specific bounds and node counts */
-	virtual void resize_space(double x_start, double x_end, double y_start, double y_end,
-	                          double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes) = 0;
+	// /** @brief Resize the spatial domain with specific bounds and node counts */
+	// virtual void resize_space(double x_start, double x_end, double y_start, double y_end,
+	//                           double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes) = 0;
 
-	/** @brief Resize the spatial domain with specific bounds and spacing */
-	virtual void resize_space(double x_start, double x_end, double y_start, double y_end,
-	                          double z_start, double z_end, double dx_new, double dy_new, double dz_new) = 0;
+	// /** @brief Resize the spatial domain with specific bounds and spacing */
+	// virtual void resize_space(double x_start, double x_end, double y_start, double y_end,
+	//                           double z_start, double z_end, double dx_new, double dy_new, double dz_new) = 0;
 
-	/** @brief Resize the spatial domain uniformly */
-	virtual void resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
-	                                  double z_start, double z_end, double dx_new) = 0;
+	// /** @brief Resize the spatial domain uniformly */
+	// virtual void resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
+	//                                   double z_start, double z_end, double dx_new) = 0;
 
-	/** @brief Resize the number of voxels */
-	virtual void resize_voxels(int new_number_of_voxels) = 0;
+	// /** @brief Resize the number of voxels */
+	// virtual void resize_voxels(int new_number_of_voxels) = 0;
 
 	// ========================================================================
 	// Update methods
@@ -379,7 +379,7 @@ public:
 	virtual bool calculate_gradients() const = 0;
 
 	/** @brief Setup microenvironment from XML configuration */
-	virtual bool setup_microenvironment_from_XML( pugi::xml_node root_node ) = 0;
+	virtual bool setup_microenvironment_from_XML( const std::string& filename ) = 0;
 };
 
 // Global accessors for the microenvironment interface

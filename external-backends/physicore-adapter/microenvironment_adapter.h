@@ -65,72 +65,91 @@
 ###############################################################################
 */
 
-#ifndef __microenvironment_adapter_h__
-#define __microenvironment_adapter_h__
+#ifndef __physicore_microenvironment_adapter_h__
+#define __physicore_microenvironment_adapter_h__
 
-#include "BioFVM_microenvironment_interface.h"
+#include <biofvm/microenvironment.h>
+#include <map>
+#include <memory>
 
-namespace BioFVM{
+#include "../../BioFVM/BioFVM_microenvironment_interface.h"
+#include "mesh_adapter.h"
+#include "agent_container_adapter.h"
 
-class Microenvironment;
+namespace BioFVM {
 
 /**
- * @brief Adapter class that wraps BioFVM::Microenvironment
+ * @brief Adapter implementing BioFVM::Microenvironment_Interface using physicore backend
  *
- * This class implements the Microenvironment_Interface using BioFVM
- * as the underlying implementation. It delegates all method calls to
- * the wrapped BioFVM::Microenvironment object.
+ * This adapter wraps physicore::biofvm::microenvironment to provide compatibility with
+ * the BioFVM interface. The physicore backend uses an immutable, builder-based architecture,
+ * which differs fundamentally from BioFVM's mutable runtime configuration.
+ *
+ * @note PERFORMANCE AND MUTABILITY CONSTRAINTS:
+ * - The physicore microenvironment is IMMUTABLE after construction
+ * - Methods that would mutate the environment (add_density, resize_space, etc.) will
+ *   throw std::runtime_error
+ * - To modify configuration, rebuild the microenvironment using create_from_config()
+ * - Gradients are computed manually via finite differences and cached for performance
+ * - Density vector access creates temporary views - avoid repeated calls in tight loops
+ *
+ * @note XML CONFIGURATION:
+ * - Use setup_microenvironment_from_XML() or create_from_config() for initialization
+ * - The adapter translates PhysiCell XML format to physicore's configuration format
  */
-class Microenvironment_Adapter : public Microenvironment_Interface
+class physicore_microenvironment_adapter : public Microenvironment_Interface
 {
 private:
-	BioFVM::Microenvironment* biofvm_microenvironment;
-	bool owns_microenvironment;  // Track if we should delete the wrapped object
+	std::unique_ptr<physicore::biofvm::microenvironment> me;
+	
+	// Mesh wrapper for BioFVM compatibility
+	std::unique_ptr<physicore_mesh_wrapper> mesh_wrapper;
+	
+	// Agent container wrapper
+	std::unique_ptr<physicore_agent_container_wrapper> agent_wrapper;
+	
+	// Cached data for interface compatibility
+	std::mutex gradient_cache_mutex;
+    std::map<int, std::vector<std::vector<double>>> gradient_cache;
+	
+	// Helper methods
+	void invalidate_caches();
+	std::vector<std::vector<double>> compute_gradient_vector(int n);
+	void compute_gradient_at_voxel(int voxel_index, int substrate_index, std::vector<double>& gradient) const;
 
 public:
 	/**
-	 * @brief Constructor that wraps an existing BioFVM::Microenvironment
-	 * @param env Pointer to the BioFVM microenvironment to wrap
-	 * @param take_ownership If true, this adapter will delete the microenvironment when destroyed
+	 * @brief Construct adapter from existing physicore microenvironment
+	 * @param environment Unique pointer to physicore microenvironment (ownership transferred)
 	 */
-	Microenvironment_Adapter(BioFVM::Microenvironment* env, bool take_ownership = false);
-
+	explicit physicore_microenvironment_adapter(std::unique_ptr<physicore::biofvm::microenvironment> environment);
+	
 	/**
-	 * @brief Constructor that creates a new BioFVM::Microenvironment
+	 * @brief Construct adapter from XML configuration file
+	 * @param config_path Path to physicore configuration file
 	 */
-	Microenvironment_Adapter();
-
-	/**
-	 * @brief Destructor
-	 */
-	virtual ~Microenvironment_Adapter();
-
-	/**
-	 * @brief Get the underlying BioFVM::Microenvironment pointer
-	 */
-	BioFVM::Microenvironment* get_biofvm_microenvironment() { return biofvm_microenvironment; }
-
-	/**
-	 * @brief Get the underlying BioFVM::Microenvironment pointer (const)
-	 */
-	const BioFVM::Microenvironment* get_biofvm_microenvironment() const { return biofvm_microenvironment; }
+	explicit physicore_microenvironment_adapter(const std::string& config_path);
+	
+	virtual ~physicore_microenvironment_adapter() = default;
 
 	// ========================================================================
-	// Implementation of Microenvironment_Interface methods
-	// ========================================================================
-
 	// Units access
+	// ========================================================================
 	std::string& get_time_units() override;
 	const std::string& get_time_units() const override;
 	std::string& get_spatial_units() override;
 	const std::string& get_spatial_units() const override;
 
-	// Query methods
+	// ========================================================================
+	// Query methods - Size information
+	// ========================================================================
 	unsigned int number_of_densities() const override;
 	unsigned int number_of_voxels() const override;
 	unsigned int number_of_voxel_faces() const override;
 
+	// ========================================================================
 	// Substrate/Density management
+	// ========================================================================
 	int find_density_index(const std::string& name) const override;
 	// void add_density() override;
 	// void add_density(const std::string& name, const std::string& units) override;
@@ -141,7 +160,9 @@ public:
 	//                  double diffusion_constant, double decay_rate) override;
 	// void resize_densities(int new_size) override;
 
+	// ========================================================================
 	// Voxel/Position access
+	// ========================================================================
 	int voxel_index(int i, int j, int k) const override;
 	std::vector<unsigned int> cartesian_indices(int n) const override;
 	int nearest_voxel_index(const std::vector<double>& position) const override;
@@ -150,7 +171,9 @@ public:
 	const Voxel& voxels(int voxel_index) const override;
 	Voxel& nearest_voxel(const std::vector<double>& position) override;
 
+	// ========================================================================
 	// Density vector access
+	// ========================================================================
 	double* density_vector(int n) override;
 	double* density_vector(int i, int j) override;
 	double* density_vector(int i, int j, int k) override;
@@ -158,8 +181,9 @@ public:
 	double* nearest_density_vector(int voxel_index) override;
 	const double* density_vector(int n) const override;
 
+	// ========================================================================
 	// Gradient computation and access
-	// void compute_gradient_vector(int n) override;
+	// ========================================================================
 	void compute_all_gradient_vectors() override;
 	void reset_all_gradient_vectors() override;
 	std::vector<std::vector<double>>& gradient_vector(int n) override;
@@ -167,12 +191,16 @@ public:
 	std::vector<std::vector<double>>& gradient_vector(int i, int j, int k) override;
 	std::vector<std::vector<double>>& nearest_gradient_vector(const std::vector<double>& position) override;
 
+	// ========================================================================
 	// Simulation methods
+	// ========================================================================
 	void simulate_diffusion_decay(double dt) override;
 	void simulate_bulk_sources_and_sinks(double dt) override;
 	void simulate_cell_sources_and_sinks(double dt) override;
 
+	// ========================================================================
 	// Dirichlet boundary conditions
+	// ========================================================================
 	// void add_dirichlet_node(int voxel_index, std::vector<double>& value) override;
 	// void update_dirichlet_node(int voxel_index, std::vector<double>& new_value) override;
 	// void update_dirichlet_node(int voxel_index, int substrate_index, double new_value) override;
@@ -186,16 +214,22 @@ public:
 	double get_substrate_dirichlet_value(int substrate_index, int index) const override;
 	bool& is_dirichlet_node(int voxel_index) override;
 
+	// ========================================================================
 	// Mesh access
+	// ========================================================================
 	const Cartesian_Mesh& get_mesh() const override;
 	// Cartesian_Mesh& get_mesh() override;
 
+	// ========================================================================
 	// Agent container access
+	// ========================================================================
 	Agent_Container_Interface* get_agent_container() override;
 	const Agent_Container_Interface* get_agent_container() const override;
 	void set_agent_container(Agent_Container_Interface* container) override;
 
+	// ========================================================================
 	// Metadata access
+	// ========================================================================
 	// std::vector<std::string>& get_density_names() override;
 	const std::vector<std::string>& get_density_names() const override;
 	// std::vector<std::string>& get_density_units() override;
@@ -205,15 +239,21 @@ public:
 	// std::vector<double>& get_decay_rates() override;
 	const double* get_decay_rates() const override;
 
+	// ========================================================================
 	// Name access
+	// ========================================================================
 	// std::string& get_name() override;
 	const std::string& get_name() const override;
 
+	// ========================================================================
 	// Display and I/O
+	// ========================================================================
 	void display_information(std::ostream& os) const override;
 	void write_to_matlab(std::string filename) override;
 
+	// ========================================================================
 	// Spatial setup methods
+	// ========================================================================
 	// void resize_space(int x_nodes, int y_nodes, int z_nodes) override;
 	// void resize_space(double x_start, double x_end, double y_start, double y_end,
 	//                   double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes) override;
@@ -223,54 +263,19 @@ public:
 	//                           double z_start, double z_end, double dx_new) override;
 	// void resize_voxels(int new_number_of_voxels) override;
 
+	// ========================================================================
 	// Update methods
+	// ========================================================================
 	void update_rates() override;
 
+	// ========================================================================
 	// Configuration query methods
+	// ========================================================================
 	bool simulate_2D() const override;
 	bool calculate_gradients() const override;
-
-	bool setup_microenvironment_from_XML( const std::string& filename ) override;
+	bool setup_microenvironment_from_XML(const std::string& filename) override;
 };
-
-/**
- * @brief Get the global microenvironment interface
- * @return Pointer to the default microenvironment interface
- *
- * This function provides access to the globally configured microenvironment.
- * It should be used throughout PhysiCell code instead of directly accessing
- * the BioFVM::microenvironment global variable.
- *
- * @note Returns nullptr if no microenvironment has been initialized.
- */
-inline BioFVM::Microenvironment_Interface* get_microenvironment()
-{
-	return BioFVM::get_microenvironment_i();
-}
-
-/**
- * @brief Initialize the global microenvironment with a BioFVM backend
- *
- * This function creates a new BioFVM microenvironment and wraps it with an
- * adapter, then sets it as the default microenvironment interface.
- *
- * @note This should be called early in the initialization process, typically
- *       in the setup_microenvironment() function.
- */
-void initialize_microenvironment_interface();
-
-/**
- * @brief Get direct access to the BioFVM microenvironment (for legacy code)
- * @return Pointer to the underlying BioFVM::Microenvironment
- *
- * This function is provided for backwards compatibility with code that
- * directly accesses BioFVM features. New code should use the interface methods instead.
- *
- * @warning This bypasses the abstraction layer. Use with caution.
- * @note Returns nullptr if the microenvironment is not initialized or not using BioFVM.
- */
-BioFVM::Microenvironment* get_biofvm_microenvironment();
 
 } // namespace BioFVM
 
-#endif // __microenvironment_adapter_h__
+#endif // __physicore_microenvironment_adapter_h__
