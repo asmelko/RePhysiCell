@@ -126,23 +126,31 @@ public:
 	virtual void set_is_active(bool active) override;
 	
 	// Internalized substrates access
-	virtual std::vector<double>& get_internalized_substrates() override;
-	virtual const std::vector<double>& get_internalized_substrates() const override;
+	// virtual std::vector<double>& get_internalized_substrates() override;
+	// virtual const std::vector<double>& get_internalized_substrates() const override;
 	
 	// Getter and setter methods for vector pointers
-	virtual std::vector<double>* get_secretion_rates() override;
-	virtual const std::vector<double>* get_secretion_rates() const override;
-	virtual std::vector<double>* get_saturation_densities() override;
-	virtual const std::vector<double>* get_saturation_densities() const override;
-	virtual std::vector<double>* get_uptake_rates() override;
-	virtual const std::vector<double>* get_uptake_rates() const override;
-	virtual void set_secretion_rates(std::vector<double>* rates) override;
-	virtual void set_saturation_densities(std::vector<double>* densities) override;
-	virtual void set_uptake_rates(std::vector<double>* rates) override;
-	virtual void set_net_export_rates(std::vector<double>* rates) override;
-	virtual void set_internalized_substrates(std::vector<double>* substrates) override;
-	virtual void set_fraction_released_at_death(std::vector<double>* fractions) override;
-	virtual void set_fraction_transferred_when_ingested(std::vector<double>* fractions) override;
+	virtual double* get_secretion_rates() override;
+	virtual const double* get_secretion_rates() const override;
+	virtual double* get_saturation_densities() override;
+	virtual const double* get_saturation_densities() const override;
+	virtual double* get_uptake_rates() override;
+	virtual const double* get_uptake_rates() const override;
+	virtual double* get_net_export_rates() override;
+	virtual const double* get_net_export_rates() const override;
+	virtual double* get_internalized_total_substrates() override;
+	virtual const double* get_internalized_total_substrates() const override;
+	virtual double* get_fraction_released_at_death() override;
+	virtual const double* get_fraction_released_at_death() const override;
+	virtual double* get_fraction_transferred_when_ingested() override;
+	virtual const double* get_fraction_transferred_when_ingested() const override;
+	// virtual void set_secretion_rates(std::vector<double>* rates) override;
+	// virtual void set_saturation_densities(std::vector<double>* densities) override;
+	// virtual void set_uptake_rates(std::vector<double>* rates) override;
+	// virtual void set_net_export_rates(std::vector<double>* rates) override;
+	// virtual void set_internalized_substrates(std::vector<double>* substrates) override;
+	// virtual void set_fraction_released_at_death(std::vector<double>* fractions) override;
+	// virtual void set_fraction_transferred_when_ingested(std::vector<double>* fractions) override;
 	
 	// Secretion and uptake simulation
 	virtual void simulate_secretion_and_uptake( double dt ) override; 

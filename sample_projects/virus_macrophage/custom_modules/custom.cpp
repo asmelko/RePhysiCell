@@ -486,7 +486,10 @@ std::vector<double> integrate_total_substrates( void )
 	for( unsigned int n=0; n < (*all_cells).size(); n++ )
 	{
 		Cell* pC = (*all_cells)[n];
-		out += pC->phenotype.molecular.internalized_total_substrates;
+		for ( int i=0 ; i < get_microenvironment_i()->number_of_densities() ; i++ )
+		{
+			out[i] += pC->phenotype.molecular.internalized_total_substrates[i];
+		}
 	}
 	
 	return out; 

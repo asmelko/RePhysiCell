@@ -71,6 +71,7 @@
 #include <biofvm/microenvironment.h>
 #include <map>
 #include <memory>
+#include <mutex>
 
 #include "../../BioFVM/BioFVM_microenvironment_interface.h"
 #include "mesh_adapter.h"

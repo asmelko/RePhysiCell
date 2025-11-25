@@ -889,10 +889,22 @@ double& Motility::chemotactic_sensitivity( std::string name )
 Secretion::Secretion()
 {
 	pMicroenvironment = get_microenvironment_i(); 
-	
-	sync_to_current_microenvironment(); 
+
 	return; 
 }
+
+void Secretion::sync_to_cell(Basic_Agent_Interface* pCell)
+{
+	secretion_rates = pCell->get_secretion_rates();
+	uptake_rates = pCell->get_uptake_rates();
+	saturation_densities = pCell->get_saturation_densities();
+	net_export_rates = pCell->get_net_export_rates();
+
+	sync_to_current_microenvironment();
+	
+	return; 
+}
+
 
 void Secretion::sync_to_current_microenvironment( void )
 {
@@ -902,10 +914,14 @@ void Secretion::sync_to_current_microenvironment( void )
 	}
 	else
 	{
-		secretion_rates.resize( 0 , 0.0 ); 
-		uptake_rates.resize( 0 , 0.0 ); 
-		saturation_densities.resize( 0 , 0.0 ); 
-		net_export_rates.resize( 0, 0.0 ); 
+		int number_of_densities = get_microenvironment_i()->number_of_densities() ; 
+
+		for (int i = 0; i < number_of_densities; i++) {
+			secretion_rates[i] = 0.0;
+			uptake_rates[i] = 0.0;
+			saturation_densities[i] = 1.0;
+			net_export_rates[i] = 1.0;
+		}
 	}
 	return; 
 }
@@ -914,10 +930,12 @@ void Secretion::sync_to_microenvironment( Microenvironment_Interface* pNew_Micro
 {
 	pMicroenvironment = pNew_Microenvironment;
 
-	secretion_rates.resize( get_microenvironment_i()->number_of_densities() , 0.0 ); 
-	uptake_rates.resize( get_microenvironment_i()->number_of_densities() , 0.0 ); 
-	saturation_densities.resize( get_microenvironment_i()->number_of_densities() , 0.0 ); 
-	net_export_rates.resize( get_microenvironment_i()->number_of_densities() , 0.0 ); 
+	for (int i = 0; i < get_microenvironment_i()->number_of_densities(); i++) {
+		secretion_rates[i] = 0.0;
+		uptake_rates[i] = 0.0;
+		saturation_densities[i] = 1.0;
+		net_export_rates[i] = 1.0;
+	}
 	
 	return; 
 }
@@ -940,18 +958,6 @@ void Secretion::advance( Basic_Agent_Interface* pCell, Phenotype& phenotype , do
 		}
 	}
 
-	// make sure the associated cell has the correct rate vectors 
-	if( pCell->get_secretion_rates() != &secretion_rates )
-	{
-		pCell->set_secretion_rates( &secretion_rates );
-		pCell->set_uptake_rates( &uptake_rates );
-		pCell->set_saturation_densities( &saturation_densities );
-		pCell->set_net_export_rates( &net_export_rates );
-
-		pCell->set_total_volume( phenotype.volume.total ); 
-		pCell->set_internal_uptake_constants( dt );
-	}
-
 	// now, call the BioFVM secretion/uptake function 
 	
 	pCell->simulate_secretion_and_uptake( dt );
@@ -961,7 +967,7 @@ void Secretion::advance( Basic_Agent_Interface* pCell, Phenotype& phenotype , do
 
 void Secretion::set_all_secretion_to_zero( void )
 {
-	for( int i=0; i < secretion_rates.size(); i++ )
+	for( int i=0; i < pMicroenvironment->number_of_densities(); i++ )
 	{
 		secretion_rates[i] = 0.0; 
 		net_export_rates[i] = 0.0; 
@@ -971,14 +977,14 @@ void Secretion::set_all_secretion_to_zero( void )
 
 void Secretion::set_all_uptake_to_zero( void )
 {
-	for( int i=0; i < uptake_rates.size(); i++ )
+	for( int i=0; i < pMicroenvironment->number_of_densities(); i++ )
 	{ uptake_rates[i] = 0.0; }
 	return; 
 }
 
 void Secretion::scale_all_secretion_by_factor( double factor )
 {
-	for( int i=0; i < secretion_rates.size(); i++ )
+	for( int i=0; i < pMicroenvironment->number_of_densities(); i++ )
 	{
 		secretion_rates[i] *= factor; 
 		net_export_rates[i] *= factor; 
@@ -988,7 +994,7 @@ void Secretion::scale_all_secretion_by_factor( double factor )
 
 void Secretion::scale_all_uptake_by_factor( double factor )
 {
-	for( int i=0; i < uptake_rates.size(); i++ )
+	for( int i=0; i < pMicroenvironment->number_of_densities(); i++ )
 	{ uptake_rates[i] *= factor; }
 	return; 
 }
@@ -1021,7 +1027,6 @@ double& Secretion::net_export_rate( std::string name )
 Molecular::Molecular()
 {
 	pMicroenvironment = get_microenvironment_i();
-	sync_to_current_microenvironment(); 
 
 	return; 
 }
@@ -1034,9 +1039,13 @@ void Molecular::sync_to_current_microenvironment( void )
 	}
 	else
 	{
-		internalized_total_substrates.resize( 0 , 0.0 ); 
-		fraction_released_at_death.resize( 0 , 0.0 ); 
-		fraction_transferred_when_ingested.resize( 0, 1.0 ); 
+		int number_of_densities = get_microenvironment_i()->number_of_densities() ; 
+
+		for (int i = 0; i < number_of_densities; i++) {
+			internalized_total_substrates[i] = 0.0;
+			fraction_released_at_death[i] = 0.0;
+			fraction_transferred_when_ingested[i] = 1.0;
+		}
 	}
 	return; 
 }
@@ -1047,20 +1056,22 @@ void Molecular::sync_to_microenvironment( Microenvironment_Interface* pNew_Micro
 
 	int number_of_densities = get_microenvironment_i()->number_of_densities() ; 
 
-	internalized_total_substrates.resize( number_of_densities , 0.0 ); 
-	fraction_released_at_death.resize( number_of_densities , 0.0 ); 
-	fraction_transferred_when_ingested.resize( number_of_densities , 1.0 ); 
-	
+	for (int i = 0; i < number_of_densities; i++) {
+		internalized_total_substrates[i] = 0.0;
+		fraction_released_at_death[i] = 0.0;
+		fraction_transferred_when_ingested[i] = 1.0;
+	}
+
 	return; 
 }
 
 void Molecular::sync_to_cell( Basic_Agent_Interface* pCell )
 {
-	pCell->set_internalized_substrates( &internalized_total_substrates );
+	internalized_total_substrates = pCell->get_internalized_total_substrates();
+	fraction_released_at_death = pCell->get_fraction_released_at_death();
+	fraction_transferred_when_ingested = pCell->get_fraction_transferred_when_ingested();
 	
-	pCell->set_fraction_released_at_death( &fraction_released_at_death );
-	
-	pCell->set_fraction_transferred_when_ingested( &fraction_transferred_when_ingested );
+	sync_to_current_microenvironment(); 
 
 	return; 
 }

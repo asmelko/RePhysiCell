@@ -460,23 +460,25 @@ class Secretion
  public:
 	Microenvironment_Interface* pMicroenvironment; 
 	
-	std::vector<double> secretion_rates; 
-	std::vector<double> uptake_rates; 
-	std::vector<double> saturation_densities;
-	std::vector<double> net_export_rates; 
+	double* secretion_rates; 
+	double* uptake_rates; 
+	double* saturation_densities;
+	double* net_export_rates; 
 	
-	// in the default constructor, we'll size to the default microenvironment, if 
-	// specified. (This ties to BioFVM.) 
+	// in the constructor, we'll set pMicroenvironment to the current 
+	// default microenvironment.
 	Secretion(); // done 
 
-	// use this to properly size the secretion parameters to the microenvironment in 
-	// pMicroenvironment
+	// use this to assign the microenvironment to this secretion model
 	void sync_to_current_microenvironment( void ); // done 
-	
+
 	void advance( Basic_Agent_Interface* pCell, Phenotype& phenotype , double dt ); 
 	
-	// use this to properly size the secretion parameters to the microenvironment 
+	// use this to assign the microenvironment to this secretion model
 	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); // done 
+
+	// use this 
+	void sync_to_cell( Basic_Agent_Interface* pCell ); 
 	
 	void set_all_secretion_to_zero( void ); // NEW
 	void set_all_uptake_to_zero( void ); // NEW
@@ -560,18 +562,17 @@ class Molecular
 		// model much of this from Secretion 
 		Molecular(); 
  	
-		// we'll set this to replace BioFVM's version		
-		std::vector<double> internalized_total_substrates; 
+		double* internalized_total_substrates; 
 
 		// for each substrate, a fraction 0 <= f <= 1 of the 
 		// total internalized substrate is released back inot
 		// the environment at death 
-		std::vector<double> fraction_released_at_death; 
+		double* fraction_released_at_death; 
 
 		// for each substrate, a fraction 0 <= f <= 1 of the 
 		// total internalized substrate is transferred to the  
 		// predatory cell when ingested 
-		std::vector<double> fraction_transferred_when_ingested; 
+		double* fraction_transferred_when_ingested; 
 		
 		/* prototyping / beta in 1.5.0 */ 
 		// Boolean, Integer, and Double parameters

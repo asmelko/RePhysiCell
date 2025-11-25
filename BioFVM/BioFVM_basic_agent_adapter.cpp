@@ -186,88 +186,128 @@ void Basic_Agent_Adapter::set_is_active(bool active)
 	wrapped_agent->is_active = active;
 }
 
-std::vector<double>& Basic_Agent_Adapter::get_internalized_substrates()
-{
-	return *wrapped_agent->internalized_substrates;
-}
+// std::vector<double>& Basic_Agent_Adapter::get_internalized_substrates()
+// {
+// 	return *wrapped_agent->internalized_substrates;
+// }
 
-const std::vector<double>& Basic_Agent_Adapter::get_internalized_substrates() const
-{
-	return *wrapped_agent->internalized_substrates;
-}
+// const std::vector<double>& Basic_Agent_Adapter::get_internalized_substrates() const
+// {
+// 	return *wrapped_agent->internalized_substrates;
+// }
 
 // Getter and setter methods for vector pointers
-std::vector<double>* Basic_Agent_Adapter::get_secretion_rates()
+double* Basic_Agent_Adapter::get_secretion_rates()
 {
-	return wrapped_agent->secretion_rates;
+	return wrapped_agent->secretion_rates.data();
 }
 
-const std::vector<double>* Basic_Agent_Adapter::get_secretion_rates() const
+const double* Basic_Agent_Adapter::get_secretion_rates() const
 {
-	return wrapped_agent->secretion_rates;
+	return wrapped_agent->secretion_rates.data();
 }
 
-std::vector<double>* Basic_Agent_Adapter::get_saturation_densities()
+double* Basic_Agent_Adapter::get_saturation_densities()
 {
-	return wrapped_agent->saturation_densities;
+	return wrapped_agent->saturation_densities.data();
 }
 
-const std::vector<double>* Basic_Agent_Adapter::get_saturation_densities() const
+const double* Basic_Agent_Adapter::get_saturation_densities() const
 {
-	return wrapped_agent->saturation_densities;
+	return wrapped_agent->saturation_densities.data();
 }
 
-std::vector<double>* Basic_Agent_Adapter::get_uptake_rates()
+double* Basic_Agent_Adapter::get_uptake_rates()
 {
-	return wrapped_agent->uptake_rates;
+	return wrapped_agent->uptake_rates.data();
 }
 
-const std::vector<double>* Basic_Agent_Adapter::get_uptake_rates() const
+const double* Basic_Agent_Adapter::get_uptake_rates() const
 {
-	return wrapped_agent->uptake_rates;
+	return wrapped_agent->uptake_rates.data();
 }
 
-void Basic_Agent_Adapter::set_secretion_rates(std::vector<double>* rates)
+double* Basic_Agent_Adapter::get_net_export_rates()
 {
-	delete wrapped_agent->secretion_rates;
-	wrapped_agent->secretion_rates = rates;
+	return wrapped_agent->net_export_rates.data();
 }
 
-void Basic_Agent_Adapter::set_saturation_densities(std::vector<double>* densities)
+const double* Basic_Agent_Adapter::get_net_export_rates() const
 {
-	delete wrapped_agent->saturation_densities;
-	wrapped_agent->saturation_densities = densities;
+	return wrapped_agent->net_export_rates.data();
 }
 
-void Basic_Agent_Adapter::set_uptake_rates(std::vector<double>* rates)
+double* Basic_Agent_Adapter::get_internalized_total_substrates()
 {
-	delete wrapped_agent->uptake_rates;
-	wrapped_agent->uptake_rates = rates;
+	return wrapped_agent->internalized_substrates.data();
 }
 
-void Basic_Agent_Adapter::set_net_export_rates(std::vector<double>* rates)
+const double* Basic_Agent_Adapter::get_internalized_total_substrates() const
 {
-	delete wrapped_agent->net_export_rates;
-	wrapped_agent->net_export_rates = rates;
+	return wrapped_agent->internalized_substrates.data();
 }
 
-void Basic_Agent_Adapter::set_internalized_substrates(std::vector<double>* substrates)
+double* Basic_Agent_Adapter::get_fraction_released_at_death()
 {
-	delete wrapped_agent->internalized_substrates;
-	wrapped_agent->internalized_substrates = substrates;
+	return wrapped_agent->fraction_released_at_death.data();
 }
 
-void Basic_Agent_Adapter::set_fraction_released_at_death(std::vector<double>* fractions)
+const double* Basic_Agent_Adapter::get_fraction_released_at_death() const
 {
-	delete wrapped_agent->fraction_released_at_death;
-	wrapped_agent->fraction_released_at_death = fractions;
+	return wrapped_agent->fraction_released_at_death.data();
 }
 
-void Basic_Agent_Adapter::set_fraction_transferred_when_ingested(std::vector<double>* fractions)
+double* Basic_Agent_Adapter::get_fraction_transferred_when_ingested()
 {
-	delete wrapped_agent->fraction_transferred_when_ingested;
-	wrapped_agent->fraction_transferred_when_ingested = fractions;
+	return wrapped_agent->fraction_transferred_when_ingested.data();
 }
+
+const double* Basic_Agent_Adapter::get_fraction_transferred_when_ingested() const
+{
+	return wrapped_agent->fraction_transferred_when_ingested.data();
+}
+
+// void Basic_Agent_Adapter::set_secretion_rates(std::vector<double>* rates)
+// {
+// 	delete wrapped_agent->secretion_rates;
+// 	wrapped_agent->secretion_rates = rates;
+// }
+
+// void Basic_Agent_Adapter::set_saturation_densities(std::vector<double>* densities)
+// {
+// 	delete wrapped_agent->saturation_densities;
+// 	wrapped_agent->saturation_densities = densities;
+// }
+
+// void Basic_Agent_Adapter::set_uptake_rates(std::vector<double>* rates)
+// {
+// 	delete wrapped_agent->uptake_rates;
+// 	wrapped_agent->uptake_rates = rates;
+// }
+
+// void Basic_Agent_Adapter::set_net_export_rates(std::vector<double>* rates)
+// {
+// 	delete wrapped_agent->net_export_rates;
+// 	wrapped_agent->net_export_rates = rates;
+// }
+
+// void Basic_Agent_Adapter::set_internalized_substrates(std::vector<double>* substrates)
+// {
+// 	delete wrapped_agent->internalized_substrates;
+// 	wrapped_agent->internalized_substrates = substrates;
+// }
+
+// void Basic_Agent_Adapter::set_fraction_released_at_death(std::vector<double>* fractions)
+// {
+// 	delete wrapped_agent->fraction_released_at_death;
+// 	wrapped_agent->fraction_released_at_death = fractions;
+// }
+
+// void Basic_Agent_Adapter::set_fraction_transferred_when_ingested(std::vector<double>* fractions)
+// {
+// 	delete wrapped_agent->fraction_transferred_when_ingested;
+// 	wrapped_agent->fraction_transferred_when_ingested = fractions;
+// }
 
 void Basic_Agent_Adapter::simulate_secretion_and_uptake( double dt )
 {

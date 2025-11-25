@@ -84,18 +84,18 @@ class Basic_Agent
  public:
 	bool is_active;
 
-	std::vector<double> * secretion_rates; 
-	std::vector<double> * saturation_densities; 
-	std::vector<double> * uptake_rates;  
-	std::vector<double> * net_export_rates; 
+	std::vector<double> secretion_rates; 
+	std::vector<double> saturation_densities; 
+	std::vector<double> uptake_rates;  
+	std::vector<double> net_export_rates; 
 	double& get_total_volume();
 	void set_total_volume(double);
 	void update_voxel_index();
 
 	/* new for internalized substrates in 1.5.0 */ 
-	std::vector<double> * internalized_substrates; 
-	std::vector<double> * fraction_released_at_death; 
-	std::vector<double> * fraction_transferred_when_ingested; 
+	std::vector<double> internalized_substrates; 
+	std::vector<double> fraction_released_at_death; 
+	std::vector<double> fraction_transferred_when_ingested; 
 	void release_internalized_substrates( void ); 
 
 	void set_internal_uptake_constants( double dt ); // any time you update the cell volume or rates, should call this function. 

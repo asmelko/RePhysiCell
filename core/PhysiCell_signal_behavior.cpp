@@ -785,8 +785,8 @@ std::vector<double> get_signals( Cell* pCell )
 
     // internalized substrates 
 	static int start_int_substrate_ind = find_signal_index( "intracellular " + get_microenvironment_i()->get_density_names()[0] ); 
-    std::copy( pCell->phenotype.molecular.internalized_total_substrates.begin() , 
-	           pCell->phenotype.molecular.internalized_total_substrates.end(), 
+    std::copy( pCell->phenotype.molecular.internalized_total_substrates , 
+	           pCell->phenotype.molecular.internalized_total_substrates + m, 
 			   signals.begin()+start_int_substrate_ind);  
 	for( int i=0; i < m ; i++ )
 	{ signals[i+start_int_substrate_ind] /= pCell->phenotype.volume.total; }
@@ -1289,25 +1289,25 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
 	std::copy(  parameters.begin()+first_secretion_index , 
 				parameters.begin()+first_secretion_index + m , 
-				pCell->phenotype.secretion.secretion_rates.begin() ); 
+				pCell->phenotype.secretion.secretion_rates ); 
 
 	// next m entries are secretion targets
 	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
 	std::copy(  parameters.begin()+first_secretion_target_index , 
 				parameters.begin()+first_secretion_target_index + m , 
-				pCell->phenotype.secretion.saturation_densities.begin() ); 
+				pCell->phenotype.secretion.saturation_densities ); 
 
 	// next m entries are uptake rates
 	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
 	std::copy(  parameters.begin()+first_uptake_index , 
 				parameters.begin()+first_uptake_index + m , 
-				pCell->phenotype.secretion.uptake_rates.begin() ); 
+				pCell->phenotype.secretion.uptake_rates ); 
 
 	// next m entries are net export rates 
 	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
 	std::copy(  parameters.begin()+first_export_index , 
 				parameters.begin()+first_export_index + m , 
-				pCell->phenotype.secretion.net_export_rates.begin() ); 
+				pCell->phenotype.secretion.net_export_rates ); 
 
 	// cycle entry (exit from phase 0) and exit from up to 5 more phases 
 	static int first_cycle_index = find_behavior_index("exit from cycle phase 0" ); //  4*m; 
@@ -1706,26 +1706,26 @@ std::vector<double> get_behaviors( Cell* pCell )
 	
 	// first m entries are secretion 
 	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
-	std::copy(  pCell->phenotype.secretion.secretion_rates.begin(), 
-				pCell->phenotype.secretion.secretion_rates.end(), 
+	std::copy(  pCell->phenotype.secretion.secretion_rates, 
+				pCell->phenotype.secretion.secretion_rates + m, 
 				parameters.begin()+first_secretion_index ); 
 
 	// next m entries are secretion targets
 	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
-	std::copy(  pCell->phenotype.secretion.saturation_densities.begin(), 
-				pCell->phenotype.secretion.saturation_densities.end(), 
+	std::copy(  pCell->phenotype.secretion.saturation_densities, 
+				pCell->phenotype.secretion.saturation_densities + m, 
 				parameters.begin()+first_secretion_target_index ); 
 
 	// next m entries are uptake rates
 	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
-	std::copy(  pCell->phenotype.secretion.uptake_rates.begin(), 
-				pCell->phenotype.secretion.uptake_rates.end(), 
+	std::copy(  pCell->phenotype.secretion.uptake_rates, 
+				pCell->phenotype.secretion.uptake_rates + m, 
 				parameters.begin()+first_uptake_index ); 
 
 	// next m entries are net export rates 
 	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
-	std::copy(  pCell->phenotype.secretion.net_export_rates.begin(), 
-				pCell->phenotype.secretion.net_export_rates.end(), 
+	std::copy(  pCell->phenotype.secretion.net_export_rates, 
+				pCell->phenotype.secretion.net_export_rates + m, 
 				parameters.begin()+first_export_index ); 
 
 	// cycle entry (exit from phase 0) and exit from up to 5 more phases 
@@ -2162,26 +2162,26 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 	
 	// first m entries are secretion 
 	static int first_secretion_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion" ); // 0; 
-	std::copy(  pCD->phenotype.secretion.secretion_rates.begin(), 
-				pCD->phenotype.secretion.secretion_rates.end(), 
+	std::copy(  pCD->phenotype.secretion.secretion_rates, 
+				pCD->phenotype.secretion.secretion_rates + m, 
 				parameters.begin()+first_secretion_index ); 
 
 	// next m entries are secretion targets
 	static int first_secretion_target_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " secretion target" ); // m; 
-	std::copy(  pCD->phenotype.secretion.saturation_densities.begin(), 
-				pCD->phenotype.secretion.saturation_densities.end(), 
+	std::copy(  pCD->phenotype.secretion.saturation_densities, 
+				pCD->phenotype.secretion.saturation_densities + m, 
 				parameters.begin()+first_secretion_target_index ); 
 
 	// next m entries are uptake rates
 	static int first_uptake_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " uptake" );  // 2*m; 
-	std::copy(  pCD->phenotype.secretion.uptake_rates.begin(), 
-				pCD->phenotype.secretion.uptake_rates.end(), 
+	std::copy(  pCD->phenotype.secretion.uptake_rates, 
+				pCD->phenotype.secretion.uptake_rates + m, 
 				parameters.begin()+first_uptake_index ); 
 
 	// next m entries are net export rates 
 	static int first_export_index = find_behavior_index( get_microenvironment_i()->get_density_names()[0] + " export" ); //  3*m; 
-	std::copy(  pCD->phenotype.secretion.net_export_rates.begin(), 
-				pCD->phenotype.secretion.net_export_rates.end(), 
+	std::copy(  pCD->phenotype.secretion.net_export_rates, 
+				pCD->phenotype.secretion.net_export_rates + m, 
 				parameters.begin()+first_export_index ); 
 
 	// cycle entry (exit from phase 0) and exit from up to 5 more phases 

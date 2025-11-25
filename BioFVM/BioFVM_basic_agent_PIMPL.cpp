@@ -197,81 +197,121 @@ void Basic_Agent_PIMPL::set_is_active(bool active)
 }
 
 // Internalized substrates access
-std::vector<double>& Basic_Agent_PIMPL::get_internalized_substrates()
-{
-	return pImpl->get_internalized_substrates();
-}
+// std::vector<double>& Basic_Agent_PIMPL::get_internalized_substrates()
+// {
+// 	return pImpl->get_internalized_substrates();
+// }
 
-const std::vector<double>& Basic_Agent_PIMPL::get_internalized_substrates() const
-{
-	return pImpl->get_internalized_substrates();
-}
+// const std::vector<double>& Basic_Agent_PIMPL::get_internalized_substrates() const
+// {
+// 	return pImpl->get_internalized_substrates();
+// }
 
 // Getter and setter methods for vector pointers
-std::vector<double>* Basic_Agent_PIMPL::get_secretion_rates()
+double* Basic_Agent_PIMPL::get_secretion_rates()
 {
 	return pImpl->get_secretion_rates();
 }
 
-const std::vector<double>* Basic_Agent_PIMPL::get_secretion_rates() const
+const double* Basic_Agent_PIMPL::get_secretion_rates() const
 {
 	return pImpl->get_secretion_rates();
 }
 
-std::vector<double>* Basic_Agent_PIMPL::get_saturation_densities()
+double* Basic_Agent_PIMPL::get_saturation_densities()
 {
 	return pImpl->get_saturation_densities();
 }
 
-const std::vector<double>* Basic_Agent_PIMPL::get_saturation_densities() const
+const double* Basic_Agent_PIMPL::get_saturation_densities() const
 {
 	return pImpl->get_saturation_densities();
 }
 
-std::vector<double>* Basic_Agent_PIMPL::get_uptake_rates()
+double* Basic_Agent_PIMPL::get_uptake_rates()
 {
 	return pImpl->get_uptake_rates();
 }
 
-const std::vector<double>* Basic_Agent_PIMPL::get_uptake_rates() const
+const double* Basic_Agent_PIMPL::get_uptake_rates() const
 {
 	return pImpl->get_uptake_rates();
 }
 
-void Basic_Agent_PIMPL::set_secretion_rates(std::vector<double>* rates)
+double* Basic_Agent_PIMPL::get_net_export_rates()
 {
-	pImpl->set_secretion_rates(rates);
+	return pImpl->get_net_export_rates();
 }
 
-void Basic_Agent_PIMPL::set_saturation_densities(std::vector<double>* densities)
+const double* Basic_Agent_PIMPL::get_net_export_rates() const
 {
-	pImpl->set_saturation_densities(densities);
+	return pImpl->get_net_export_rates();
 }
 
-void Basic_Agent_PIMPL::set_uptake_rates(std::vector<double>* rates)
+double* Basic_Agent_PIMPL::get_internalized_total_substrates()
 {
-	pImpl->set_uptake_rates(rates);
+	return pImpl->get_internalized_total_substrates();
 }
 
-void Basic_Agent_PIMPL::set_net_export_rates(std::vector<double>* rates)
+const double* Basic_Agent_PIMPL::get_internalized_total_substrates() const
 {
-	pImpl->set_net_export_rates(rates);
+	return pImpl->get_internalized_total_substrates();
 }
 
-void Basic_Agent_PIMPL::set_internalized_substrates(std::vector<double>* substrates)
+double* Basic_Agent_PIMPL::get_fraction_released_at_death()
 {
-	pImpl->set_internalized_substrates(substrates);
+	return pImpl->get_fraction_released_at_death();
 }
 
-void Basic_Agent_PIMPL::set_fraction_released_at_death(std::vector<double>* fractions)
+const double* Basic_Agent_PIMPL::get_fraction_released_at_death() const
 {
-	pImpl->set_fraction_released_at_death(fractions);
+	return pImpl->get_fraction_released_at_death();
 }
 
-void Basic_Agent_PIMPL::set_fraction_transferred_when_ingested(std::vector<double>* fractions)
+double* Basic_Agent_PIMPL::get_fraction_transferred_when_ingested()
 {
-	pImpl->set_fraction_transferred_when_ingested(fractions);
+	return pImpl->get_fraction_transferred_when_ingested();
 }
+
+const double* Basic_Agent_PIMPL::get_fraction_transferred_when_ingested() const
+{
+	return pImpl->get_fraction_transferred_when_ingested();
+}
+
+// void Basic_Agent_PIMPL::set_secretion_rates(std::vector<double>* rates)
+// {
+// 	pImpl->set_secretion_rates(rates);
+// }
+
+// void Basic_Agent_PIMPL::set_saturation_densities(std::vector<double>* densities)
+// {
+// 	pImpl->set_saturation_densities(densities);
+// }
+
+// void Basic_Agent_PIMPL::set_uptake_rates(std::vector<double>* rates)
+// {
+// 	pImpl->set_uptake_rates(rates);
+// }
+
+// void Basic_Agent_PIMPL::set_net_export_rates(std::vector<double>* rates)
+// {
+// 	pImpl->set_net_export_rates(rates);
+// }
+
+// void Basic_Agent_PIMPL::set_internalized_substrates(std::vector<double>* substrates)
+// {
+// 	pImpl->set_internalized_substrates(substrates);
+// }
+
+// void Basic_Agent_PIMPL::set_fraction_released_at_death(std::vector<double>* fractions)
+// {
+// 	pImpl->set_fraction_released_at_death(fractions);
+// }
+
+// void Basic_Agent_PIMPL::set_fraction_transferred_when_ingested(std::vector<double>* fractions)
+// {
+// 	pImpl->set_fraction_transferred_when_ingested(fractions);
+// }
 
 // Secretion and uptake simulation
 void Basic_Agent_PIMPL::simulate_secretion_and_uptake( double dt )

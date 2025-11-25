@@ -415,6 +415,7 @@ Cell::Cell() : Basic_Agent_PIMPL(new BioFVM::Basic_Agent_Adapter(new BioFVM::Bas
 	
 	phenotype = cell_defaults.phenotype; 
 	
+	phenotype.secretion.sync_to_cell( this ); 
 	phenotype.molecular.sync_to_cell( this ); 
 	
 	// cell state should be fine by the default constructor 
@@ -578,8 +579,12 @@ Cell* Cell::divide( )
 	
 	// evenly divide internalized substrates 
 	// if these are not actively tracked, they are zero anyway 
-	get_internalized_substrates() *= 0.5; 
-	child->get_internalized_substrates() = get_internalized_substrates(); 
+	for ( int n = 0 ; n < phenotype.molecular.pMicroenvironment->number_of_densities() ; n++ )
+	{
+		phenotype.molecular.internalized_total_substrates[n] *= 0.5; 
+		child->phenotype.molecular.internalized_total_substrates[n] = 
+			phenotype.molecular.internalized_total_substrates[n];
+	}
 	
 	// The following is already performed by create_cell(). JULY 2017 ***
 	// child->register_microenvironment( get_microenvironment() );
@@ -818,8 +823,8 @@ double& Cell::get_total_volume(void)
 void Cell::turn_off_reactions(double dt)
 {	
 	set_is_active(false);  
-	
-	for(int i=0;i< phenotype.secretion.uptake_rates.size();i++)
+
+	for(int i=0;i< phenotype.secretion.pMicroenvironment->number_of_densities();i++)
 	{
 		phenotype.secretion.uptake_rates[i] = 0.0;  
 		phenotype.secretion.secretion_rates[i] = 0.0; 
@@ -950,7 +955,11 @@ void Cell::copy_data(Cell* copy_me)
 	
 	get_velocity() = copy_me->get_velocity(); 
 	// expected_phenotype = copy_me-> expected_phenotype; //it is taken care in set_phenotype
-	get_internalized_substrates() = copy_me->get_internalized_substrates();
+	for ( int i = 0 ; i < copy_me->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
+	{
+		phenotype.molecular.internalized_total_substrates[i] = 
+			copy_me->phenotype.molecular.internalized_total_substrates[i];
+	}
 	
 	return; 
 }
@@ -1422,12 +1431,16 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 		
 		// multiply by the fraction that is supposed to be ingested (for each substrate) 
 
-		pCell_to_eat->get_internalized_substrates() *= 
-			pCell_to_eat->custom_data["fraction_transferred_when_ingested"]; // 
+		for ( int i = 0 ; i < pCell_to_eat->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
+		{
+			pCell_to_eat->phenotype.molecular.internalized_total_substrates[i] *= 
+				pCell_to_eat->custom_data["fraction_transferred_when_ingested"]; //
+			
+			phenotype.molecular.internalized_total_substrates[i] += 
+				pCell_to_eat->phenotype.molecular.internalized_total_substrates[i];
 
-		get_internalized_substrates() += pCell_to_eat->get_internalized_substrates(); 
-		static int n_substrates = get_internalized_substrates().size(); 
-		pCell_to_eat->get_internalized_substrates().assign( n_substrates , 0.0 ); 	
+			pCell_to_eat->phenotype.molecular.internalized_total_substrates[i] = 0.0;
+		}
 
 		// conserved quantitites in custom data during phagocytosis
 		// so that phagocyte cell absorbs the full amount from the engulfed cell;
@@ -1589,10 +1602,13 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		pCell_to_fuse->set_total_volume( 0.0 ); 
 
 		// absorb the internalized substrates 
-		
-		get_internalized_substrates() += pCell_to_fuse->get_internalized_substrates(); 
-		static int n_substrates = get_internalized_substrates().size(); 
-		pCell_to_fuse->get_internalized_substrates().assign( n_substrates , 0.0 ); 	
+		for ( int i = 0 ; i < pCell_to_fuse->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
+		{
+			phenotype.molecular.internalized_total_substrates[i] += 
+				pCell_to_fuse->phenotype.molecular.internalized_total_substrates[i];
+
+			pCell_to_fuse->phenotype.molecular.internalized_total_substrates[i] = 0.0;
+		}
 
 		// set target volume(s)
 
@@ -2058,10 +2074,13 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			pCD->functions.update_migration_bias = NULL; 
 
 			// secretion  
-			pCD->phenotype.secretion.secretion_rates.assign(number_of_substrates,0.0); 
-			pCD->phenotype.secretion.uptake_rates.assign(number_of_substrates,0.0); 
-			pCD->phenotype.secretion.net_export_rates.assign(number_of_substrates,0.0); 
-			pCD->phenotype.secretion.saturation_densities.assign(number_of_substrates,0.0); 
+			for (int i = 0; i < number_of_substrates; i++ )
+			{
+				pCD->phenotype.secretion.secretion_rates[i] = 0.0; 
+				pCD->phenotype.secretion.uptake_rates[i] = 0.0; 
+				pCD->phenotype.secretion.net_export_rates[i] = 0.0; 
+				pCD->phenotype.secretion.saturation_densities[i] = 0.0; 
+			}
 
 			// interaction 
 			pCD->phenotype.cell_interactions.apoptotic_phagocytosis_rate = 0.0; 
