@@ -469,6 +469,8 @@ class Secretion
 	// default microenvironment.
 	Secretion(); // done 
 
+	Secretion& operator=( const Secretion& rhs );
+
 	// use this to assign the microenvironment to this secretion model
 	void sync_to_current_microenvironment( void ); // done 
 
@@ -479,7 +481,8 @@ class Secretion
 
 	// use this 
 	void sync_to_cell( Basic_Agent_Interface* pCell ); 
-	
+	void sync_to_cell_definition( Cell_Definition* pCD ); 
+
 	void set_all_secretion_to_zero( void ); // NEW
 	void set_all_uptake_to_zero( void ); // NEW
 	void scale_all_secretion_by_factor( double factor ); // NEW
@@ -561,6 +564,8 @@ class Molecular
 	
 		// model much of this from Secretion 
 		Molecular(); 
+
+		Molecular& operator=( const Molecular& rhs );
  	
 		double* internalized_total_substrates; 
 
@@ -610,6 +615,7 @@ class Molecular
 		
 		// use this 
 		void sync_to_cell( Basic_Agent_Interface* pCell ); 
+		void sync_to_cell_definition( Cell_Definition* pCD ); 
 
 		// ease of access 
 		double&  internalized_total_substrate( std::string name ); 

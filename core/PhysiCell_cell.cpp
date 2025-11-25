@@ -234,6 +234,24 @@ Cell_Definition& Cell_Definition::operator=( const Cell_Definition& cd )
 	return *this; 
 }
 
+void Cell_Definition::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
+{
+	pMicroenvironment = pNew_Microenvironment; 
+	
+	secretion_rates.resize( pNew_Microenvironment->number_of_densities() );
+	uptake_rates.resize( pNew_Microenvironment->number_of_densities() );
+	saturation_densities.resize( pNew_Microenvironment->number_of_densities() );
+	net_export_rates.resize( pNew_Microenvironment->number_of_densities() );
+	internalized_total_substrates.resize( pNew_Microenvironment->number_of_densities() );
+	fraction_released_at_death.resize( pNew_Microenvironment->number_of_densities() );
+	fraction_transferred_when_ingested.resize( pNew_Microenvironment->number_of_densities() );
+
+	phenotype.secretion.sync_to_cell_definition( this );
+	phenotype.molecular.sync_to_cell_definition( this );
+
+	return; 
+}
+
 Cell_Definition cell_defaults; 
 
 Cell_State::Cell_State()
@@ -413,10 +431,10 @@ Cell::Cell() : Basic_Agent_PIMPL(new BioFVM::Basic_Agent_Adapter(new BioFVM::Bas
 	parameters = cell_defaults.parameters; 
 	functions = cell_defaults.functions; 
 	
-	phenotype = cell_defaults.phenotype; 
-	
 	phenotype.secretion.sync_to_cell( this ); 
 	phenotype.molecular.sync_to_cell( this ); 
+	
+	phenotype = cell_defaults.phenotype; 
 	
 	// cell state should be fine by the default constructor 
 	
@@ -2017,6 +2035,11 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	{ pCD = new Cell_Definition; }
 	else
 	{ pCD = &cell_defaults; }
+
+	// sync to microenvironment
+	pCD->pMicroenvironment = NULL;
+	if( BioFVM::get_microenvironment_i() != NULL )
+	{ pCD->sync_to_microenvironment(BioFVM::get_microenvironment_i()); }
 	
 	// set the name 
 	pCD->name = cd_node.attribute("name").value();
@@ -2107,11 +2130,6 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		}
 
 	}
-
-	// sync to microenvironment
-	pCD->pMicroenvironment = NULL;
-	if( BioFVM::get_microenvironment_i() != NULL )
-	{ pCD->pMicroenvironment = BioFVM::get_microenvironment_i(); }
 
 	// figure out if this ought to be 2D
 	if( get_microenvironment_i()->simulate_2D() )

@@ -893,6 +893,21 @@ Secretion::Secretion()
 	return; 
 }
 
+Secretion& Secretion::operator=( const Secretion& rhs )
+{
+	if (this != &rhs) // self-assignment check expected
+	{
+		this->pMicroenvironment = rhs.pMicroenvironment;
+		for (int i = 0; i < this->pMicroenvironment->number_of_densities(); i++) {
+			this->secretion_rates[i] = rhs.secretion_rates[i];
+			this->uptake_rates[i] = rhs.uptake_rates[i];
+			this->saturation_densities[i] = rhs.saturation_densities[i];
+			this->net_export_rates[i] = rhs.net_export_rates[i];
+		}
+	}
+	return *this;
+}
+
 void Secretion::sync_to_cell(Basic_Agent_Interface* pCell)
 {
 	secretion_rates = pCell->get_secretion_rates();
@@ -901,6 +916,16 @@ void Secretion::sync_to_cell(Basic_Agent_Interface* pCell)
 	net_export_rates = pCell->get_net_export_rates();
 
 	sync_to_current_microenvironment();
+	
+	return; 
+}
+
+void Secretion::sync_to_cell_definition( Cell_Definition* pCell_Definition )
+{
+	secretion_rates = pCell_Definition->secretion_rates.data();
+	uptake_rates = pCell_Definition->uptake_rates.data();
+	saturation_densities = pCell_Definition->saturation_densities.data();
+	net_export_rates = pCell_Definition->net_export_rates.data();
 	
 	return; 
 }
@@ -919,8 +944,8 @@ void Secretion::sync_to_current_microenvironment( void )
 		for (int i = 0; i < number_of_densities; i++) {
 			secretion_rates[i] = 0.0;
 			uptake_rates[i] = 0.0;
-			saturation_densities[i] = 1.0;
-			net_export_rates[i] = 1.0;
+			saturation_densities[i] = 0.0;
+			net_export_rates[i] = 0.0;
 		}
 	}
 	return; 
@@ -933,8 +958,8 @@ void Secretion::sync_to_microenvironment( Microenvironment_Interface* pNew_Micro
 	for (int i = 0; i < get_microenvironment_i()->number_of_densities(); i++) {
 		secretion_rates[i] = 0.0;
 		uptake_rates[i] = 0.0;
-		saturation_densities[i] = 1.0;
-		net_export_rates[i] = 1.0;
+		saturation_densities[i] = 0.0;
+		net_export_rates[i] = 0.0;
 	}
 	
 	return; 
@@ -1031,6 +1056,20 @@ Molecular::Molecular()
 	return; 
 }
 
+Molecular& Molecular::operator=( const Molecular& rhs )
+{
+	if (this != &rhs) // self-assignment check expected
+	{
+		this->pMicroenvironment = rhs.pMicroenvironment;
+		for (int i = 0; i < this->pMicroenvironment->number_of_densities(); i++) {
+			this->internalized_total_substrates[i] = rhs.internalized_total_substrates[i];
+			this->fraction_released_at_death[i] = rhs.fraction_released_at_death[i];
+			this->fraction_transferred_when_ingested[i] = rhs.fraction_transferred_when_ingested[i];
+		}
+	}
+	return *this;
+}
+
 void Molecular::sync_to_current_microenvironment( void )
 {
 	if( pMicroenvironment )
@@ -1072,6 +1111,15 @@ void Molecular::sync_to_cell( Basic_Agent_Interface* pCell )
 	fraction_transferred_when_ingested = pCell->get_fraction_transferred_when_ingested();
 	
 	sync_to_current_microenvironment(); 
+
+	return; 
+}
+
+void Molecular::sync_to_cell_definition( Cell_Definition* pCell_Definition )
+{
+	internalized_total_substrates = pCell_Definition->internalized_total_substrates.data();
+	fraction_released_at_death = pCell_Definition->fraction_released_at_death.data();
+	fraction_transferred_when_ingested = pCell_Definition->fraction_transferred_when_ingested.data();
 
 	return; 
 }

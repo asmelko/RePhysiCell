@@ -732,7 +732,7 @@ void initialize_default_cell_definition( void )
 	// set the microenvironment pointer 
 	cell_defaults.pMicroenvironment = NULL;
 	if( BioFVM::get_microenvironment_i() != NULL )
-	{ cell_defaults.pMicroenvironment = BioFVM::get_microenvironment_i(); }
+	{ cell_defaults.sync_to_microenvironment( BioFVM::get_microenvironment_i() );}
 	
 	// make sure phenotype.secretions are correctly sized 
 	

@@ -131,9 +131,23 @@ class Cell_Definition
 	Cell_Functions functions; 
 	Phenotype phenotype; 
 
+	// Cell Definition needs to own Secretion and Molecular data
+	// because this->phenotype.secretions and this->phenotype.molecular
+	// have just observer pointers to these data structures
+	// We have the vectors here so we can set defaults when a new cell is created
+	std::vector<double> secretion_rates;
+	std::vector<double> uptake_rates;
+	std::vector<double> saturation_densities;
+	std::vector<double> net_export_rates;
+	std::vector<double> internalized_total_substrates;
+	std::vector<double> fraction_released_at_death;
+	std::vector<double> fraction_transferred_when_ingested;
+
 	Cell_Definition();  // done 
 	Cell_Definition( Cell_Definition& cd ); // copy constructor 
 	Cell_Definition& operator=( const Cell_Definition& cd ); // copy assignment 
+
+	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment );
 };
 
 extern Cell_Definition cell_defaults; 
