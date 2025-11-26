@@ -779,8 +779,8 @@ std::vector<double> get_signals( Cell* pCell )
 	// substrate densities 
     // copy efficiently; 
 	static int start_substrate_ind = find_signal_index( get_microenvironment_i()->get_density_names()[0] ); 
-    std::copy( pCell->nearest_density_vector().begin() , 
-			   pCell->nearest_density_vector().end(), 
+    std::copy( pCell->nearest_density_vector() , 
+			   pCell->nearest_density_vector() + m, 
 			   signals.begin()+start_substrate_ind ); 
 
     // internalized substrates 

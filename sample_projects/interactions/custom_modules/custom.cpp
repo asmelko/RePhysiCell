@@ -386,7 +386,7 @@ void bacteria_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		return; 
 	}
 
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double R = samples[nR];
 	double Q = samples[nQuorum]; 
 	double Tox = samples[nToxin]; 
@@ -463,7 +463,7 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		return;
 	}	
 
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double PIF = samples[nPIF];
 	double debris = samples[nDebris]; 
 	double Q = samples[nQ];
@@ -567,7 +567,7 @@ void CD8Tcell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	static int nDebris = get_microenvironment_i()->find_density_index( "debris" );
 	static int nPIF = get_microenvironment_i()->find_density_index( "pro-inflammatory"); 
 	
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double PIF = samples[nPIF];	
 	
 	// if dead, release debris
@@ -615,7 +615,7 @@ void neutrophil_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	static int nDebris = get_microenvironment_i()->find_density_index( "debris" );
 	static int nPIF = get_microenvironment_i()->find_density_index( "pro-inflammatory"); 
 	
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double PIF = samples[nPIF];	
 	
 	// if dead, release debris
@@ -658,7 +658,7 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		return;
 	}
 
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double R = samples[nR];
 	double toxin = samples[nTox];
 
@@ -757,7 +757,7 @@ void differentiated_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt
 		return;
 	}
 	
-	std::vector<double> samples = pCell->nearest_density_vector(); 
+	double* samples = pCell->nearest_density_vector(); 
 	double R = samples[nR];
 	double toxin = samples[nTox];
 

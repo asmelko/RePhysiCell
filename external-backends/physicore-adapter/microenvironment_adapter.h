@@ -75,7 +75,6 @@
 
 #include "../../BioFVM/BioFVM_microenvironment_interface.h"
 #include "mesh_adapter.h"
-#include "agent_container_adapter.h"
 
 namespace BioFVM {
 
@@ -107,7 +106,7 @@ private:
 	std::unique_ptr<physicore_mesh_wrapper> mesh_wrapper;
 	
 	// Agent container wrapper
-	std::unique_ptr<physicore_agent_container_wrapper> agent_wrapper;
+	std::unique_ptr<Agent_Container_Interface> agent_wrapper;
 	
 	// Cached data for interface compatibility
 	std::mutex gradient_cache_mutex;
@@ -132,6 +131,8 @@ public:
 	explicit physicore_microenvironment_adapter(const std::string& config_path);
 	
 	virtual ~physicore_microenvironment_adapter() = default;
+
+	physicore::biofvm::microenvironment* get_physicore_microenvironment();
 
 	// ========================================================================
 	// Units access

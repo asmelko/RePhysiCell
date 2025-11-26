@@ -33,6 +33,8 @@ find_package(BioFVM CONFIG REQUIRED)
 target_link_libraries(physicore_biofvm_adapter PRIVATE BioFVM)
 
 target_sources(physicore_biofvm_adapter PRIVATE
+               basic_agent_adapter.cpp
+               mesh_adapter.cpp
                microenvironment_adapter.cpp)
 
 target_include_directories(physicore_biofvm_adapter PUBLIC

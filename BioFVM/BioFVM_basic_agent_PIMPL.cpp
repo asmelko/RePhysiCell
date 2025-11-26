@@ -149,9 +149,9 @@ bool Basic_Agent_PIMPL::assign_position(std::vector<double> new_position)
 	return pImpl->assign_position(new_position);
 }
 
-std::vector<double>& Basic_Agent_PIMPL::get_position()
+double* Basic_Agent_PIMPL::get_position_internal()
 {
-	return pImpl->get_position();
+	return pImpl->get_position_internal();
 }
 
 const std::vector<double>& Basic_Agent_PIMPL::get_position() const
@@ -325,7 +325,7 @@ int Basic_Agent_PIMPL::get_current_voxel_index( void )
 	return pImpl->get_current_voxel_index();
 }
 
-std::vector<double>& Basic_Agent_PIMPL::nearest_density_vector( void )
+double* Basic_Agent_PIMPL::nearest_density_vector( void )
 {
 	return pImpl->nearest_density_vector();
 }

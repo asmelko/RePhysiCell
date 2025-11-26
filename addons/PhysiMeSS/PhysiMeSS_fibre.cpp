@@ -272,8 +272,8 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
             state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
             state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
             normalize(&state.orientation);
-            get_position()[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*state.orientation[0];
-            get_position()[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*state.orientation[1];
+            get_position_internal()[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*state.orientation[0];
+            get_position_internal()[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*state.orientation[1];
         }
     }
 

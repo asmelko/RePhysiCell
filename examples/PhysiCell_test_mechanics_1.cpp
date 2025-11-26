@@ -198,8 +198,8 @@ int main( int argc, char* argv[] )
 		
 	for(int i=0;i<10;i++)
 	{
-		pCell1->get_position() += (dt/10.0)*pCell1->get_velocity(); 
-		pCell2->get_position() += (dt/10.0)*pCell2->get_velocity();
+		pCell1->assign_position( pCell1->get_position() + (dt/10.0)*pCell1->get_velocity() ); 
+		pCell2->assign_position( pCell2->get_position() + (dt/10.0)*pCell2->get_velocity() );
 		t+=dt/10.0;
 	}
 	std::cout<<"time: "<< t<<std::endl;

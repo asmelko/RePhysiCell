@@ -70,6 +70,8 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
  protected:
 	// Pointer to the actual implementation (adapter wrapping Basic_Agent)
 	Basic_Agent_Interface* pImpl;
+
+	double* get_position_internal() override;
 	
  public:
 	/**
@@ -115,7 +117,6 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	// Position methods - delegate to pImpl
 	virtual bool assign_position(double x, double y, double z) override;
 	virtual bool assign_position(std::vector<double> new_position) override;
-	virtual std::vector<double>& get_position() override;
 	virtual const std::vector<double>& get_position() const override;
 	virtual void update_position( double dt ) override;
 	
@@ -163,7 +164,7 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	virtual int get_current_voxel_index( void ) override; 
 	
 	// Density and gradient access - delegate to pImpl
-	virtual std::vector<double>& nearest_density_vector( void ) override;
+	virtual double* nearest_density_vector( void ) override;
 	virtual std::vector<double>& nearest_gradient( int substrate_index ) override;
 	virtual std::vector<std::vector<double>>& nearest_gradient_vector( void ) override;
 };

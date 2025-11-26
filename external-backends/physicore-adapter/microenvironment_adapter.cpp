@@ -68,7 +68,6 @@
 #include "microenvironment_adapter.h"
 #include "biofvm/microenvironment.h"
 #include "mesh_adapter.h"
-#include "agent_container_adapter.h"
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
@@ -91,7 +90,7 @@ physicore_microenvironment_adapter::physicore_microenvironment_adapter(
 	mesh_wrapper->update_dirichlet_flags(*me);
 	
 	if (me->agents) {
-		agent_wrapper = std::make_unique<physicore_agent_container_wrapper>(me->agents);
+		agent_wrapper = std::make_unique<Agent_Container_Interface>();
 	}
 }
 
@@ -99,6 +98,10 @@ physicore_microenvironment_adapter::physicore_microenvironment_adapter(const std
 	: physicore_microenvironment_adapter(
 		physicore::biofvm::microenvironment::create_from_config(config_path))
 {
+}
+
+physicore::biofvm::microenvironment* physicore_microenvironment_adapter::get_physicore_microenvironment() {
+	return me.get();
 }
 
 // ============================================================================

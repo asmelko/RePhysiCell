@@ -55,8 +55,6 @@ namespace BioFVM{
 class Agent_Container_Interface
 {
  public:
-	virtual void update_all_cells(double dt) = 0;
-
 	static std::vector<Basic_Agent_Interface*>* get_all_basic_agents();
 
 	virtual ~Agent_Container_Interface() = default;

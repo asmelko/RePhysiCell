@@ -141,9 +141,9 @@ bool Basic_Agent_Adapter::assign_position(std::vector<double> new_position)
 	return wrapped_agent->assign_position(new_position);
 }
 
-std::vector<double>& Basic_Agent_Adapter::get_position()
+double* Basic_Agent_Adapter::get_position_internal()
 {
-	return wrapped_agent->position;
+	return wrapped_agent->position.data();
 }
 
 const std::vector<double>& Basic_Agent_Adapter::get_position() const
@@ -319,9 +319,9 @@ int Basic_Agent_Adapter::get_current_voxel_index( void )
 	return wrapped_agent->get_current_voxel_index();
 }
 
-std::vector<double>& Basic_Agent_Adapter::nearest_density_vector( void )
+double* Basic_Agent_Adapter::nearest_density_vector( void )
 {
-	return wrapped_agent->nearest_density_vector();
+	return wrapped_agent->nearest_density_vector().data();
 }
 
 std::vector<double>& Basic_Agent_Adapter::nearest_gradient( int substrate_index )

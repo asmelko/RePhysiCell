@@ -194,7 +194,7 @@ std::ostream& operator<<(std::ostream& os, const General_Mesh& mesh)
  return os; 
 }
 
-bool General_Mesh::is_position_valid(double x, double y, double z)
+bool General_Mesh::is_position_valid(double x, double y, double z) const
 {
 	if(x< bounding_box[mesh_min_x_index] || x>bounding_box[mesh_max_x_index])
 		return false;
@@ -877,7 +877,7 @@ void Cartesian_Mesh::resize( int x_nodes, int y_nodes, int z_nodes )
 void Cartesian_Mesh::resize_uniform( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx_new )
 { return resize( x_start, x_end, y_start, y_end, z_start, z_end , dx_new, dx_new , dx_new ); }
 
-int Cartesian_Mesh::nearest_voxel_index( std::vector<double>& position )
+int Cartesian_Mesh::nearest_voxel_index( const std::vector<double>& position )
 {
 	unsigned int i = (unsigned int) floor( (position[0]-bounding_box[0])/dx ); 
 	unsigned int j = (unsigned int) floor( (position[1]-bounding_box[1])/dy ); 

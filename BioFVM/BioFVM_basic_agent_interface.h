@@ -57,7 +57,16 @@ class Microenvironment_Interface;
 
 class Basic_Agent_Interface
 {
- public:
+	friend class Basic_Agent_PIMPL;
+protected:
+	// Direct access to internal position array for performance
+	// Used in performance-critical sections only
+	// We are not exposing this publicly since its size can vary (2D vs 3D)
+	// and we want to maintain safety for general users
+	// The public variants of position access are always 3D
+	virtual double* get_position_internal() = 0;
+ 
+public:
 	// Volume methods
 	virtual double& get_total_volume() = 0;
 	virtual void set_total_volume(double) = 0;
@@ -82,7 +91,6 @@ class Basic_Agent_Interface
 	// Position methods
 	virtual bool assign_position(double x, double y, double z) = 0;
 	virtual bool assign_position(std::vector<double> new_position) = 0;
-	virtual std::vector<double>& get_position() = 0;
 	virtual const std::vector<double>& get_position() const = 0;
 	virtual void update_position( double dt ) = 0;
 	
@@ -132,7 +140,7 @@ class Basic_Agent_Interface
 	virtual int get_current_voxel_index( void ) = 0; 
 	
 	// Density and gradient access
-	virtual std::vector<double>& nearest_density_vector( void ) = 0;
+	virtual double* nearest_density_vector( void ) = 0;
 	virtual std::vector<double>& nearest_gradient( int substrate_index ) = 0;
 	virtual std::vector<std::vector<double>>& nearest_gradient_vector( void ) = 0;
 };

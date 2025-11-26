@@ -647,7 +647,9 @@ Cell* Cell::divide( )
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
-	axpy( &(get_position()), negative_one_half , rand_vec ); // position = position - 0.5*rand_vec; 
+	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+	for ( int i = 0 ; i < dims ; i++ )
+	{ get_position_internal()[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
@@ -690,7 +692,7 @@ Cell* Cell::divide( )
 	return child;
 }
 
-bool Cell::assign_position(std::vector<double> new_position)
+bool Cell::assign_position(const std::vector<double>& new_position)
 {
 	return assign_position(new_position[0], new_position[1], new_position[2]);
 }
@@ -706,9 +708,7 @@ void Cell::set_previous_velocity(double xV, double yV, double zV)
 
 bool Cell::assign_position(double x, double y, double z)
 {
-	get_position()[0]=x;
-	get_position()[1]=y;
-	get_position()[2]=z;
+	Basic_Agent_PIMPL::assign_position( x, y, z);
 	
 	// update microenvironment current voxel index
 	update_voxel_index();
@@ -893,9 +893,14 @@ void Cell::update_position( double dt )
 	if( get_microenvironment_i()->simulate_2D() == true )
 	{ get_velocity()[2] = 0.0; }
 	
-	std::vector<double> old_position(get_position()); 
-	axpy( &(get_position()) , d1 , get_velocity() );  
-	axpy( &(get_position()) , d2 , get_previous_velocity() );  
+	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+
+	// std::vector<double> old_position = position;
+	for ( int i = 0 ; i < dims ; i++ )
+	{
+		get_position_internal()[i] += 
+			( d1 * get_velocity()[i] + d2 * get_previous_velocity()[i] );
+	}
 	// overwrite previous_velocity for future use 
 	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
@@ -1563,7 +1568,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 			std::cout << "cell fusion at " << new_position << " violates domain bounds" << std::endl; 
 			std::cout << get_microenvironment_i()->get_mesh().bounding_box << std::endl << std::endl; 
 		}
-		get_position() = new_position; 
+		assign_position( new_position );
 		update_voxel_in_container();
 
 		// set number of nuclei 

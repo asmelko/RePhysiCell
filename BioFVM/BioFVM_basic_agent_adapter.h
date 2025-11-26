@@ -69,6 +69,9 @@ private:
 	Microenvironment_Adapter* microenvironment_adapter;
 	Basic_Agent* wrapped_agent;
 	bool owns_agent;
+
+protected:
+	double* get_position_internal() override;
 	
 public:
 	/**
@@ -111,7 +114,6 @@ public:
 	// Position methods
 	virtual bool assign_position(double x, double y, double z) override;
 	virtual bool assign_position(std::vector<double> new_position) override;
-	virtual std::vector<double>& get_position() override;
 	virtual const std::vector<double>& get_position() const override;
 	virtual void update_position( double dt ) override;
 	
@@ -159,7 +161,7 @@ public:
 	virtual int get_current_voxel_index( void ) override; 
 	
 	// Density and gradient access
-	virtual std::vector<double>& nearest_density_vector( void ) override;
+	virtual double* nearest_density_vector( void ) override;
 	virtual std::vector<double>& nearest_gradient( int substrate_index ) override;
 	virtual std::vector<std::vector<double>>& nearest_gradient_vector( void ) override;
 };
