@@ -402,17 +402,14 @@ std::vector<std::vector<double>>& physicore_microenvironment_adapter::nearest_gr
 // Simulation methods
 // ============================================================================
 
-void physicore_microenvironment_adapter::simulate_diffusion_decay(double dt) {
-	// Physicore handles diffusion-decay in run_single_timestep
-	// Calculate how many iterations needed for dt
-	if (me->diffusion_timestep > 0) {
-		physicore::index_t iterations = static_cast<physicore::index_t>(
-			std::ceil(dt / me->diffusion_timestep)
-		);
-		me->solver->solve(*me, iterations);
-	}
-	
+void physicore_microenvironment_adapter::simulate_time_step(double dt) {
+	me->solver->solve(*me, 1);
 	invalidate_caches();
+}
+
+void physicore_microenvironment_adapter::simulate_diffusion_decay(double dt) {
+	// Physicore handles bulk sources via bulk_fnc during solve
+	// This is a no-op since it's integrated into the solver
 }
 
 void physicore_microenvironment_adapter::simulate_bulk_sources_and_sinks(double dt) {

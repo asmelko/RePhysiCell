@@ -10,7 +10,8 @@ target_sources(
           BioFVM_mesh.cpp
           BioFVM_microenvironment_adapter.cpp
           BioFVM_microenvironment.cpp
-          BioFVM_solvers.cpp)
+          BioFVM_solvers.cpp
+          BioFVM_backend_selector.cpp)
 
 target_sources(
   BioFVM_utils

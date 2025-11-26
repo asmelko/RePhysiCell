@@ -71,8 +71,7 @@
 #include "PhysiCell_constants.h"
 #include "PhysiCell_rules.h"
 #include "../BioFVM/BioFVM_vector.h"
-#include "../BioFVM/BioFVM_basic_agent.h"
-#include "../BioFVM/BioFVM_basic_agent_adapter.h"
+#include "../BioFVM/BioFVM_backend_selector.h"
 
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"
@@ -420,7 +419,7 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 	return; 
 }
 
-Cell::Cell() : Basic_Agent_PIMPL(new BioFVM::Basic_Agent_Adapter(new BioFVM::Basic_Agent(), true))
+Cell::Cell() : Basic_Agent_PIMPL(BioFVM::Backend_Selector::create_basic_agent())
 {
 	// use the cell defaults; 
 	

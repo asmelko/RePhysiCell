@@ -294,6 +294,13 @@ std::vector<gradient>& Microenvironment_Adapter::nearest_gradient_vector(const s
 }
 
 // Simulation methods
+void Microenvironment_Adapter::simulate_time_step(double dt)
+{
+	biofvm_microenvironment->simulate_diffusion_decay(dt);
+	biofvm_microenvironment->simulate_cell_sources_and_sinks(dt);
+	// biofvm_microenvironment->simulate_bulk_sources_and_sinks(dt);
+}
+
 void Microenvironment_Adapter::simulate_diffusion_decay(double dt)
 {
 	biofvm_microenvironment->simulate_diffusion_decay(dt);
@@ -504,50 +511,6 @@ bool Microenvironment_Adapter::simulate_2D() const
 bool Microenvironment_Adapter::calculate_gradients() const
 {
 	return default_microenvironment_options.calculate_gradients;
-}
-
-
-// Static adapter instance that wraps the global BioFVM microenvironment
-static Microenvironment_Adapter* global_adapter = nullptr;
-
-void initialize_microenvironment_interface()
-{
-	// Get the global BioFVM microenvironment
-	Microenvironment* biofvm_env = &microenvironment;
-
-	// Create an adapter wrapping it (don't take ownership since it's global)
-	if (global_adapter == nullptr)
-	{
-		global_adapter = new Microenvironment_Adapter(biofvm_env, false);
-		set_default_microenvironment_interface(global_adapter);
-	}
-}
-
-void initialize_microenvironment_interface_from_biofvm(Microenvironment* biofvm_env, bool take_ownership)
-{
-	if (biofvm_env == nullptr)
-	{
-		throw std::invalid_argument("Cannot initialize microenvironment interface from null BioFVM microenvironment");
-	}
-
-	// Clean up any existing adapter
-	if (global_adapter != nullptr)
-	{
-		delete global_adapter;
-	}
-
-	// Create new adapter
-	global_adapter = new Microenvironment_Adapter(biofvm_env, take_ownership);
-	set_default_microenvironment_interface(global_adapter);
-}
-
-Microenvironment* get_biofvm_microenvironment()
-{
-	if (global_adapter == nullptr)
-	{
-		return nullptr;
-	}
-	return global_adapter->get_biofvm_microenvironment();
 }
 
 bool Microenvironment_Adapter::setup_microenvironment_from_XML( const std::string& filename )

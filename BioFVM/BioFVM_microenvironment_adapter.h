@@ -168,6 +168,7 @@ public:
 	std::vector<std::vector<double>>& nearest_gradient_vector(const std::vector<double>& position) override;
 
 	// Simulation methods
+	void simulate_time_step(double dt) override;
 	void simulate_diffusion_decay(double dt) override;
 	void simulate_bulk_sources_and_sinks(double dt) override;
 	void simulate_cell_sources_and_sinks(double dt) override;
@@ -247,29 +248,6 @@ inline BioFVM::Microenvironment_Interface* get_microenvironment()
 {
 	return BioFVM::get_microenvironment_i();
 }
-
-/**
- * @brief Initialize the global microenvironment with a BioFVM backend
- *
- * This function creates a new BioFVM microenvironment and wraps it with an
- * adapter, then sets it as the default microenvironment interface.
- *
- * @note This should be called early in the initialization process, typically
- *       in the setup_microenvironment() function.
- */
-void initialize_microenvironment_interface();
-
-/**
- * @brief Get direct access to the BioFVM microenvironment (for legacy code)
- * @return Pointer to the underlying BioFVM::Microenvironment
- *
- * This function is provided for backwards compatibility with code that
- * directly accesses BioFVM features. New code should use the interface methods instead.
- *
- * @warning This bypasses the abstraction layer. Use with caution.
- * @note Returns nullptr if the microenvironment is not initialized or not using BioFVM.
- */
-BioFVM::Microenvironment* get_biofvm_microenvironment();
 
 } // namespace BioFVM
 

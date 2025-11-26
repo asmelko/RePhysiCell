@@ -220,6 +220,9 @@ public:
 	// Simulation methods
 	// ========================================================================
 
+	/** @brief Simulate a time step of duration dt */
+	virtual void simulate_time_step(double dt) = 0;
+
 	/** @brief Simulate diffusion and decay for time step dt */
 	virtual void simulate_diffusion_decay(double dt) = 0;
 

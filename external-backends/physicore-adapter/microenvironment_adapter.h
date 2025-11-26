@@ -196,6 +196,7 @@ public:
 	// ========================================================================
 	// Simulation methods
 	// ========================================================================
+	void simulate_time_step(double dt) override;
 	void simulate_diffusion_decay(double dt) override;
 	void simulate_bulk_sources_and_sinks(double dt) override;
 	void simulate_cell_sources_and_sinks(double dt) override;
