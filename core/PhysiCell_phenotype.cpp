@@ -914,8 +914,6 @@ void Secretion::sync_to_cell(Basic_Agent_Interface* pCell)
 	uptake_rates = pCell->get_uptake_rates();
 	saturation_densities = pCell->get_saturation_densities();
 	net_export_rates = pCell->get_net_export_rates();
-
-	sync_to_current_microenvironment();
 	
 	return; 
 }
@@ -1109,8 +1107,6 @@ void Molecular::sync_to_cell( Basic_Agent_Interface* pCell )
 	internalized_total_substrates = pCell->get_internalized_total_substrates();
 	fraction_released_at_death = pCell->get_fraction_released_at_death();
 	fraction_transferred_when_ingested = pCell->get_fraction_transferred_when_ingested();
-	
-	sync_to_current_microenvironment(); 
 
 	return; 
 }

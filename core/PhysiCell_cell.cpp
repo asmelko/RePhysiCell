@@ -708,7 +708,10 @@ void Cell::set_previous_velocity(double xV, double yV, double zV)
 
 bool Cell::assign_position(double x, double y, double z)
 {
-	Basic_Agent_PIMPL::assign_position( x, y, z);
+	get_position_internal()[0] = x;
+	get_position_internal()[1] = y;
+	if ( !get_microenvironment_i()->simulate_2D() )
+	{ get_position_internal()[2] = z; }
 	
 	// update microenvironment current voxel index
 	update_voxel_index();
@@ -1255,6 +1258,12 @@ void delete_cell( int index )
 	// de-allocate (delete) the cell; 
 	delete pDeleteMe; 
 
+	if ( index < (int)(*all_cells).size() )
+	{
+		// need to update the moved cell's position in the container
+		(*all_cells)[index]->phenotype.secretion.sync_to_cell( (*all_cells)[index] );
+		(*all_cells)[index]->phenotype.molecular.sync_to_cell( (*all_cells)[index] );
+	}
 
 	return; 
 }
