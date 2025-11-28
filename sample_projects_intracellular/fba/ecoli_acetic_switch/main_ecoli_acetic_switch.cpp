@@ -214,7 +214,8 @@ int main( int argc, char* argv[] )
 			}
 
 			// update the microenvironment
-			// get_microenvironment_i()->simulate_diffusion_decay( diffusion_dt );
+			// get_microenvironment_i()->simulate_time_step( diffusion_dt );
+			get_microenvironment_i()->simulate_cell_sources_and_sinks( diffusion_dt );
 			
 			// run PhysiCell 
 			((Cell_Container *)get_microenvironment_i()->get_agent_container())->update_all_cells( PhysiCell_globals.current_time );

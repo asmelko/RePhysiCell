@@ -237,7 +237,7 @@ int main( int argc, char* argv[] )
 			}
 			
 			// update the microenvironment
-			get_microenvironment_i()->simulate_diffusion_decay( diffusion_dt );
+			get_microenvironment_i()->simulate_time_step( diffusion_dt );
 			// if( default_microenvironment_options.calculate_gradients )
 			// { get_microenvironment_i()->compute_all_gradient_vectors(); }
 			

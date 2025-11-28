@@ -67,7 +67,7 @@
 
 
 #include "custom.h"
-#include "BioFVM/BioFVM_microenvironment_interface.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 
 
 // constantes variables
