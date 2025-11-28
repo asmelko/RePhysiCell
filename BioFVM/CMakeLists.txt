@@ -6,16 +6,15 @@ target_sources(
   PRIVATE BioFVM_agent_container.cpp
           BioFVM_basic_agent.cpp
           BioFVM_basic_agent_adapter.cpp
-          BioFVM_basic_agent_PIMPL.cpp
-          BioFVM_mesh.cpp
           BioFVM_microenvironment_adapter.cpp
           BioFVM_microenvironment.cpp
-          BioFVM_solvers.cpp
-          BioFVM_backend_selector.cpp)
+          BioFVM_solvers.cpp)
 
 target_sources(
   BioFVM_utils
   PRIVATE BioFVM_vector.cpp
+          BioFVM_mesh.cpp
+          BioFVM_basic_agent_PIMPL.cpp
           BioFVM_utilities.cpp
           BioFVM_matlab.cpp
           BioFVM_MultiCellDS.cpp

@@ -123,11 +123,11 @@ void setup_microenvironment( void )
 	// make sure ot override and go back to 2D 
 	if( get_microenvironment_i()->simulate_2D() == true )
 	{
-		std::cout << "Warning: overriding 2D setting to return to 3D" << std::endl;
-		default_microenvironment_options.simulate_2D = false;
+		std::cout << "Error: overriding 2D setting to return to 3D" << std::endl; 
+		std::exit(1);
 	}
 			
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 
 	return; 
 }

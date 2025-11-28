@@ -232,22 +232,8 @@ public:
 	bool calculate_gradients() const override;
 
 	bool setup_microenvironment_from_XML( const std::string& filename ) override;
+	void initialize() override;
 };
-
-/**
- * @brief Get the global microenvironment interface
- * @return Pointer to the default microenvironment interface
- *
- * This function provides access to the globally configured microenvironment.
- * It should be used throughout PhysiCell code instead of directly accessing
- * the BioFVM::microenvironment global variable.
- *
- * @note Returns nullptr if no microenvironment has been initialized.
- */
-inline BioFVM::Microenvironment_Interface* get_microenvironment()
-{
-	return BioFVM::get_microenvironment_i();
-}
 
 } // namespace BioFVM
 

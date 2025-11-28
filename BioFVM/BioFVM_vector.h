@@ -103,6 +103,8 @@ void randomize( std::vector<double>* v );
 /* axpy and related BLAS-type operations */ 
 
 // y = y + a*x 
+void axpy( std::vector<double>* y, const double& a , const double* x );
+// y = y + a*x 
 void axpy( std::vector<double>* y, const double& a , const std::vector<double>& x );
 // y = y + a.*x
 void axpy( std::vector<double>* y, const std::vector<double>& a , const std::vector<double>& x ); 

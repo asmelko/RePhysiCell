@@ -65,7 +65,9 @@
 ###############################################################################
 */
 
+#include "../../BioFVM/BioFVM_backend_selector.h"
 #include "microenvironment_adapter.h"
+#include "basic_agent_adapter.h"
 #include "biofvm/microenvironment.h"
 #include "mesh_adapter.h"
 #include <stdexcept>
@@ -78,27 +80,27 @@ namespace BioFVM {
 // Adapter implementation - Constructors
 // ============================================================================
 
-physicore_microenvironment_adapter::physicore_microenvironment_adapter(
-	std::unique_ptr<physicore::biofvm::microenvironment> environment)
-	: me(std::move(environment))
-{
-	if (!me) {
-		throw std::runtime_error("physicore_microenvironment_adapter: null microenvironment provided");
-	}
+// physicore_microenvironment_adapter::physicore_microenvironment_adapter(
+// 	std::unique_ptr<physicore::biofvm::microenvironment> environment)
+// 	: me(std::move(environment))
+// {
+// 	if (!me) {
+// 		throw std::runtime_error("physicore_microenvironment_adapter: null microenvironment provided");
+// 	}
 	
-	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
-	mesh_wrapper->update_dirichlet_flags(*me);
+// 	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
+// 	mesh_wrapper->update_dirichlet_flags(*me);
 	
-	if (me->agents) {
-		agent_wrapper = std::make_unique<Agent_Container_Interface>();
-	}
-}
+// 	if (me->agents) {
+// 		agent_wrapper = std::make_unique<Agent_Container_Interface>();
+// 	}
+// }
 
-physicore_microenvironment_adapter::physicore_microenvironment_adapter(const std::string& config_path)
-	: physicore_microenvironment_adapter(
-		physicore::biofvm::microenvironment::create_from_config(config_path))
-{
-}
+// physicore_microenvironment_adapter::physicore_microenvironment_adapter(const std::string& config_path)
+// 	: physicore_microenvironment_adapter(
+// 		physicore::biofvm::microenvironment::create_from_config(config_path))
+// {
+// }
 
 physicore::biofvm::microenvironment* physicore_microenvironment_adapter::get_physicore_microenvironment() {
 	return me.get();
@@ -279,13 +281,8 @@ std::vector<unsigned int> physicore_microenvironment_adapter::cartesian_indices(
 	return indices;
 }
 
-int physicore_microenvironment_adapter::nearest_voxel_index(const std::vector<double>& position) const {
-	std::vector<physicore::real_t> pos(3);
-	pos[0] = position.size() > 0 ? position[0] : 0.0;
-	pos[1] = position.size() > 1 ? position[1] : 0.0;
-	pos[2] = position.size() > 2 ? position[2] : 0.0;
-	
-	auto voxel_pos = me->mesh.voxel_position(pos);
+int physicore_microenvironment_adapter::nearest_voxel_index(const std::vector<double>& position) const {	
+	auto voxel_pos = me->mesh.voxel_position(std::span(position.data(), me->mesh.dims));
 	return static_cast<int>(me->mesh.linearize(voxel_pos[0], voxel_pos[1], voxel_pos[2]));
 }
 
@@ -535,8 +532,7 @@ const Agent_Container_Interface* physicore_microenvironment_adapter::get_agent_c
 }
 
 void physicore_microenvironment_adapter::set_agent_container(Agent_Container_Interface* container) {
-	throw std::runtime_error("set_agent_container: Cannot replace physicore agent container. "
-	                         "Agent container is managed by physicore microenvironment.");
+	agent_wrapper.reset(container);
 }
 
 // ============================================================================
@@ -681,7 +677,46 @@ bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const s
     } catch (const std::exception& e) {
         return false;
     }
+
+	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
+	mesh_wrapper->update_dirichlet_flags(*me);
+	
+	if (me->agents) {
+		agent_wrapper = std::make_unique<Agent_Container_Interface>();
+	}
+
     return true;
 }
+
+void physicore_microenvironment_adapter::initialize() {
+	me->solver->initialize(*me);
+
+	me->print_info(std::cout);
+}
+
+
+void BioFVM::Backend_Selector::initialize_microenvironment(){
+    static std::unique_ptr<physicore_microenvironment_adapter> global_adapter = std::make_unique<physicore_microenvironment_adapter>();
+
+	set_default_microenvironment_interface(global_adapter.get());
+}
+
+BioFVM::Basic_Agent_Interface* BioFVM::Backend_Selector::create_basic_agent(){
+    return new physicore_basic_agent_adapter();
+}
+
+// Global pointer to the default microenvironment interface
+static Microenvironment_Interface* default_microenvironment_interface = nullptr;
+
+void set_default_microenvironment_interface(Microenvironment_Interface* env)
+{
+	default_microenvironment_interface = env;
+}
+
+Microenvironment_Interface* get_microenvironment_i()
+{
+	return default_microenvironment_interface;
+}
+
 
 } // namespace BioFVM

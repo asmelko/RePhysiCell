@@ -319,6 +319,15 @@ void randomize( std::vector<double>* v )
 
 /* axpy and related BLAS-type operations */ 
 
+void axpy( std::vector<double>* y, const double& a , const double* x )
+{
+ for( unsigned int i=0; i < (*y).size() ; i++ )
+ {
+  (*y)[i] += a * x[i] ; 
+ }
+ return ; 
+}
+
 void axpy( std::vector<double>* y, const double& a , const std::vector<double>& x )
 {
  for( unsigned int i=0; i < (*y).size() ; i++ )

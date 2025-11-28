@@ -66,7 +66,7 @@
 */
 
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 
 void create_cell_types( void )
 {
@@ -154,7 +154,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize(); 	
 	
 	return; 
 }
@@ -227,9 +227,9 @@ void setup_tissue( void )
 	for( int i=0; i < number_of_directors ; i++ )
 	{
 		// pick a random location 
-		position[0] = default_microenvironment_options.X_range[0] + Xrange*( relative_margin + (1.0-2*relative_margin)*UniformRandom() ); 
+		position[0] = get_microenvironment_i()->get_mesh().bounding_box[0] + Xrange*( relative_margin + (1.0-2*relative_margin)*UniformRandom() ); 
 		
-		position[1] = default_microenvironment_options.Y_range[0] + Yrange*( relative_outer_margin + (1.0-2*relative_outer_margin)*UniformRandom() ); 
+		position[1] = get_microenvironment_i()->get_mesh().bounding_box[1] + Yrange*( relative_outer_margin + (1.0-2*relative_outer_margin)*UniformRandom() ); 
 		
 		// place the cell
 		Cell* pC;
@@ -245,10 +245,10 @@ void setup_tissue( void )
 	{
 		// pick a random location 
 		
-		position[0] = default_microenvironment_options.X_range[0] + 
+		position[0] = get_microenvironment_i()->get_mesh().bounding_box[0] + 
 				Xrange*( relative_outer_margin + (1-2.0*relative_outer_margin)*UniformRandom() ); 
 		
-		position[1] = default_microenvironment_options.Y_range[0] + 
+		position[1] = get_microenvironment_i()->get_mesh().bounding_box[1] + 
 				Yrange*( relative_outer_margin + (1-2.0*relative_outer_margin)*UniformRandom() ); 
 		
 		if( UniformRandom() < 0.5 )
@@ -269,9 +269,9 @@ void setup_tissue( void )
 	{
 		// pick a random location 
 		
-		position[0] = default_microenvironment_options.X_range[0] + Xrange*( relative_margin + (1.0-2*relative_margin)*UniformRandom() ); 
+		position[0] = get_microenvironment_i()->get_mesh().bounding_box[0] + Xrange*( relative_margin + (1.0-2*relative_margin)*UniformRandom() ); 
 		
-		position[1] = default_microenvironment_options.Y_range[0] + Yrange*( relative_outer_margin + (1.0-2*relative_outer_margin)*UniformRandom() ); 
+		position[1] = get_microenvironment_i()->get_mesh().bounding_box[1] + Yrange*( relative_outer_margin + (1.0-2*relative_outer_margin)*UniformRandom() ); 
 		
 		// place the cell
 		Cell* pC;

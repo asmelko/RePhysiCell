@@ -125,7 +125,7 @@ void physicore_basic_agent_adapter::update_voxel_index()
 {
 	if (microenvironment) {
         if(!microenvironment->get_mesh().is_position_valid(
-            agent->position()[0], agent->position()[1], agent->position()[2]))
+            get_position()[0], get_position()[1], get_position()[2]))
         {	
             cached_voxel_index = -1;
             is_active = false;

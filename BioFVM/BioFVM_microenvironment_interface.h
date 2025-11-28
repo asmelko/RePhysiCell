@@ -383,6 +383,9 @@ public:
 
 	/** @brief Setup microenvironment from XML configuration */
 	virtual bool setup_microenvironment_from_XML( const std::string& filename ) = 0;
+
+	/** @brief Initialize the microenvironment */
+	virtual void initialize() = 0;
 };
 
 // Global accessors for the microenvironment interface

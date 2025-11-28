@@ -66,7 +66,7 @@
 */
 
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 void create_cell_types( void )
 {
@@ -168,7 +168,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	
 	return; 
 }
@@ -479,7 +479,7 @@ std::vector<double> integrate_total_substrates( void )
 	for( unsigned int n = 0; n < get_microenvironment_i()->number_of_voxels() ; n++ )
 	{
 		// out = out + microenvironment(n) * dV(n) 
-		axpy( &out , get_microenvironment_i()->get_mesh().voxels[n].volume , microenvironment(n) ); 
+		axpy( &out , get_microenvironment_i()->get_mesh().voxels[n].volume , get_microenvironment_i()->density_vector(n) ); 
 	}
 
 	// inte

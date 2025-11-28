@@ -68,6 +68,9 @@
 #include "BioFVM_microenvironment_adapter.h"
 #include "BioFVM.h"
 #include "BioFVM_agent_container.h"
+#include "BioFVM_microenvironment.h"
+#include "BioFVM_backend_selector.h"
+#include "BioFVM_basic_agent_adapter.h"
 
 // ============================================================================
 // BioFVM_Microenvironment_Adapter implementation
@@ -526,5 +529,44 @@ bool Microenvironment_Adapter::setup_microenvironment_from_XML( const std::strin
 
 	return setup_microenvironment_from_XML_node(root_node);
 };
+
+void Microenvironment_Adapter::initialize()
+{
+	initialize_microenvironment();
+}
+
+
+// Static adapter instance that wraps the global BioFVM microenvironment
+static Microenvironment_Adapter* global_adapter = nullptr;
+
+/**
+ * @brief Initialize the global microenvironment with a BioFVM backend
+ *
+ * This function creates a new BioFVM microenvironment and wraps it with an
+ * adapter, then sets it as the default microenvironment interface.
+ *
+ * @note This should be called early in the initialization process, typically
+ *       in the setup_microenvironment() function.
+ */
+void initialize_microenvironment_interface()
+{
+	// Get the global BioFVM microenvironment
+	Microenvironment* biofvm_env = &microenvironment;
+
+	// Create an adapter wrapping it (don't take ownership since it's global)
+	if (global_adapter == nullptr)
+	{
+		global_adapter = new Microenvironment_Adapter(biofvm_env, false);
+		set_default_microenvironment_interface(global_adapter);
+	}
+}
+
+void BioFVM::Backend_Selector::initialize_microenvironment(){
+    initialize_microenvironment_interface();
+}
+
+BioFVM::Basic_Agent_Interface* BioFVM::Backend_Selector::create_basic_agent(){
+    return new BioFVM::Basic_Agent_Adapter(new BioFVM::Basic_Agent(), true);
+}
 
 } // namespace BioFVM

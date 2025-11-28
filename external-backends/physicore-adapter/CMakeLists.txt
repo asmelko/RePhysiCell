@@ -30,12 +30,17 @@ message(STATUS "Setting BioFVM_DIR to ${BioFVM_DIR}")
 
 find_package(BioFVM CONFIG REQUIRED)
 
-target_link_libraries(physicore_biofvm_adapter PRIVATE BioFVM)
+find_package(OpenMP 4)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(physicore_biofvm_adapter PUBLIC OpenMP::OpenMP_CXX)
+else()
+  message(
+    WARNING "OpenMP not found. BioFVM will be built without OpenMP support.")
+endif()
+
+target_link_libraries(physicore_biofvm_adapter PUBLIC BioFVM::physicore.reactions-diffusion.biofvm)
 
 target_sources(physicore_biofvm_adapter PRIVATE
                basic_agent_adapter.cpp
                mesh_adapter.cpp
                microenvironment_adapter.cpp)
-
-target_include_directories(physicore_biofvm_adapter PUBLIC
-                               ${physicore_SOURCE_DIR}/include)

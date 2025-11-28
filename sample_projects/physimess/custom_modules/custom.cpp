@@ -66,7 +66,7 @@
 */
 
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 
 
@@ -164,7 +164,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	return; 
 }
 

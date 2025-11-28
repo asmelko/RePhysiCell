@@ -65,8 +65,8 @@
 ###############################################################################
 */
 
-#include "./BioFVM/BioFVM.h"
-#include "./BioFVM/BioFVM_microenvironment_adapter.h"
+#include "../BioFVM/BioFVM_vector.h"
+#include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "./cancer_immune_3D.h"
 
 Cell_Definition* pImmuneCell; 
@@ -185,11 +185,11 @@ void setup_microenvironment( void )
 	
 	if( get_microenvironment_i()->simulate_2D() == true )
 	{
-		std::cout << "Warning: overriding 2D setting to return to 3D" << std::endl; 
-		default_microenvironment_options.simulate_2D = false; 
+		std::cout << "Error: overriding 2D setting to return to 3D" << std::endl; 
+		std::exit(1);
 	}
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 
 	return; 
 }	

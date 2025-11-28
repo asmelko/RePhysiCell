@@ -74,8 +74,8 @@
 #include <fstream>
 #include <string> 
 
-#include "./BioFVM/BioFVM.h"
-#include "./BioFVM/BioFVM_microenvironment_adapter.h"
+#include "./BioFVM/BioFVM_MultiCellDS.h"
+#include "./BioFVM/BioFVM_backend_selector.h"
 #include "./core/PhysiCell.h"
 #include "./modules/PhysiCell_standard_modules.h" 
 
@@ -88,7 +88,7 @@ using namespace PhysiCell;
 int main( int argc, char* argv[] )
 {
 	// Initialize PhysiCell microenvironment interface
-	BioFVM::initialize_microenvironment_interface();
+	BioFVM::Backend_Selector::initialize_microenvironment();
 
 	// load and parse settings file(s)
 	

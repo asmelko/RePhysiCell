@@ -66,7 +66,6 @@
 */
 
 #include "custom.h"
-#include "../BioFVM/BioFVM.h"  
 using namespace BioFVM;
 
 // declare cell definitions here 
@@ -147,7 +146,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	
 	return; 
 }

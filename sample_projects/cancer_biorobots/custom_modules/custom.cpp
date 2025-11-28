@@ -66,7 +66,7 @@
 */
 
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 void create_cell_types( void )
 {
@@ -191,7 +191,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	
 	return; 
 }
@@ -385,11 +385,11 @@ void introduce_biorobots( void )
 		parameters.ints("number_of_injected_cells"); // 500; /* param */ 
 	
 	// make these vary with domain size 
-	double left_coordinate = default_microenvironment_options.X_range[1] - 150.0; // 600.0; 
-	double right_cooridnate = default_microenvironment_options.X_range[1] - 50.0; // 700.0;
+	double left_coordinate = get_microenvironment_i()->get_mesh().bounding_box[3] - 150.0; // 600.0; 
+	double right_cooridnate = get_microenvironment_i()->get_mesh().bounding_box[3] - 50.0; // 700.0;
 
-	double bottom_coordinate = default_microenvironment_options.Y_range[0] + 50.0; // -700; 
-	double top_coordinate = default_microenvironment_options.Y_range[1] - 50.0; // 700; 
+	double bottom_coordinate = get_microenvironment_i()->get_mesh().bounding_box[1] + 50.0; // -700; 
+	double top_coordinate = get_microenvironment_i()->get_mesh().bounding_box[4] - 50.0; // 700; 
 
 	Cell_Definition* pCD_worker = find_cell_definition( "worker cell");
 	Cell_Definition* pCD_cargo = find_cell_definition( "cargo cell");

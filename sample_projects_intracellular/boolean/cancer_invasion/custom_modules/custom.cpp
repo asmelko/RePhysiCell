@@ -68,7 +68,7 @@
 #include <cmath>
 #include <sstream>
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"  
+#include "../BioFVM/BioFVM_vector.h"
 
 void create_cell_types( void )
 {
@@ -186,7 +186,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 
+	get_microenvironment_i()->initialize(); 
 
 	double ECM_min = parameters.doubles("density_ECM_min");
 	double ECM_max = parameters.doubles("density_ECM_max");

@@ -67,7 +67,7 @@
 
 
 #include "custom.h"
-#include "../BioFVM/BioFVM.h"
+#include "BioFVM/BioFVM_microenvironment_interface.h"
 
 
 // constantes variables
@@ -135,7 +135,7 @@ void setup_microenvironment( void )
 	// extra Dirichlet nodes here.
 
 	// initialize BioFVM
-	initialize_microenvironment();
+	get_microenvironment_i()->initialize();
 
 	return;
 }
@@ -151,7 +151,7 @@ void setup_tissue( void )
 	double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4];
 	double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5];
 
-	if ( default_microenvironment_options.simulate_2D == true )
+	if ( get_microenvironment_i()->simulate_2D() == true )
 	{
 		Zmin = 0.0;
 		Zmax = 0.0;

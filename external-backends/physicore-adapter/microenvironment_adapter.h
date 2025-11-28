@@ -118,17 +118,17 @@ private:
 	void compute_gradient_at_voxel(int voxel_index, int substrate_index, std::vector<double>& gradient) const;
 
 public:
-	/**
-	 * @brief Construct adapter from existing physicore microenvironment
-	 * @param environment Unique pointer to physicore microenvironment (ownership transferred)
-	 */
-	explicit physicore_microenvironment_adapter(std::unique_ptr<physicore::biofvm::microenvironment> environment);
+	// /**
+	//  * @brief Construct adapter from existing physicore microenvironment
+	//  * @param environment Unique pointer to physicore microenvironment (ownership transferred)
+	//  */
+	// explicit physicore_microenvironment_adapter(std::unique_ptr<physicore::biofvm::microenvironment> environment);
 	
-	/**
-	 * @brief Construct adapter from XML configuration file
-	 * @param config_path Path to physicore configuration file
-	 */
-	explicit physicore_microenvironment_adapter(const std::string& config_path);
+	// /**
+	//  * @brief Construct adapter from XML configuration file
+	//  * @param config_path Path to physicore configuration file
+	//  */
+	// explicit physicore_microenvironment_adapter(const std::string& config_path);
 	
 	virtual ~physicore_microenvironment_adapter() = default;
 
@@ -276,7 +276,9 @@ public:
 	// ========================================================================
 	bool simulate_2D() const override;
 	bool calculate_gradients() const override;
+
 	bool setup_microenvironment_from_XML(const std::string& filename) override;
+	void initialize() override;
 };
 
 } // namespace BioFVM

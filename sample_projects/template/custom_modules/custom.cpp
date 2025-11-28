@@ -66,7 +66,6 @@
 */
 
 #include "./custom.h"
-#include "../BioFVM/BioFVM.h"
 
 void create_cell_types( void )
 {
@@ -149,7 +148,7 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	
 	return; 
 }
