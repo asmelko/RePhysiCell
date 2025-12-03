@@ -11,7 +11,6 @@ target_sources(
   PRIVATE PhysiCell_geometry.cpp
           PhysiCell_MultiCellDS.cpp
           PhysiCell_pathology.cpp
-          PhysiCell_POV.cpp
           PhysiCell_pugixml.cpp
           PhysiCell_settings.cpp
           PhysiCell_SVG.cpp
@@ -21,8 +20,16 @@ target_sources(
   PhysiCell-modules-no-addon
   PRIVATE PhysiCell_geometry.cpp
           PhysiCell_pathology.cpp
-          PhysiCell_POV.cpp
           PhysiCell_pugixml.cpp
           PhysiCell_settings.cpp
           PhysiCell_SVG.cpp
           PhysiCell_various_outputs.cpp)
+
+find_package(OpenMP 4)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(PhysiCell-modules-no-addon PUBLIC OpenMP::OpenMP_CXX)
+  target_link_libraries(PhysiCell-modules PUBLIC OpenMP::OpenMP_CXX)
+else()
+  message(
+    WARNING "OpenMP not found. BioFVM will be built without OpenMP support.")
+endif()
