@@ -1081,6 +1081,8 @@ double& Secretion::net_export_rate( std::string name )
 
 Molecular::Molecular()
 {
+	pCell = nullptr;
+	pCD = nullptr;
 	pMicroenvironment = get_microenvironment_i();
 
 	return; 
