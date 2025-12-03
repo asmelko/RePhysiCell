@@ -15,6 +15,9 @@ option(PHYSICELL_BUILD_PHYSIBOSS "Build PhysiBoSS addon" ON)
 option(PHYSICELL_BUILD_LIBROADDRUNNER "Build libRoadrunner addon" OFF)
 option(PHYSICELL_BUILD_DFBA "Build dFBA addon" OFF)
 
+# Options for module selection
+option(PHYSICELL_USE_PHYSICORE_BIOFVM "Use optimized BioFVM implementation" OFF)
+
 # Backends
 add_subdirectory(external-backends/physicore-adapter)
 

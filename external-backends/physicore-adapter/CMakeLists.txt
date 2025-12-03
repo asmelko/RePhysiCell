@@ -1,6 +1,6 @@
 add_library(physicore_biofvm_adapter)
 
-set(PHYSICORE_VERSION "1.1.0")
+set(PHYSICORE_VERSION "1.2.0")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(PHYSICORE_PACKAGE_URL
@@ -38,9 +38,13 @@ else()
     WARNING "OpenMP not found. BioFVM will be built without OpenMP support.")
 endif()
 
-target_link_libraries(physicore_biofvm_adapter PUBLIC BioFVM::physicore.reactions-diffusion.biofvm)
+target_link_libraries(physicore_biofvm_adapter PUBLIC PhysiCore::reactions-diffusion.biofvm)
 
 target_sources(physicore_biofvm_adapter PRIVATE
                basic_agent_adapter.cpp
                mesh_adapter.cpp
                microenvironment_adapter.cpp)
+
+if(PHYSICELL_USE_PHYSICORE_BIOFVM)
+  add_library(BioFVM ALIAS physicore_biofvm_adapter)
+endif()

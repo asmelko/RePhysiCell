@@ -312,15 +312,15 @@ Voxel& physicore_microenvironment_adapter::nearest_voxel(const std::vector<doubl
 
 double* physicore_microenvironment_adapter::density_vector(int n) {
 	auto indices = cartesian_indices(n);
-    return &me->get_substrate_density(0, indices[0], indices[1], indices[2]);
+    return &me->solver->get_substrate_density(0, indices[0], indices[1], indices[2]);
 }
 
 double* physicore_microenvironment_adapter::density_vector(int i, int j) {
-    return &me->get_substrate_density(0, i, j, 0);
+    return &me->solver->get_substrate_density(0, i, j, 0);
 }
 
 double* physicore_microenvironment_adapter::density_vector(int i, int j, int k) {
-    return &me->get_substrate_density(0, i, j, k);
+    return &me->solver->get_substrate_density(0, i, j, k);
 }
 
 double* physicore_microenvironment_adapter::nearest_density_vector(const std::vector<double>& position) {
