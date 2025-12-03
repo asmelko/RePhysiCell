@@ -598,9 +598,9 @@ Cell* Cell::divide( )
 	// if these are not actively tracked, they are zero anyway 
 	for ( int n = 0 ; n < phenotype.molecular.pMicroenvironment->number_of_densities() ; n++ )
 	{
-		phenotype.molecular.internalized_total_substrates[n] *= 0.5; 
-		child->phenotype.molecular.internalized_total_substrates[n] = 
-			phenotype.molecular.internalized_total_substrates[n];
+		phenotype.molecular.internalized_total_substrates()[n] *= 0.5; 
+		child->phenotype.molecular.internalized_total_substrates()[n] = 
+			phenotype.molecular.internalized_total_substrates()[n];
 	}
 	
 	// The following is already performed by create_cell(). JULY 2017 ***
@@ -846,9 +846,9 @@ void Cell::turn_off_reactions(double dt)
 
 	for(int i=0;i< phenotype.secretion.pMicroenvironment->number_of_densities();i++)
 	{
-		phenotype.secretion.uptake_rates[i] = 0.0;  
-		phenotype.secretion.secretion_rates[i] = 0.0; 
-		phenotype.secretion.net_export_rates[i] = 0.0; 
+		phenotype.secretion.uptake_rates()[i] = 0.0;  
+		phenotype.secretion.secretion_rates()[i] = 0.0; 
+		phenotype.secretion.net_export_rates()[i] = 0.0; 
 	}
 	set_internal_uptake_constants(dt);
 	
@@ -982,8 +982,8 @@ void Cell::copy_data(Cell* copy_me)
 	// expected_phenotype = copy_me-> expected_phenotype; //it is taken care in set_phenotype
 	for ( int i = 0 ; i < copy_me->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
 	{
-		phenotype.molecular.internalized_total_substrates[i] = 
-			copy_me->phenotype.molecular.internalized_total_substrates[i];
+		phenotype.molecular.internalized_total_substrates()[i] = 
+			copy_me->phenotype.molecular.internalized_total_substrates()[i];
 	}
 	
 	return; 
@@ -1186,7 +1186,6 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	phenotype.volume.relative_rupture_volume = cd.phenotype.volume.relative_rupture_volume;
 	
 	phenotype.geometry = cell_geometry; // leave the geometry alone
-	phenotype.molecular.internalized_total_substrates = cell_molecular.internalized_total_substrates;
 	
 	for( int nn = 0 ; nn < custom_data.variables.size() ; nn++ )
 	{
@@ -1464,13 +1463,13 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 
 		for ( int i = 0 ; i < pCell_to_eat->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
 		{
-			pCell_to_eat->phenotype.molecular.internalized_total_substrates[i] *= 
+			pCell_to_eat->phenotype.molecular.internalized_total_substrates()[i] *= 
 				pCell_to_eat->custom_data["fraction_transferred_when_ingested"]; //
 			
-			phenotype.molecular.internalized_total_substrates[i] += 
-				pCell_to_eat->phenotype.molecular.internalized_total_substrates[i];
+			phenotype.molecular.internalized_total_substrates()[i] += 
+				pCell_to_eat->phenotype.molecular.internalized_total_substrates()[i];
 
-			pCell_to_eat->phenotype.molecular.internalized_total_substrates[i] = 0.0;
+			pCell_to_eat->phenotype.molecular.internalized_total_substrates()[i] = 0.0;
 		}
 
 		// conserved quantitites in custom data during phagocytosis
@@ -1635,10 +1634,10 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// absorb the internalized substrates 
 		for ( int i = 0 ; i < pCell_to_fuse->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
 		{
-			phenotype.molecular.internalized_total_substrates[i] += 
-				pCell_to_fuse->phenotype.molecular.internalized_total_substrates[i];
+			phenotype.molecular.internalized_total_substrates()[i] += 
+				pCell_to_fuse->phenotype.molecular.internalized_total_substrates()[i];
 
-			pCell_to_fuse->phenotype.molecular.internalized_total_substrates[i] = 0.0;
+			pCell_to_fuse->phenotype.molecular.internalized_total_substrates()[i] = 0.0;
 		}
 
 		// set target volume(s)
@@ -2112,10 +2111,10 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			// secretion  
 			for (int i = 0; i < number_of_substrates; i++ )
 			{
-				pCD->phenotype.secretion.secretion_rates[i] = 0.0; 
-				pCD->phenotype.secretion.uptake_rates[i] = 0.0; 
-				pCD->phenotype.secretion.net_export_rates[i] = 0.0; 
-				pCD->phenotype.secretion.saturation_densities[i] = 0.0; 
+				pCD->phenotype.secretion.secretion_rates()[i] = 0.0; 
+				pCD->phenotype.secretion.uptake_rates()[i] = 0.0; 
+				pCD->phenotype.secretion.net_export_rates()[i] = 0.0; 
+				pCD->phenotype.secretion.saturation_densities()[i] = 0.0; 
 			}
 
 			// interaction 
@@ -2952,22 +2951,22 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			// secretion rate
 			pugi::xml_node node_sec1 = node_sec.child( "secretion_rate" ); 
 			if( node_sec1 )
-			{ pS->secretion_rates[index] = xml_get_my_double_value( node_sec1 ); }
+			{ pS->secretion_rates()[index] = xml_get_my_double_value( node_sec1 ); }
 			
 			// secretion target 
 			node_sec1 = node_sec.child( "secretion_target" ); 
 			if( node_sec1 )
-			{ pS->saturation_densities[index] = xml_get_my_double_value( node_sec1 ); }
+			{ pS->saturation_densities()[index] = xml_get_my_double_value( node_sec1 ); }
 	
 			// uptake rate 
 			node_sec1 = node_sec.child( "uptake_rate" ); 
 			if( node_sec1 )
-			{ pS->uptake_rates[index] = xml_get_my_double_value( node_sec1 ); }
+			{ pS->uptake_rates()[index] = xml_get_my_double_value( node_sec1 ); }
 			
 			// net export rate 
 			node_sec1 = node_sec.child( "net_export_rate" ); 
 			if( node_sec1 )
-			{ pS->net_export_rates[index] = xml_get_my_double_value( node_sec1 ); }
+			{ pS->net_export_rates()[index] = xml_get_my_double_value( node_sec1 ); }
 			
 			node_sec = node_sec.next_sibling( "substrate" ); 
 		}
