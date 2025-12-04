@@ -85,7 +85,6 @@ physicore_basic_agent_adapter::physicore_basic_agent_adapter()
 	, microenvironment(get_microenvironment_i())
 	, ID(static_cast<int>(ID_counter++))
 	, type(0)
-	, is_active(true)
 	, cached_voxel_index(-1)
 	, position_cache(3, 0.0)
 	, velocity(3, 0.0)
@@ -97,6 +96,7 @@ physicore_basic_agent_adapter::physicore_basic_agent_adapter()
 	agent = dynamic_cast<physicore::biofvm::agent_container*>(physicore_microenvironment->agents.get())->create();
 
 	agent->volume() = 1.0; // Default volume
+	agent->is_active() = 1; // Active by default
 }
 
 physicore_basic_agent_adapter::~physicore_basic_agent_adapter()
@@ -128,7 +128,7 @@ void physicore_basic_agent_adapter::update_voxel_index()
             get_position()[0], get_position()[1], get_position()[2]))
         {	
             cached_voxel_index = -1;
-            is_active = false;
+            agent->is_active() = 0;
             return;
         }
 		cached_voxel_index = microenvironment->nearest_voxel_index(get_position());
@@ -280,12 +280,12 @@ const std::vector<double>& physicore_basic_agent_adapter::get_previous_velocity(
 
 bool physicore_basic_agent_adapter::get_is_active() const
 {
-	return is_active;
+	return agent->is_active() == 1;
 }
 
 void physicore_basic_agent_adapter::set_is_active(bool active)
 {
-	is_active = active;
+	agent->is_active() = active ? 1 : 0;
 }
 
 // ============================================================================

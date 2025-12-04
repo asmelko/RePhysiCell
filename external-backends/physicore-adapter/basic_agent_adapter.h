@@ -125,7 +125,6 @@ private:
 	// BioFVM-specific state not in physicore
 	int ID;
 	int type;
-	bool is_active;
 	int cached_voxel_index;
 	
 	// Cached position vector so we always return 3D vector
