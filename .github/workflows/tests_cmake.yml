@@ -70,6 +70,7 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.platform.c_compiler }}
         -DCMAKE_BUILD_TYPE=Release
         -DPHYSICELL_BUILD_PHYSIBOSS=${{ matrix.platform.build_physiboss }}
+        -DPHYSICELL_USE_PHYSICORE_BIOFVM=ON
         -S ${{ github.workspace }}
 
     - name: Build
