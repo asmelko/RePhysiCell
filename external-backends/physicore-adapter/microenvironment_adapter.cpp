@@ -400,8 +400,10 @@ std::vector<std::vector<double>>& physicore_microenvironment_adapter::nearest_gr
 // ============================================================================
 
 void physicore_microenvironment_adapter::simulate_time_step(double dt) {
+	me->solver->transfer_to_device(*me);
 	me->solver->solve(*me, 1);
 	invalidate_caches();
+	me->solver->transfer_to_host(*me);
 }
 
 void physicore_microenvironment_adapter::simulate_diffusion_decay(double dt) {
