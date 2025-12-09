@@ -74,6 +74,7 @@
 #include <mutex>
 
 #include "../../BioFVM/BioFVM_microenvironment_interface.h"
+#include "basic_agent_adapter.h"
 #include "mesh_adapter.h"
 
 namespace BioFVM {
@@ -99,6 +100,7 @@ namespace BioFVM {
  */
 class physicore_microenvironment_adapter : public Microenvironment_Interface
 {
+	friend class physicore_basic_agent_adapter;
 private:
 	std::unique_ptr<physicore::biofvm::microenvironment> me;
 	
