@@ -356,24 +356,12 @@ const double* physicore_basic_agent_adapter::get_fraction_transferred_when_inges
 
 void physicore_basic_agent_adapter::release_internalized_substrates()
 {
-	// Release internalized substrates to nearest voxel
-	if (!microenvironment) {
-		return;
-	}
-	
-	update_voxel_index();
-	if (cached_voxel_index < 0) {
-		return;
-	}
-	
-	auto internalized_span = agent->internalized_substrates();
-	auto fractions_span = agent->fraction_released_at_death();
-	double* voxel_densities = microenvironment->nearest_density_vector(cached_voxel_index);
-	
-	for (size_t i = 0; i < internalized_span.size(); ++i) {
-		double amount_to_release = internalized_span[i] * fractions_span[i];
-		voxel_densities[i] += amount_to_release;
-		internalized_span[i] -= amount_to_release;
+	for (int s = 0; s < static_cast<int>(agent->internalized_substrates().size()); ++s) {
+		agent->internalized_substrates()[s] /= microenvironment->get_physicore_microenvironment()->mesh.voxel_volume(); // Convert to density
+		agent->internalized_substrates()[s] *= agent->fraction_released_at_death()[s]; // Apply fraction to release
+
+		microenvironment->nearest_density_vector(cached_voxel_index)[s] += agent->internalized_substrates()[s]; // Release to voxel
+		agent->internalized_substrates()[s] = 0.0; //
 	}
 }
 
