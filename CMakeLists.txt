@@ -19,7 +19,7 @@ option(PHYSICELL_BUILD_DFBA "Build dFBA addon" OFF)
 option(PHYSICELL_USE_PHYSICORE_BIOFVM "Use optimized BioFVM implementation" OFF)
 
 # Backends
-add_subdirectory(external-backends/physicore-adapter)
+add_subdirectory(external/physicore-adapter)
 
 # Main libraries and modules
 add_subdirectory(BioFVM)
