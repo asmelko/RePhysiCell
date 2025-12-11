@@ -24,7 +24,6 @@ add_subdirectory(external/physicore-adapter)
 # Main libraries and modules
 add_subdirectory(BioFVM)
 add_subdirectory(core)
-add_subdirectory(custom_modules)
 add_subdirectory(modules)
 
 # Examples and sample projects
