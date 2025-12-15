@@ -1,0 +1,33 @@
+add_library(BioFVM_orig OBJECT)
+add_library(BioFVM_utils OBJECT)
+
+target_sources(
+  BioFVM_orig
+  PRIVATE BioFVM_agent_container.cpp
+          BioFVM_basic_agent.cpp
+          BioFVM_basic_agent_adapter.cpp
+          BioFVM_microenvironment_adapter.cpp
+          BioFVM_microenvironment.cpp
+          BioFVM_solvers.cpp)
+
+target_sources(
+  BioFVM_utils
+  PRIVATE BioFVM_vector.cpp
+          BioFVM_mesh.cpp
+          BioFVM_basic_agent_PIMPL.cpp
+          BioFVM_utilities.cpp
+          BioFVM_matlab.cpp
+          BioFVM_MultiCellDS.cpp
+          pugixml.cpp)
+
+find_package(OpenMP 4)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(BioFVM_orig PUBLIC OpenMP::OpenMP_CXX)
+else()
+  message(
+    WARNING "OpenMP not found. BioFVM will be built without OpenMP support.")
+endif()
+
+if(NOT PHYSICELL_USE_PHYSICORE_BIOFVM)
+  add_library(BioFVM ALIAS BioFVM_orig)
+endif()
