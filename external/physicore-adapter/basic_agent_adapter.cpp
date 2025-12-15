@@ -144,7 +144,7 @@ void physicore_basic_agent_adapter::register_microenvironment(Microenvironment_I
 		unsigned int num_substrates = microenv->number_of_densities();
 		// Note: substrate arrays in physicore SoA already have correct size
 		// No need to resize them, just verify
-		assert(agent->secretion_rates().size() == num_substrates);
+		assert(agent->secretion_rates.size() == num_substrates);
 	}
 }
 
@@ -282,42 +282,42 @@ void physicore_basic_agent_adapter::set_is_active(bool active)
 
 double* physicore_basic_agent_adapter::get_secretion_rates()
 {
-	return agent->secretion_rates().data();
+	return agent->secretion_rates.data();
 }
 
 const double* physicore_basic_agent_adapter::get_secretion_rates() const
 {
-	return agent->secretion_rates().data();
+	return agent->secretion_rates.data();
 }
 
 double* physicore_basic_agent_adapter::get_saturation_densities()
 {
-	return agent->saturation_densities().data();
+	return agent->saturation_densities.data();
 }
 
 const double* physicore_basic_agent_adapter::get_saturation_densities() const
 {
-	return agent->saturation_densities().data();
+	return agent->saturation_densities.data();
 }
 
 double* physicore_basic_agent_adapter::get_uptake_rates()
 {
-	return agent->uptake_rates().data();
+	return agent->uptake_rates.data();
 }
 
 const double* physicore_basic_agent_adapter::get_uptake_rates() const
 {
-	return agent->uptake_rates().data();
+	return agent->uptake_rates.data();
 }
 
 double* physicore_basic_agent_adapter::get_net_export_rates()
 {
-	return agent->net_export_rates().data();
+	return agent->net_export_rates.data();
 }
 
 const double* physicore_basic_agent_adapter::get_net_export_rates() const
 {
-	return agent->net_export_rates().data();
+	return agent->net_export_rates.data();
 }
 
 // ============================================================================
@@ -336,29 +336,29 @@ const double* physicore_basic_agent_adapter::get_internalized_total_substrates()
 
 double* physicore_basic_agent_adapter::get_fraction_released_at_death()
 {
-	return agent->fraction_released_at_death().data();
+	return agent->fraction_released_at_death.data();
 }
 
 const double* physicore_basic_agent_adapter::get_fraction_released_at_death() const
 {
-	return agent->fraction_released_at_death().data();
+	return agent->fraction_released_at_death.data();
 }
 
 double* physicore_basic_agent_adapter::get_fraction_transferred_when_ingested()
 {
-	return agent->fraction_transferred_when_ingested().data();
+	return agent->fraction_transferred_when_ingested.data();
 }
 
 const double* physicore_basic_agent_adapter::get_fraction_transferred_when_ingested() const
 {
-	return agent->fraction_transferred_when_ingested().data();
+	return agent->fraction_transferred_when_ingested.data();
 }
 
 void physicore_basic_agent_adapter::release_internalized_substrates()
 {
 	for (int s = 0; s < static_cast<int>(agent->internalized_substrates().size()); ++s) {
 		agent->internalized_substrates()[s] /= microenvironment->get_physicore_microenvironment()->mesh.voxel_volume(); // Convert to density
-		agent->internalized_substrates()[s] *= agent->fraction_released_at_death()[s]; // Apply fraction to release
+		agent->internalized_substrates()[s] *= agent->fraction_released_at_death[s]; // Apply fraction to release
 
 		microenvironment->nearest_density_vector(cached_voxel_index)[s] += agent->internalized_substrates()[s]; // Release to voxel
 		agent->internalized_substrates()[s] = 0.0; //

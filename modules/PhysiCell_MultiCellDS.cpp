@@ -932,21 +932,21 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 
 // secretion 
  		// name = "secretion_rates"; 
-		std::fwrite( pCell->phenotype.secretion.secretion_rates() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.secretion.secretion_rates , sizeof(double) , m , fp ); 
 	 	// name = "uptake_rates"; 
-		std::fwrite( pCell->phenotype.secretion.uptake_rates() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.secretion.uptake_rates , sizeof(double) , m , fp ); 
  		// name = "saturation_densities"; 
-		std::fwrite( pCell->phenotype.secretion.saturation_densities() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.secretion.saturation_densities , sizeof(double) , m , fp ); 
  		// name = "net_export_rates"; 
-		std::fwrite( pCell->phenotype.secretion.net_export_rates() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.secretion.net_export_rates , sizeof(double) , m , fp ); 
 
 // molecular 
  		// name = "internalized_total_substrates"; 
-		std::fwrite( pCell->phenotype.molecular.internalized_total_substrates() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.molecular.internalized_total_substrates , sizeof(double) , m , fp ); 
  		// name = "fraction_released_at_death"; 
-		std::fwrite( pCell->phenotype.molecular.fraction_released_at_death() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.molecular.fraction_released_at_death , sizeof(double) , m , fp ); 
  		// name = "fraction_transferred_when_ingested"; 
-		std::fwrite( pCell->phenotype.molecular.fraction_transferred_when_ingested() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.molecular.fraction_transferred_when_ingested , sizeof(double) , m , fp ); 
 
 // interactions 
 	/*
@@ -1909,7 +1909,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.secretion.secretion_rates[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.secretion.secretion_rates()[idx] = dTemp; }
+            { pCell->phenotype.secretion.secretion_rates[idx] = dTemp; }
         }
 
         // fread(pCell->phenotype.secretion.uptake_rates.data(), sizeof(double), m, fp);
@@ -1919,7 +1919,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.secretion.uptake_rates[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.secretion.uptake_rates()[idx] = dTemp; }
+            { pCell->phenotype.secretion.uptake_rates[idx] = dTemp; }
         }
 
         // fread(pCell->phenotype.secretion.saturation_densities.data(), sizeof(double), m, fp);
@@ -1929,7 +1929,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.secretion.saturation_densities[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.secretion.saturation_densities()[idx] = dTemp; }
+            { pCell->phenotype.secretion.saturation_densities[idx] = dTemp; }
         }
 
         // fread(pCell->phenotype.secretion.net_export_rates.data(), sizeof(double), m, fp);
@@ -1939,7 +1939,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.secretion.net_export_rates[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.secretion.net_export_rates()[idx] = dTemp; }
+            { pCell->phenotype.secretion.net_export_rates[idx] = dTemp; }
         }
         
 
@@ -1953,7 +1953,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.molecular.internalized_total_substrates[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.molecular.internalized_total_substrates()[idx] = dTemp; }
+            { pCell->phenotype.molecular.internalized_total_substrates[idx] = dTemp; }
         }
 
         // fread(pCell->phenotype.molecular.fraction_released_at_death.data(), sizeof(double), m, fp);
@@ -1964,7 +1964,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.molecular.fraction_released_at_death[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.molecular.fraction_released_at_death()[idx] = dTemp; }
+            { pCell->phenotype.molecular.fraction_released_at_death[idx] = dTemp; }
         }
 
         // fread(pCell->phenotype.molecular.fraction_transferred_when_ingested.data(), sizeof(double), m, fp);
@@ -1974,7 +1974,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             if (debug_print)
             { std::cout << " phenotype.molecular.fraction_transferred_when_ingested[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.molecular.fraction_transferred_when_ingested()[idx] = dTemp; }
+            { pCell->phenotype.molecular.fraction_transferred_when_ingested[idx] = dTemp; }
         }
         
 
