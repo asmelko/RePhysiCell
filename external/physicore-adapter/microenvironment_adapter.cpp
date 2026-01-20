@@ -13,75 +13,6 @@ physicore::biofvm::microenvironment* physicore_microenvironment_adapter::get_phy
 }
 
 // ============================================================================
-// Helper methods
-// ============================================================================
-
-void physicore_microenvironment_adapter::invalidate_caches() {
-	gradient_cache.clear();
-}
-
-void physicore_microenvironment_adapter::compute_gradient_at_voxel(
-	int voxel_index, int substrate_index, std::vector<double>& gradient) const 
-{
-	gradient.resize(3, 0.0);
-	
-	auto indices = cartesian_indices(voxel_index);
-	int i = indices[0];
-	int j = indices[1];
-	int k = indices[2];
-	
-	const auto& grid = me->mesh.grid_shape;
-	const auto& voxel_shape = me->mesh.voxel_shape;
-	
-	// Central finite difference for interior voxels, one-sided for boundaries
-	
-	// X-direction gradient
-	if (i > 0 && i < static_cast<int>(grid[0]) - 1) {
-		double rho_plus = me->solver->get_substrate_density(substrate_index, i + 1, j, k);
-		double rho_minus = me->solver->get_substrate_density(substrate_index, i - 1, j, k);
-		gradient[0] = (rho_plus - rho_minus) / (2.0 * voxel_shape[0]);
-	} else if (i == 0 && grid[0] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = me->solver->get_substrate_density(substrate_index, i + 1, j, k);
-		gradient[0] = (rho_1 - rho_0) / voxel_shape[0];
-	} else if (i == static_cast<int>(grid[0]) - 1 && grid[0] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = me->solver->get_substrate_density(substrate_index, i - 1, j, k);
-		gradient[0] = (rho_0 - rho_m1) / voxel_shape[0];
-	}
-	
-	// Y-direction gradient
-	if (j > 0 && j < static_cast<int>(grid[1]) - 1) {
-		double rho_plus = me->solver->get_substrate_density(substrate_index, i, j + 1, k);
-		double rho_minus = me->solver->get_substrate_density(substrate_index, i, j - 1, k);
-		gradient[1] = (rho_plus - rho_minus) / (2.0 * voxel_shape[1]);
-	} else if (j == 0 && grid[1] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = me->solver->get_substrate_density(substrate_index, i, j + 1, k);
-		gradient[1] = (rho_1 - rho_0) / voxel_shape[1];
-	} else if (j == static_cast<int>(grid[1]) - 1 && grid[1] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = me->solver->get_substrate_density(substrate_index, i, j - 1, k);
-		gradient[1] = (rho_0 - rho_m1) / voxel_shape[1];
-	}
-	
-	// Z-direction gradient
-	if (k > 0 && k < static_cast<int>(grid[2]) - 1) {
-		double rho_plus = me->solver->get_substrate_density(substrate_index, i, j, k + 1);
-		double rho_minus = me->solver->get_substrate_density(substrate_index, i, j, k - 1);
-		gradient[2] = (rho_plus - rho_minus) / (2.0 * voxel_shape[2]);
-	} else if (k == 0 && grid[2] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = me->solver->get_substrate_density(substrate_index, i, j, k + 1);
-		gradient[2] = (rho_1 - rho_0) / voxel_shape[2];
-	} else if (k == static_cast<int>(grid[2]) - 1 && grid[2] > 1) {
-		double rho_0 = me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = me->solver->get_substrate_density(substrate_index, i, j, k - 1);
-		gradient[2] = (rho_0 - rho_m1) / voxel_shape[2];
-	}
-}
-
-// ============================================================================
 // Units access
 // ============================================================================
 
@@ -202,42 +133,157 @@ double* physicore_microenvironment_adapter::nearest_density_vector(int voxel_ind
 // Gradient computation and access
 // ============================================================================
 
-std::vector<std::vector<double>> physicore_microenvironment_adapter::compute_gradient_vector_internal(int n) {
-	std::vector<std::vector<double>> gradients(me->substrates_count);
-	
-	for (size_t s = 0; s < me->substrates_count; ++s) {
-		compute_gradient_at_voxel(n, s, gradients[s]);
+void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
+	#pragma omp parallel for schedule(static) 
+	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
+	{
+		for( unsigned int j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
+		{
+			// endcaps 
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int i = 0; 
+				int n = voxel_index(i,j,k);
+				// x-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i + 1, j, k);
+				gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i, j, k);
+				gradient_vectors[n][q][0] /= mesh_wrapper->dx; 
+			}
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int i = mesh_wrapper->x_coordinates.size()-1; 
+				int n = voxel_index(i,j,k);
+				// x-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i, j, k);
+				gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i - 1, j, k);
+				gradient_vectors[n][q][0] /= mesh_wrapper->dx; 
+			}
+			
+			for( unsigned int i=1; i < mesh_wrapper->x_coordinates.size()-1 ; i++ )
+			{
+				for( unsigned int q=0; q < number_of_densities() ; q++ )
+				{
+					int n = voxel_index(i,j,k);
+					// x-derivative of qth substrate at voxel n
+					gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i + 1, j, k);
+					gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i - 1, j, k);
+					gradient_vectors[n][q][0] /= mesh_wrapper->dx * 2.0; 
+ 				}
+			}
+			
+		}
 	}
 	
-    return gradients;
-}
+	#pragma omp parallel for schedule(static)
+	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
+	{
+		for( unsigned int j=1; j < mesh_wrapper->y_coordinates.size()-1 ; j++ )
+		{
+			for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+			{	
+				for( unsigned int q=0; q < number_of_densities() ; q++ )
+				{
+					int n = voxel_index(i,j,k);
+					// y-derivative of qth substrate at voxel n
+					gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j + 1, k);
+					gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j - 1, k);
+					gradient_vectors[n][q][1] /= 2.0 * mesh_wrapper->dy; 
+				}
+			}
+		}
+	}
+	
+	#pragma omp parallel for schedule(static)
+	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
+	{
+		for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+		{
+			// endcaps 
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int j = 0; 
+				int n = voxel_index(i,j,k);
+				// y-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j + 1, k);
+				gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j, k);
+				gradient_vectors[n][q][1] /= mesh_wrapper->dy; 
+			}
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int j = mesh_wrapper->y_coordinates.size()-1; 
+				int n = voxel_index(i,j,k);
+				// y-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j, k);
+				gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j - 1, k);
+				gradient_vectors[n][q][1] /= mesh_wrapper->dy; 
+			}		
+		}
+	}
+	
+	// don't bother computing z component if there is no z-direction 
+	if( mesh_wrapper->z_coordinates.size() == 1 )
+	{ return; }
 
-void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
-	// We are using lazy evaluation for gradients
+	#pragma omp parallel for schedule(static)
+	for( unsigned int k=1; k < mesh_wrapper->z_coordinates.size()-1 ; k++ )
+	{
+		for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
+		{
+			for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+			{		
+				for( unsigned int q=0; q < number_of_densities() ; q++ )
+				{
+					int n = voxel_index(i,j,k);
+					// z-derivative of qth substrate at voxel n
+					gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k + 1);
+					gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k - 1);
+					gradient_vectors[n][q][2] /= 2.0 * mesh_wrapper->dz; 
+				}
+			}
+		}
+	}
+
+	#pragma omp parallel for schedule(static)
+	for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
+	{
+		for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+		{
+			// endcaps 
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int k = 0; 
+				int n = voxel_index(i,j,k);
+				// z-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k + 1);
+				gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k);
+				gradient_vectors[n][q][2] /= mesh_wrapper->dz; 
+			}
+			for( unsigned int q=0; q < number_of_densities() ; q++ )
+			{
+				int k = mesh_wrapper->z_coordinates.size()-1; 
+				int n = voxel_index(i,j,k);
+				// z-derivative of qth substrate at voxel n
+				gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k); 
+				gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k - 1); 
+				gradient_vectors[n][q][2] /= mesh_wrapper->dz; 
+			}			
+		}
+	}
 }
 
 void physicore_microenvironment_adapter::reset_all_gradient_vectors() {
-    std::lock_guard<std::mutex> lock(gradient_cache_mutex);
-	gradient_cache.clear();
+	#pragma omp parallel for schedule(static)
+	for( unsigned int k=0 ; k < mesh_wrapper->voxels.size() ; k++ )
+	{
+		for( unsigned int i=0 ; i < number_of_densities() ; i++ )
+		{
+			gradient_vectors[k][i].resize( 3, 0.0 );
+		}
+	}
 }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::gradient_vector(int n) {
-    {
-        std::lock_guard<std::mutex> lock(gradient_cache_mutex);
-	    auto it = gradient_cache.find(n);
-
-        if (it != gradient_cache.end()) {
-            return it->second;
-        }
-    }
-
-	auto gradiens = compute_gradient_vector_internal(n);
-
-    {
-        std::lock_guard<std::mutex> lock(gradient_cache_mutex);
-        gradient_cache[n] = std::move(gradiens);
-        return gradient_cache[n];
-    }
+	return gradient_vectors[n];
 }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::gradient_vector(int i, int j) {
@@ -264,7 +310,6 @@ std::vector<std::vector<double>>& physicore_microenvironment_adapter::nearest_gr
 void physicore_microenvironment_adapter::simulate_time_step(double dt) {
 	me->solver->transfer_to_device(*me);
 	me->solver->solve(*me, 1);
-	invalidate_caches();
 	me->solver->transfer_to_host(*me);
 }
 
@@ -467,6 +512,14 @@ bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const s
 
 void physicore_microenvironment_adapter::initialize() {
 	me->solver->initialize(*me);
+
+	gradient_vectors.resize(number_of_voxels());
+	for (unsigned int n = 0; n < number_of_voxels(); n++) {
+		gradient_vectors[n].resize(number_of_densities());
+		for (unsigned int q = 0; q < number_of_densities(); q++) {
+			gradient_vectors[n][q].resize(me->mesh.dims, 0.0);
+		}
+	}
 
 	me->print_info(std::cout);
 }

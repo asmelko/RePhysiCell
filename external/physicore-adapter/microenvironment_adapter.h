@@ -2,9 +2,7 @@
 #define __physicore_microenvironment_adapter_h__
 
 #include <biofvm/microenvironment.h>
-#include <map>
 #include <memory>
-#include <mutex>
 
 #include "../../BioFVM/BioFVM_microenvironment_interface.h"
 #include "basic_agent_adapter.h"
@@ -31,15 +29,8 @@ private:
 	// Agent container wrapper
 	std::unique_ptr<Agent_Container> agent_wrapper;
 	
-	// Cached data for interface compatibility
-	std::mutex gradient_cache_mutex;
-    std::map<int, std::vector<std::vector<double>>> gradient_cache;
+    std::vector<std::vector<std::vector<double>>> gradient_vectors;
 	
-	// Helper methods
-	void invalidate_caches();
-	std::vector<std::vector<double>> compute_gradient_vector_internal(int n);
-	void compute_gradient_at_voxel(int voxel_index, int substrate_index, std::vector<double>& gradient) const;
-
 public:
 	virtual ~physicore_microenvironment_adapter() = default;
 
