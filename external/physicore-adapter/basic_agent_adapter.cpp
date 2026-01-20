@@ -330,67 +330,6 @@ int physicore_basic_agent_adapter::get_current_voxel_index()
 // Density and gradient access
 // ============================================================================
 
-void physicore_basic_agent_adapter::compute_gradient_at_voxel(
-	int voxel_index, int substrate_index, std::vector<double>& gradient) const 
-{
-	gradient.resize(3, 0.0);
-	
-	auto indices = microenvironment->me->mesh.voxel_position(agent->position());
-	int i = indices[0];
-	int j = indices[1];
-	int k = indices[2];
-	
-	const auto& grid = microenvironment->me->mesh.grid_shape;
-	const auto& voxel_shape = microenvironment->me->mesh.voxel_shape;
-	
-	// Central finite difference for interior voxels, one-sided for boundaries
-	
-	// X-direction gradient
-	if (i > 0 && i < static_cast<int>(grid[0]) - 1) {
-		double rho_plus = microenvironment->me->solver->get_substrate_density(substrate_index, i + 1, j, k);
-		double rho_minus = microenvironment->me->solver->get_substrate_density(substrate_index, i - 1, j, k);
-		gradient[0] = (rho_plus - rho_minus) / (2.0 * voxel_shape[0]);
-	} else if (i == 0 && grid[0] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = microenvironment->me->solver->get_substrate_density(substrate_index, i + 1, j, k);
-		gradient[0] = (rho_1 - rho_0) / voxel_shape[0];
-	} else if (i == static_cast<int>(grid[0]) - 1 && grid[0] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = microenvironment->me->solver->get_substrate_density(substrate_index, i - 1, j, k);
-		gradient[0] = (rho_0 - rho_m1) / voxel_shape[0];
-	}
-	
-	// Y-direction gradient
-	if (j > 0 && j < static_cast<int>(grid[1]) - 1) {
-		double rho_plus = microenvironment->me->solver->get_substrate_density(substrate_index, i, j + 1, k);
-		double rho_minus = microenvironment->me->solver->get_substrate_density(substrate_index, i, j - 1, k);
-		gradient[1] = (rho_plus - rho_minus) / (2.0 * voxel_shape[1]);
-	} else if (j == 0 && grid[1] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j + 1, k);
-		gradient[1] = (rho_1 - rho_0) / voxel_shape[1];
-	} else if (j == static_cast<int>(grid[1]) - 1 && grid[1] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j - 1, k);
-		gradient[1] = (rho_0 - rho_m1) / voxel_shape[1];
-	}
-	
-	// Z-direction gradient
-	if (k > 0 && k < static_cast<int>(grid[2]) - 1) {
-		double rho_plus = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k + 1);
-		double rho_minus = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k - 1);
-		gradient[2] = (rho_plus - rho_minus) / (2.0 * voxel_shape[2]);
-	} else if (k == 0 && grid[2] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_1 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k + 1);
-		gradient[2] = (rho_1 - rho_0) / voxel_shape[2];
-	} else if (k == static_cast<int>(grid[2]) - 1 && grid[2] > 1) {
-		double rho_0 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k);
-		double rho_m1 = microenvironment->me->solver->get_substrate_density(substrate_index, i, j, k - 1);
-		gradient[2] = (rho_0 - rho_m1) / voxel_shape[2];
-	}
-}
-
 double* physicore_basic_agent_adapter::nearest_density_vector()
 {
 	if (!microenvironment) {
@@ -404,14 +343,8 @@ double* physicore_basic_agent_adapter::nearest_density_vector()
 std::vector<double>& physicore_basic_agent_adapter::nearest_gradient(int substrate_index)
 {
 	int voxel_idx = get_current_voxel_index();
-
-	gradient_cache.resize(
-		microenvironment->number_of_densities(),
-		std::vector<double>(3, 0.0));
-	
-	compute_gradient_at_voxel(voxel_idx, substrate_index, gradient_cache[substrate_index]);
-
-	return gradient_cache[substrate_index];
+	auto& gradient = microenvironment->gradient_vector(voxel_idx);
+	return gradient[substrate_index];
 }
 
 std::vector<std::vector<double>>& physicore_basic_agent_adapter::nearest_gradient_vector()
