@@ -1946,29 +1946,14 @@ bool setup_microenvironment_from_XML_node( pugi::xml_node root_node )
 // ============================================================================
 
 // Units access
-std::string& Microenvironment::get_time_units()
-{
-	return time_units;
-}
-
 const std::string& Microenvironment::get_time_units() const
 {
 	return time_units;
 }
 
-std::string& Microenvironment::get_spatial_units()
-{
-	return spatial_units;
-}
-
 const std::string& Microenvironment::get_spatial_units() const
 {
 	return spatial_units;
-}
-
-std::string& Microenvironment::get_name()
-{
-	return name;
 }
 
 const std::string& Microenvironment::get_name() const
@@ -1978,11 +1963,6 @@ const std::string& Microenvironment::get_name() const
 
 // Mesh access
 const Cartesian_Mesh& Microenvironment::get_mesh() const
-{
-	return mesh;
-}
-
-Cartesian_Mesh& Microenvironment::get_mesh()
 {
 	return mesh;
 }
@@ -2004,19 +1984,9 @@ void Microenvironment::set_agent_container(Agent_Container* container)
 }
 
 // Metadata access
-std::vector<std::string>& Microenvironment::get_density_names()
-{
-	return density_names;
-}
-
 const std::vector<std::string>& Microenvironment::get_density_names() const
 {
 	return density_names;
-}
-
-std::vector<std::string>& Microenvironment::get_density_units()
-{
-	return density_units;
 }
 
 const std::vector<std::string>& Microenvironment::get_density_units() const
@@ -2024,19 +1994,9 @@ const std::vector<std::string>& Microenvironment::get_density_units() const
 	return density_units;
 }
 
-std::vector<double>& Microenvironment::get_diffusion_coefficients()
-{
-	return diffusion_coefficients;
-}
-
 const double* Microenvironment::get_diffusion_coefficients() const
 {
 	return diffusion_coefficients.data();
-}
-
-std::vector<double>& Microenvironment::get_decay_rates()
-{
-	return decay_rates;
 }
 
 const double* Microenvironment::get_decay_rates() const

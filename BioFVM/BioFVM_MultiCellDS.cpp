@@ -1074,7 +1074,7 @@ void save_BioFVM_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvir
 	return; 
 }
 
-/* future / not yet supported */
+/* future / not yet supported 
 
 void read_BioFVM_from_open_xml_pugi( pugi::xml_document& xml_dom , std::string filename_base, double& current_simulation_time , Microenvironment_Interface& M );
 void read_BioFVM_to_MultiCellDS_xml_pugi( std::string filename_base , Microenvironment_Interface& M , double& current_simulation_time ); 
@@ -1434,6 +1434,6 @@ bool read_microenvironment_from_matlab( std::string mat_filename )
 
 	std::cout << "done!" << std::endl << std::endl; 
 	return true; 
-}
+}*/
 
 };

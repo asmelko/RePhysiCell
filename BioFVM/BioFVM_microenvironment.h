@@ -175,20 +175,20 @@ class Microenvironment : public Microenvironment_Interface
 	void auto_choose_diffusion_decay_solver( void ); 
 	
 	// Only use this on non-Cartesian meshes. It's a fail-safe. 
-	void resize_voxels( int new_number_of_voxes ) override; 
+	void resize_voxels( int new_number_of_voxes ); 
 	
-	void resize_space( int x_nodes, int y_nodes, int z_nodes ) override; 
-	void resize_space( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , int x_nodes, int y_nodes, int z_nodes ) override;  
-	void resize_space( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx_new , double dy_new , double dz_new ) override; 
-	void resize_space_uniform( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx_new ) override; 
+	void resize_space( int x_nodes, int y_nodes, int z_nodes ); 
+	void resize_space( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , int x_nodes, int y_nodes, int z_nodes );  
+	void resize_space( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx_new , double dy_new , double dz_new ); 
+	void resize_space_uniform( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx_new ); 
 
-	void resize_densities( int new_size ) override;  
-	void add_density( void ) override; 
-	void add_density( const std::string& name , const std::string& units ) override;
-	void add_density( const std::string& name , const std::string& units, double diffusion_constant, double decay_rate ) override; 
+	void resize_densities( int new_size );  
+	void add_density( void ); 
+	void add_density( const std::string& name , const std::string& units );
+	void add_density( const std::string& name , const std::string& units, double diffusion_constant, double decay_rate ); 
 
-	void set_density( int index , const std::string& name , const std::string& units ) override; 
-	void set_density( int index , const std::string& name , const std::string& units , double diffusion_constant , double decay_rate ) override; 
+	void set_density( int index , const std::string& name , const std::string& units ); 
+	void set_density( int index , const std::string& name , const std::string& units , double diffusion_constant , double decay_rate ); 
 
 	int find_density_index( const std::string& name ) const override;
 	
@@ -216,7 +216,7 @@ class Microenvironment : public Microenvironment_Interface
 	
 	std::vector<gradient>& nearest_gradient_vector( const std::vector<double>& position ) override;
 	void compute_all_gradient_vectors( void ) override; 
-	void compute_gradient_vector( int n ) override;  
+	void compute_gradient_vector( int n );  
 	void reset_all_gradient_vectors( void ) override; 
 	
 	/*! access the density vector at  [ X(i),Y(j),Z(k) ] */
@@ -242,11 +242,11 @@ class Microenvironment : public Microenvironment_Interface
 	
 	void display_information( std::ostream& os ) const override; 
 	
-	void add_dirichlet_node( int voxel_index, std::vector<double>& value ) override; 
-	void update_dirichlet_node( int voxel_index , std::vector<double>& new_value ) override; 
-	void update_dirichlet_node( int voxel_index , int substrate_index , double new_value ) override;
-	void remove_dirichlet_node( int voxel_index ) override; 
-	void apply_dirichlet_conditions( void ) override; 
+	void add_dirichlet_node( int voxel_index, std::vector<double>& value ); 
+	void update_dirichlet_node( int voxel_index , std::vector<double>& new_value ); 
+	void update_dirichlet_node( int voxel_index , int substrate_index , double new_value );
+	void remove_dirichlet_node( int voxel_index ); 
+	void apply_dirichlet_conditions( void ); 
 
 	// set for ALL Dirichlet nodes -- 1.7.0
 	void set_substrate_dirichlet_activation( int substrate_index , bool new_value ) override;  
@@ -280,27 +280,19 @@ class Microenvironment : public Microenvironment_Interface
 	void read_from_xml( std::string filename ); // not yet written 
 	
 	// Interface methods for accessing properties
-	std::string& get_time_units() override;
 	const std::string& get_time_units() const override;
-	std::string& get_spatial_units() override;
 	const std::string& get_spatial_units() const override;
-	std::string& get_name() override;
 	const std::string& get_name() const override;
 	
 	const Cartesian_Mesh& get_mesh() const override;
-	Cartesian_Mesh& get_mesh() override;
 	
 	Agent_Container* get_agent_container() override;
 	const Agent_Container* get_agent_container() const override;
 	void set_agent_container(Agent_Container* container) override;
 	
-	std::vector<std::string>& get_density_names() override;
 	const std::vector<std::string>& get_density_names() const override;
-	std::vector<std::string>& get_density_units() override;
 	const std::vector<std::string>& get_density_units() const override;
-	std::vector<double>& get_diffusion_coefficients() override;
 	const double* get_diffusion_coefficients() const override;
-	std::vector<double>& get_decay_rates() override;
 	const double* get_decay_rates() const override;
 	
 	bool simulate_2D() const override;

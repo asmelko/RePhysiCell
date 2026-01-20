@@ -16,6 +16,9 @@ add_custom_command(
   TARGET ${project}
   POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-          ${CMAKE_CURRENT_SOURCE_DIR}/config ${CMAKE_CURRENT_BINARY_DIR}/config)
+          ${CMAKE_CURRENT_SOURCE_DIR}/config ${CMAKE_CURRENT_BINARY_DIR}/config
+  COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${project}>
+          $<TARGET_RUNTIME_DLLS:${project}>
+  COMMAND_EXPAND_LISTS)
 
 target_link_libraries(${project} PRIVATE libRoadrunner)
