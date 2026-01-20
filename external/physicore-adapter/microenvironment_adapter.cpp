@@ -473,15 +473,6 @@ void physicore_microenvironment_adapter::write_to_matlab(std::string filename) {
 }
 
 // ============================================================================
-// Update methods
-// ============================================================================
-
-void physicore_microenvironment_adapter::update_rates() {
-	// Physicore doesn't have a separate update_rates step
-	// Rates are configured at build time
-}
-
-// ============================================================================
 // Configuration query methods
 // ============================================================================
 
