@@ -155,7 +155,7 @@ class Microenvironment final : public Microenvironment_Interface
 	std::vector< std::vector<double> > supply_target_densities_times_supply_rates; 
 	std::vector< std::vector<double> > supply_rates; 
 	std::vector< std::vector<double> > uptake_rates; 
-	void update_rates( void ) override; 
+	void update_rates( void ); 
 	
 	Microenvironment(); 
 	Microenvironment(std::string name);

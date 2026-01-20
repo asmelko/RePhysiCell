@@ -260,13 +260,6 @@ public:
 	virtual void write_to_matlab(std::string filename) = 0;
 
 	// ========================================================================
-	// Update methods
-	// ========================================================================
-
-	/** @brief Update supply and uptake rates based on current state */
-	virtual void update_rates() = 0;
-
-	// ========================================================================
 	// Configuration query methods
 	// ========================================================================
 
