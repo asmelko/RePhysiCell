@@ -66,6 +66,7 @@
 */
 
 #include "./custom.h"
+#include "../BioFVM/BioFVM_vector.h"
 
 void create_cell_types( void )
 {
@@ -83,7 +84,7 @@ void create_cell_types( void )
 	*/ 
 	
 	initialize_default_cell_definition(); 
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
+	cell_defaults.phenotype.secretion.sync_to_microenvironment( get_microenvironment_i() ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
@@ -190,22 +191,22 @@ void setup_microenvironment( void )
 	
 	// initialize BioFVM 
 	
-	initialize_microenvironment(); 	
+	get_microenvironment_i()->initialize();
 	
 	return; 
 }
 
 void setup_tissue( void )
 {
-	double Xmin = microenvironment.mesh.bounding_box[0]; 
-	double Ymin = microenvironment.mesh.bounding_box[1]; 
-	double Zmin = microenvironment.mesh.bounding_box[2]; 
+	double Xmin = get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double Ymin = get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	double Zmin = get_microenvironment_i()->get_mesh().bounding_box[2]; 
 
-	double Xmax = microenvironment.mesh.bounding_box[3]; 
-	double Ymax = microenvironment.mesh.bounding_box[4]; 
-	double Zmax = microenvironment.mesh.bounding_box[5]; 
+	double Xmax = get_microenvironment_i()->get_mesh().bounding_box[3]; 
+	double Ymax = get_microenvironment_i()->get_mesh().bounding_box[4]; 
+	double Zmax = get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
-	if( default_microenvironment_options.simulate_2D == true )
+	if( get_microenvironment_i()->simulate_2D() == true )
 	{
 		Zmin = 0.0; 
 		Zmax = 0.0; 
@@ -384,11 +385,11 @@ void introduce_biorobots( void )
 		parameters.ints("number_of_injected_cells"); // 500; /* param */ 
 	
 	// make these vary with domain size 
-	double left_coordinate = default_microenvironment_options.X_range[1] - 150.0; // 600.0; 
-	double right_cooridnate = default_microenvironment_options.X_range[1] - 50.0; // 700.0;
+	double left_coordinate = get_microenvironment_i()->get_mesh().bounding_box[3] - 150.0; // 600.0; 
+	double right_cooridnate = get_microenvironment_i()->get_mesh().bounding_box[3] - 50.0; // 700.0;
 
-	double bottom_coordinate = default_microenvironment_options.Y_range[0] + 50.0; // -700; 
-	double top_coordinate = default_microenvironment_options.Y_range[1] - 50.0; // 700; 
+	double bottom_coordinate = get_microenvironment_i()->get_mesh().bounding_box[1] + 50.0; // -700; 
+	double top_coordinate = get_microenvironment_i()->get_mesh().bounding_box[4] - 50.0; // 700; 
 
 	Cell_Definition* pCD_worker = find_cell_definition( "worker cell");
 	Cell_Definition* pCD_cargo = find_cell_definition( "cargo cell");
@@ -636,5 +637,6 @@ void worker_cell_rule( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	return; 
 }
+
 
 
