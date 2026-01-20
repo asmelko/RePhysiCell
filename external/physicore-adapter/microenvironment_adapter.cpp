@@ -1,70 +1,3 @@
-/*
-###############################################################################
-# If you use PhysiCell in your project, please cite PhysiCell and the version #
-# number, such as below:                                                      #
-#                                                                             #
-# We implemented and solved the model using PhysiCell (Version x.y.z) [1].    #
-#                                                                             #
-# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
-#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
-#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
-#     DOI: 10.1371/journal.pcbi.1005991                                       #
-#                                                                             #
-# See VERSION.txt or call get_PhysiCell_version() to get the current version  #
-#     x.y.z. Call display_citations() to get detailed information on all cite-#
-#     able software used in your PhysiCell application.                       #
-#                                                                             #
-# Because PhysiCell extensively uses BioFVM, we suggest you also cite BioFVM  #
-#     as below:                                                               #
-#                                                                             #
-# We implemented and solved the model using PhysiCell (Version x.y.z) [1],    #
-# with BioFVM [2] to solve the transport equations.                           #
-#                                                                             #
-# [1] A Ghaffarizadeh, R Heiland, SH Friedman, SM Mumenthaler, and P Macklin, #
-#     PhysiCell: an Open Source Physics-Based Cell Simulator for Multicellu-  #
-#     lar Systems, PLoS Comput. Biol. 14(2): e1005991, 2018                   #
-#     DOI: 10.1371/journal.pcbi.1005991                                       #
-#                                                                             #
-# [2] A Ghaffarizadeh, SH Friedman, and P Macklin, BioFVM: an efficient para- #
-#     llelized diffusive transport solver for 3-D biological simulations,     #
-#     Bioinformatics 32(8): 1256-8, 2016. DOI: 10.1093/bioinformatics/btv730  #
-#                                                                             #
-###############################################################################
-#                                                                             #
-# BSD 3-Clause License (see https://opensource.org/licenses/BSD-3-Clause)     #
-#                                                                             #
-# Copyright (c) 2015-2025, Paul Macklin and the PhysiCell Project             #
-# All rights reserved.                                                        #
-#                                                                             #
-# Redistribution and use in source and binary forms, with or without          #
-# modification, are permitted provided that the following conditions are met: #
-#                                                                             #
-# 1. Redistributions of source code must retain the above copyright notice,   #
-# this list of conditions and the following disclaimer.                       #
-#                                                                             #
-# 2. Redistributions in binary form must reproduce the above copyright        #
-# notice, this list of conditions and the following disclaimer in the         #
-# documentation and/or other materials provided with the distribution.        #
-#                                                                             #
-# 3. Neither the name of the copyright holder nor the names of its            #
-# contributors may be used to endorse or promote products derived from this   #
-# software without specific prior written permission.                         #
-#                                                                             #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" #
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE   #
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE  #
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE   #
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR         #
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF        #
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS    #
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN     #
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)     #
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE  #
-# POSSIBILITY OF SUCH DAMAGE.                                                 #
-#                                                                             #
-###############################################################################
-*/
-
 #include "microenvironment_adapter.h"
 #include "basic_agent_adapter.h"
 #include "biofvm/microenvironment.h"
@@ -74,32 +7,6 @@
 #include <cmath>
 
 namespace BioFVM {
-
-// ============================================================================
-// Adapter implementation - Constructors
-// ============================================================================
-
-// physicore_microenvironment_adapter::physicore_microenvironment_adapter(
-// 	std::unique_ptr<physicore::biofvm::microenvironment> environment)
-// 	: me(std::move(environment))
-// {
-// 	if (!me) {
-// 		throw std::runtime_error("physicore_microenvironment_adapter: null microenvironment provided");
-// 	}
-	
-// 	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
-// 	mesh_wrapper->update_dirichlet_flags(*me);
-	
-// 	if (me->agents) {
-// 		agent_wrapper = std::make_unique<Agent_Container_Interface>();
-// 	}
-// }
-
-// physicore_microenvironment_adapter::physicore_microenvironment_adapter(const std::string& config_path)
-// 	: physicore_microenvironment_adapter(
-// 		physicore::biofvm::microenvironment::create_from_config(config_path))
-// {
-// }
 
 physicore::biofvm::microenvironment* physicore_microenvironment_adapter::get_physicore_microenvironment() {
 	return me.get();
@@ -214,38 +121,6 @@ int physicore_microenvironment_adapter::find_density_index(const std::string& na
 	}
 	return -1;
 }
-
-// void physicore_microenvironment_adapter::add_density() {
-// 	throw std::runtime_error("add_density: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
-
-// void physicore_microenvironment_adapter::add_density(const std::string& name, const std::string& units) {
-// 	throw std::runtime_error("add_density: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
-
-// void physicore_microenvironment_adapter::add_density(const std::string& name, const std::string& units,
-//                                                       double diffusion_constant, double decay_rate) {
-// 	throw std::runtime_error("add_density: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
-
-// void physicore_microenvironment_adapter::set_density(int index, const std::string& name, const std::string& units) {
-// 	throw std::runtime_error("set_density: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
-
-// void physicore_microenvironment_adapter::set_density(int index, const std::string& name, const std::string& units,
-//                                                       double diffusion_constant, double decay_rate) {
-// 	throw std::runtime_error("set_density: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
-
-// void physicore_microenvironment_adapter::resize_densities(int new_size) {
-// 	throw std::runtime_error("resize_densities: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify substrate configuration.");
-// }
 
 // ============================================================================
 // Voxel/Position access
@@ -408,35 +283,6 @@ void physicore_microenvironment_adapter::simulate_cell_sources_and_sinks(double 
 	// This is a no-op since it's integrated into the solver
 }
 
-// ============================================================================
-// Dirichlet boundary conditions
-// ============================================================================
-
-// void physicore_microenvironment_adapter::add_dirichlet_node(int voxel_index, std::vector<double>& value) {
-// 	throw std::runtime_error("add_dirichlet_node: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify Dirichlet conditions.");
-// }
-
-// void physicore_microenvironment_adapter::update_dirichlet_node(int voxel_index, std::vector<double>& new_value) {
-// 	throw std::runtime_error("update_dirichlet_node: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify Dirichlet conditions.");
-// }
-
-// void physicore_microenvironment_adapter::update_dirichlet_node(int voxel_index, int substrate_index, double new_value) {
-// 	throw std::runtime_error("update_dirichlet_node: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify Dirichlet conditions.");
-// }
-
-// void physicore_microenvironment_adapter::remove_dirichlet_node(int voxel_index) {
-// 	throw std::runtime_error("remove_dirichlet_node: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify Dirichlet conditions.");
-// }
-
-// void physicore_microenvironment_adapter::apply_dirichlet_conditions() {
-// 	// Physicore applies Dirichlet conditions automatically during solve
-// 	// This is a no-op
-// }
-
 void physicore_microenvironment_adapter::set_substrate_dirichlet_activation(int substrate_index, bool new_value) {
 	throw std::runtime_error("Deprecated function. Use set_substrate_dirichlet_activation with voxel index.");
 }
@@ -504,10 +350,6 @@ const Cartesian_Mesh& physicore_microenvironment_adapter::get_mesh() const {
 	return *mesh_wrapper;
 }
 
-// Cartesian_Mesh& physicore_microenvironment_adapter::get_mesh() {
-// 	return *mesh_wrapper;
-// }
-
 // ============================================================================
 // Agent container access
 // ============================================================================
@@ -528,35 +370,17 @@ void physicore_microenvironment_adapter::set_agent_container(Agent_Container* co
 // Metadata access
 // ============================================================================
 
-// std::vector<std::string>& physicore_microenvironment_adapter::get_density_names() {
-// 	return me->substrates_names;
-// }
-
 const std::vector<std::string>& physicore_microenvironment_adapter::get_density_names() const {
 	return me->substrates_names;
 }
-
-// std::vector<std::string>& physicore_microenvironment_adapter::get_density_units() {
-// 	return me->substrates_units;
-// }
 
 const std::vector<std::string>& physicore_microenvironment_adapter::get_density_units() const {
 	return me->substrates_units;
 }
 
-// std::vector<double>& physicore_microenvironment_adapter::get_diffusion_coefficients() {
-// 	ensure_metadata_cache();
-// 	return diffusion_coeffs_cache;
-// }
-
 const double* physicore_microenvironment_adapter::get_diffusion_coefficients() const {
 	return me->diffusion_coefficients.get();
 }
-
-// std::vector<double>& physicore_microenvironment_adapter::get_decay_rates() {
-// 	ensure_metadata_cache();
-// 	return decay_rates_cache;
-// }
 
 const double* physicore_microenvironment_adapter::get_decay_rates() const {
 	return me->decay_rates.get();
@@ -565,10 +389,6 @@ const double* physicore_microenvironment_adapter::get_decay_rates() const {
 // ============================================================================
 // Name access
 // ============================================================================
-
-// std::string& physicore_microenvironment_adapter::get_name() {
-// 	return me->name;
-// }
 
 const std::string& physicore_microenvironment_adapter::get_name() const {
 	return me->name;
@@ -606,38 +426,6 @@ void physicore_microenvironment_adapter::write_to_matlab(std::string filename) {
 	fclose( fp ); 
 	return;
 }
-
-// ============================================================================
-// Spatial setup methods
-// ============================================================================
-
-// void physicore_microenvironment_adapter::resize_space(int x_nodes, int y_nodes, int z_nodes) {
-// 	throw std::runtime_error("resize_space: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify spatial configuration.");
-// }
-
-// void physicore_microenvironment_adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
-//                                                        double z_start, double z_end, int x_nodes, int y_nodes, int z_nodes) {
-// 	throw std::runtime_error("resize_space: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify spatial configuration.");
-// }
-
-// void physicore_microenvironment_adapter::resize_space(double x_start, double x_end, double y_start, double y_end,
-//                                                        double z_start, double z_end, double dx_new, double dy_new, double dz_new) {
-// 	throw std::runtime_error("resize_space: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify spatial configuration.");
-// }
-
-// void physicore_microenvironment_adapter::resize_space_uniform(double x_start, double x_end, double y_start, double y_end,
-//                                                                double z_start, double z_end, double dx_new) {
-// 	throw std::runtime_error("resize_space_uniform: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify spatial configuration.");
-// }
-
-// void physicore_microenvironment_adapter::resize_voxels(int new_number_of_voxels) {
-// 	throw std::runtime_error("resize_voxels: physicore microenvironment is immutable after construction. "
-// 	                         "Rebuild using create_from_config() to modify spatial configuration.");
-// }
 
 // ============================================================================
 // Update methods
