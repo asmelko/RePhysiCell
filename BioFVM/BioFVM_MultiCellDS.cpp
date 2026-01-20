@@ -1390,7 +1390,7 @@ void read_microenvironment_from_MultiCellDS_xml( Microenvironment_Interface& M_d
 
 	std::cout << "done!" << std::endl; 
 	return; 
-} 
+} */
 
 bool read_microenvironment_from_matlab( std::string mat_filename )
 {
@@ -1434,6 +1434,6 @@ bool read_microenvironment_from_matlab( std::string mat_filename )
 
 	std::cout << "done!" << std::endl << std::endl; 
 	return true; 
-}*/
+}
 
 };
