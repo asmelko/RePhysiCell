@@ -75,7 +75,10 @@
 #include "./PhysiCell_settings.h"
 #include "../core/PhysiCell_cell.h"
 #include "../BioFVM/BioFVM_legacy_implementation.h"
-#include "../external/physicore-adapter/physicore_implementation.h"
+
+#ifdef CMAKE_BUILD
+	#include "../external/physicore-adapter/physicore_implementation.h"
+#endif
 
 using namespace BioFVM; 
 
@@ -108,6 +111,7 @@ bool read_PhysiCell_config_file( std::string filename )
 
 void load_biofvm_implementation()
 {
+#ifdef CMAKE_BUILD
 	auto implementation = physicell_config_root.child("microenvironment_setup").attribute("implementation");
 	std::string impl_str;
 	if (implementation.empty())
@@ -133,6 +137,7 @@ void load_biofvm_implementation()
 		return;
 	}
 	std::cout << "ERROR: Unknown BioFVM implementation " << impl_str << " ! Choosing legacy." << std::endl;
+#endif
 	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
 }
 
