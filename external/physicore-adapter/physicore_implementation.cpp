@@ -15,9 +15,9 @@ Basic_Agent_Interface* physicore_implementation::create_basic_agent() {
     return new physicore_basic_agent_adapter();
 }
 
-std::vector<Basic_Agent_Interface*> all_basic_agents;
 
 std::vector<Basic_Agent_Interface*>* physicore_implementation::get_all_basic_agents(){
+    static std::vector<Basic_Agent_Interface*> all_basic_agents;
     return &all_basic_agents;
 }
 

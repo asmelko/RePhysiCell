@@ -5,7 +5,7 @@ file(GLOB MODULES "custom_modules/*.cpp")
 
 target_sources(${project} PRIVATE main-cancer_immune_3D.cpp ${MODULES})
 
-target_link_libraries(${project} PRIVATE BioFVM_utils BioFVM PhysiCell-core
+target_link_libraries(${project} PRIVATE BioFVM PhysiCell-core
                                          PhysiCell-modules)
 
 target_include_directories(${project} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../..)

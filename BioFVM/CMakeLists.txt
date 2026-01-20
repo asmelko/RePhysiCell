@@ -1,8 +1,8 @@
-add_library(BioFVM OBJECT)
-add_library(BioFVM_utils OBJECT)
+add_library(BioFVM_legacy)
+add_library(BioFVM_utils)
 
 target_sources(
-  BioFVM
+  BioFVM_legacy
   PRIVATE BioFVM_agent_container.cpp
           BioFVM_basic_agent.cpp
           BioFVM_microenvironment.cpp
@@ -21,5 +21,8 @@ target_sources(
           pugixml.cpp)
 
 find_package(OpenMP REQUIRED)
-target_link_libraries(BioFVM PUBLIC OpenMP::OpenMP_CXX)
+target_link_libraries(BioFVM_legacy PUBLIC OpenMP::OpenMP_CXX)
 target_link_libraries(BioFVM_utils PUBLIC OpenMP::OpenMP_CXX)
+
+add_library(BioFVM INTERFACE)
+target_link_libraries(BioFVM INTERFACE BioFVM_legacy BioFVM_utils)

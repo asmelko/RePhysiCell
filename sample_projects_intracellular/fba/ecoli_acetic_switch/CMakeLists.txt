@@ -5,7 +5,7 @@ file(GLOB MODULES "custom_modules/*.cpp")
 
 target_sources(${project} PRIVATE main_ecoli_acetic_switch.cpp ${MODULES})
 
-target_link_libraries(${project} PRIVATE BioFVM_utils BioFVM PhysiCell-core-no-addon
+target_link_libraries(${project} PRIVATE BioFVM PhysiCell-core-no-addon
                                          PhysiCell-modules-no-addon)
 
 target_include_directories(${project}
