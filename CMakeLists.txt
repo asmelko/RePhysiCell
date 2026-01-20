@@ -15,13 +15,13 @@ option(PHYSICELL_BUILD_PHYSIBOSS "Build PhysiBoSS addon" ON)
 option(PHYSICELL_BUILD_LIBROADDRUNNER "Build libRoadrunner addon" OFF)
 option(PHYSICELL_BUILD_DFBA "Build dFBA addon" OFF)
 
-# External implementations
-add_subdirectory(external/physicore-adapter)
-
 # Main libraries and modules
 add_subdirectory(BioFVM)
 add_subdirectory(core)
 add_subdirectory(modules)
+
+# External implementations
+add_subdirectory(external/physicore-adapter)
 
 # Examples and sample projects
 add_subdirectory(examples)

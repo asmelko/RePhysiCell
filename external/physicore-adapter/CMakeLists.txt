@@ -38,3 +38,5 @@ target_sources(physicore_biofvm_adapter PRIVATE
                mesh_adapter.cpp
                microenvironment_adapter.cpp
                physicore_implementation.cpp)
+
+target_link_libraries(BioFVM INTERFACE physicore_biofvm_adapter)

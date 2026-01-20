@@ -75,6 +75,7 @@
 #include "./PhysiCell_settings.h"
 #include "../core/PhysiCell_cell.h"
 #include "../BioFVM/BioFVM_legacy_implementation.h"
+#include "../external/physicore-adapter/physicore_implementation.h"
 
 using namespace BioFVM; 
 
@@ -105,6 +106,36 @@ bool read_PhysiCell_config_file( std::string filename )
 	return true;
 }
 
+void load_biofvm_implementation()
+{
+	auto implementation = physicell_config_root.child("microenvironment_setup").attribute("implementation");
+	std::string impl_str;
+	if (implementation.empty())
+	{
+		// default to legacy implementation
+		impl_str = "legacy";
+	}
+	else
+	{
+		impl_str = implementation.as_string();
+	}
+	
+	if (impl_str == "legacy")
+	{
+		std::cout << "Using BioFVM legacy implementation." << std::endl;
+		BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+		return;
+	}
+	if (impl_str == "physicore")
+	{
+		std::cout << "Using BioFVM physicore implementation." << std::endl;
+		BioFVM::BioFVM_implementation::set_instance( new BioFVM::physicore_implementation() );
+		return;
+	}
+	std::cout << "ERROR: Unknown BioFVM implementation " << impl_str << " ! Choosing legacy." << std::endl;
+	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+}
+
 bool load_PhysiCell_config_file( std::string filename )
 {
 	if (!read_PhysiCell_config_file( filename ))
@@ -114,7 +145,7 @@ bool load_PhysiCell_config_file( std::string filename )
 	
 	// now read the microenvironment (optional) 
 
-	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+	load_biofvm_implementation();
 	
 	if( !get_microenvironment_i()->setup_microenvironment_from_XML( filename ) )
 	{
