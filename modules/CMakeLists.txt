@@ -25,6 +25,10 @@ target_sources(
           PhysiCell_SVG.cpp
           PhysiCell_various_outputs.cpp)
 
+
+target_compile_definitions(PhysiCell-modules PRIVATE CMAKE_BUILD)
+target_compile_definitions(PhysiCell-modules-no-addon PRIVATE CMAKE_BUILD)
+
 find_package(OpenMP REQUIRED)
 target_link_libraries(PhysiCell-modules PUBLIC OpenMP::OpenMP_CXX)
 target_link_libraries(PhysiCell-modules-no-addon PUBLIC OpenMP::OpenMP_CXX)
