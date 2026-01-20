@@ -137,7 +137,7 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 	#pragma omp parallel for schedule(static) 
 	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
 	{
-		for( unsigned int j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
+		for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
 		{
 			// endcaps 
 			for( unsigned int q=0; q < number_of_densities() ; q++ )
@@ -159,7 +159,7 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 				gradient_vectors[n][q][0] /= mesh_wrapper->dx; 
 			}
 			
-			for( unsigned int i=1; i < mesh_wrapper->x_coordinates.size()-1 ; i++ )
+			for( long long i=1; i < mesh_wrapper->x_coordinates.size()-1 ; i++ )
 			{
 				for( unsigned int q=0; q < number_of_densities() ; q++ )
 				{
@@ -177,9 +177,9 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 	#pragma omp parallel for schedule(static)
 	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
 	{
-		for( unsigned int j=1; j < mesh_wrapper->y_coordinates.size()-1 ; j++ )
+		for( long long j=1; j < mesh_wrapper->y_coordinates.size()-1 ; j++ )
 		{
-			for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+			for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
 			{	
 				for( unsigned int q=0; q < number_of_densities() ; q++ )
 				{
@@ -196,7 +196,7 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 	#pragma omp parallel for schedule(static)
 	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
 	{
-		for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+		for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
 		{
 			// endcaps 
 			for( unsigned int q=0; q < number_of_densities() ; q++ )
@@ -225,11 +225,11 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 	{ return; }
 
 	#pragma omp parallel for schedule(static)
-	for( unsigned int k=1; k < mesh_wrapper->z_coordinates.size()-1 ; k++ )
+	for( long long k=1; k < mesh_wrapper->z_coordinates.size()-1 ; k++ )
 	{
 		for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
 		{
-			for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+			for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
 			{		
 				for( unsigned int q=0; q < number_of_densities() ; q++ )
 				{
@@ -246,7 +246,7 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 	#pragma omp parallel for schedule(static)
 	for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
 	{
-		for( unsigned int i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
+		for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
 		{
 			// endcaps 
 			for( unsigned int q=0; q < number_of_densities() ; q++ )
@@ -273,7 +273,7 @@ void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
 
 void physicore_microenvironment_adapter::reset_all_gradient_vectors() {
 	#pragma omp parallel for schedule(static)
-	for( unsigned int k=0 ; k < mesh_wrapper->voxels.size() ; k++ )
+	for( long long k=0 ; k < mesh_wrapper->voxels.size() ; k++ )
 	{
 		for( unsigned int i=0 ; i < number_of_densities() ; i++ )
 		{
