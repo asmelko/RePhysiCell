@@ -117,7 +117,7 @@ void load_biofvm_implementation()
 	if (implementation.empty())
 	{
 		// default to legacy implementation
-		impl_str = "legacy";
+		impl_str = "physicore";
 	}
 	else
 	{
