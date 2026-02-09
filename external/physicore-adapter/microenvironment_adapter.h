@@ -30,6 +30,8 @@ private:
 	std::unique_ptr<Agent_Container> agent_wrapper;
 	
     std::vector<std::vector<std::vector<double>>> gradient_vectors;
+
+	bool calculate_gradients_flag = false;
 	
 public:
 	virtual ~physicore_microenvironment_adapter() = default;

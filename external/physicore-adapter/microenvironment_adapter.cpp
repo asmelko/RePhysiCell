@@ -481,7 +481,7 @@ bool physicore_microenvironment_adapter::simulate_2D() const {
 }
 
 bool physicore_microenvironment_adapter::calculate_gradients() const {
-	return false;
+	return calculate_gradients_flag;
 }
 
 bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const std::string& filename) {
@@ -490,6 +490,19 @@ bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const s
     } catch (const std::exception& e) {
         return false;
     }
+
+	pugi::xml_document physicell_config_doc; 	
+	pugi::xml_parse_result result = physicell_config_doc.load_file( filename.c_str() );
+	
+	if( result.status != pugi::xml_parse_status::status_ok )
+	{
+		std::cout << "Error loading " << filename << "!" << std::endl; 
+		return false;
+	}
+	
+	auto physicell_config_root = physicell_config_doc.child("PhysiCell_settings");
+	auto node =  physicell_config_root.child("microenvironment_setup").child("options");
+	calculate_gradients_flag = node.child("calculate_gradients").text().as_bool();
 
 	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
 	mesh_wrapper->update_dirichlet_flags(*me);
