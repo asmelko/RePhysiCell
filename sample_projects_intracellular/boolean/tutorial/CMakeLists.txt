@@ -18,7 +18,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/config
           ${CMAKE_CURRENT_BINARY_DIR}/config)
 
-if($<TARGET_RUNTIME_DLLS:${project}>)
+if(WIN32)
   add_custom_command(
     TARGET ${project}
     POST_BUILD
