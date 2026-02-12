@@ -132,7 +132,10 @@ double* physicore_microenvironment_adapter::nearest_density_vector(int voxel_ind
 // ============================================================================
 // Gradient computation and access
 // ============================================================================
-void physicore_microenvironment_adapter::compute_all_gradient_vectors() { }
+void physicore_microenvironment_adapter::compute_all_gradient_vectors() 
+{
+	me->solver->recompute_positional_data(*me);
+}
 
 void physicore_microenvironment_adapter::reset_all_gradient_vectors() { }
 
@@ -332,7 +335,7 @@ bool physicore_microenvironment_adapter::simulate_2D() const {
 }
 
 bool physicore_microenvironment_adapter::calculate_gradients() const {
-	return false;
+	return true;
 }
 
 bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const std::string& filename) {
