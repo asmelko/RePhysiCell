@@ -1,6 +1,6 @@
 add_library(physicore_biofvm_adapter)
 
-set(PHYSICORE_VERSION "1.4.0")
+set(PHYSICORE_VERSION "1.4.1")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(PHYSICORE_PACKAGE_URL
