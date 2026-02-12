@@ -44,6 +44,9 @@ private:
 	std::vector<double> velocity;
 	std::vector<double> previous_velocity;
 
+	std::vector<std::vector<double>> gradient_cache;
+	void compute_gradient_at_voxel(int voxel_index, int substrate_index, std::vector<double>& gradient) const;
+
 protected:
 	double* get_position_internal() override;
 

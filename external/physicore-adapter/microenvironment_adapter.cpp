@@ -132,175 +132,26 @@ double* physicore_microenvironment_adapter::nearest_density_vector(int voxel_ind
 // ============================================================================
 // Gradient computation and access
 // ============================================================================
+void physicore_microenvironment_adapter::compute_all_gradient_vectors() { }
 
-void physicore_microenvironment_adapter::compute_all_gradient_vectors() {
-	#pragma omp parallel for schedule(static) 
-	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
-	{
-		for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
-		{
-			// endcaps 
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int i = 0; 
-				int n = voxel_index(i,j,k);
-				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i + 1, j, k);
-				gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i, j, k);
-				gradient_vectors[n][q][0] /= mesh_wrapper->dx; 
-			}
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int i = mesh_wrapper->x_coordinates.size()-1; 
-				int n = voxel_index(i,j,k);
-				// x-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i, j, k);
-				gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i - 1, j, k);
-				gradient_vectors[n][q][0] /= mesh_wrapper->dx; 
-			}
-			
-			for( long long i=1; i < mesh_wrapper->x_coordinates.size()-1 ; i++ )
-			{
-				for( unsigned int q=0; q < number_of_densities() ; q++ )
-				{
-					int n = voxel_index(i,j,k);
-					// x-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][0] = me->solver->get_substrate_density(q, i + 1, j, k);
-					gradient_vectors[n][q][0] -= me->solver->get_substrate_density(q, i - 1, j, k);
-					gradient_vectors[n][q][0] /= mesh_wrapper->dx * 2.0; 
- 				}
-			}
-			
-		}
-	}
-	
-	#pragma omp parallel for schedule(static)
-	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
-	{
-		for( long long j=1; j < mesh_wrapper->y_coordinates.size()-1 ; j++ )
-		{
-			for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
-			{	
-				for( unsigned int q=0; q < number_of_densities() ; q++ )
-				{
-					int n = voxel_index(i,j,k);
-					// y-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j + 1, k);
-					gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j - 1, k);
-					gradient_vectors[n][q][1] /= 2.0 * mesh_wrapper->dy; 
-				}
-			}
-		}
-	}
-	
-	#pragma omp parallel for schedule(static)
-	for( long long k=0; k < mesh_wrapper->z_coordinates.size() ; k++ )
-	{
-		for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
-		{
-			// endcaps 
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int j = 0; 
-				int n = voxel_index(i,j,k);
-				// y-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j + 1, k);
-				gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j, k);
-				gradient_vectors[n][q][1] /= mesh_wrapper->dy; 
-			}
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int j = mesh_wrapper->y_coordinates.size()-1; 
-				int n = voxel_index(i,j,k);
-				// y-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][1] = me->solver->get_substrate_density(q, i, j, k);
-				gradient_vectors[n][q][1] -= me->solver->get_substrate_density(q, i, j - 1, k);
-				gradient_vectors[n][q][1] /= mesh_wrapper->dy; 
-			}		
-		}
-	}
-	
-	// don't bother computing z component if there is no z-direction 
-	if( mesh_wrapper->z_coordinates.size() == 1 )
-	{ return; }
-
-	#pragma omp parallel for schedule(static)
-	for( long long k=1; k < mesh_wrapper->z_coordinates.size()-1 ; k++ )
-	{
-		for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
-		{
-			for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
-			{		
-				for( unsigned int q=0; q < number_of_densities() ; q++ )
-				{
-					int n = voxel_index(i,j,k);
-					// z-derivative of qth substrate at voxel n
-					gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k + 1);
-					gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k - 1);
-					gradient_vectors[n][q][2] /= 2.0 * mesh_wrapper->dz; 
-				}
-			}
-		}
-	}
-
-	#pragma omp parallel for schedule(static)
-	for( long long j=0; j < mesh_wrapper->y_coordinates.size() ; j++ )
-	{
-		for( long long i=0; i < mesh_wrapper->x_coordinates.size() ; i++ )
-		{
-			// endcaps 
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int k = 0; 
-				int n = voxel_index(i,j,k);
-				// z-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k + 1);
-				gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k);
-				gradient_vectors[n][q][2] /= mesh_wrapper->dz; 
-			}
-			for( unsigned int q=0; q < number_of_densities() ; q++ )
-			{
-				int k = mesh_wrapper->z_coordinates.size()-1; 
-				int n = voxel_index(i,j,k);
-				// z-derivative of qth substrate at voxel n
-				gradient_vectors[n][q][2] = me->solver->get_substrate_density(q, i, j, k); 
-				gradient_vectors[n][q][2] -= me->solver->get_substrate_density(q, i, j, k - 1); 
-				gradient_vectors[n][q][2] /= mesh_wrapper->dz; 
-			}			
-		}
-	}
-}
-
-void physicore_microenvironment_adapter::reset_all_gradient_vectors() {
-	#pragma omp parallel for schedule(static)
-	for( long long k=0 ; k < mesh_wrapper->voxels.size() ; k++ )
-	{
-		for( unsigned int i=0 ; i < number_of_densities() ; i++ )
-		{
-			gradient_vectors[k][i].resize( 3, 0.0 );
-		}
-	}
-}
+void physicore_microenvironment_adapter::reset_all_gradient_vectors() { }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::gradient_vector(int n) {
-	return gradient_vectors[n];
+	throw std::runtime_error("Gradient vector access by linear index is not supported. Use BasicAgent::nearest_gradient.");
 }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::gradient_vector(int i, int j) {
-	int idx = voxel_index(i, j, 0);
-	return gradient_vector(idx);
+	throw std::runtime_error("Gradient vector access by linear index is not supported. Use BasicAgent::nearest_gradient.");
 }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::gradient_vector(int i, int j, int k) {
-	int idx = voxel_index(i, j, k);
-	return gradient_vector(idx);
+	throw std::runtime_error("Gradient vector access by linear index is not supported. Use BasicAgent::nearest_gradient.");
 }
 
 std::vector<std::vector<double>>& physicore_microenvironment_adapter::nearest_gradient_vector(
 	const std::vector<double>& position) 
 {
-	int idx = nearest_voxel_index(position);
-	return gradient_vector(idx);
+	throw std::runtime_error("Gradient vector access by linear index is not supported. Use BasicAgent::nearest_gradient.");
 }
 
 // ============================================================================
@@ -481,7 +332,7 @@ bool physicore_microenvironment_adapter::simulate_2D() const {
 }
 
 bool physicore_microenvironment_adapter::calculate_gradients() const {
-	return calculate_gradients_flag;
+	return false;
 }
 
 bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const std::string& filename) {
@@ -490,19 +341,6 @@ bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const s
     } catch (const std::exception& e) {
         return false;
     }
-
-	pugi::xml_document physicell_config_doc; 	
-	pugi::xml_parse_result result = physicell_config_doc.load_file( filename.c_str() );
-	
-	if( result.status != pugi::xml_parse_status::status_ok )
-	{
-		std::cout << "Error loading " << filename << "!" << std::endl; 
-		return false;
-	}
-	
-	auto physicell_config_root = physicell_config_doc.child("PhysiCell_settings");
-	auto node =  physicell_config_root.child("microenvironment_setup").child("options");
-	calculate_gradients_flag = node.child("calculate_gradients").text().as_bool();
 
 	mesh_wrapper = std::make_unique<physicore_mesh_wrapper>(me->mesh);
 	mesh_wrapper->update_dirichlet_flags(*me);
@@ -516,14 +354,6 @@ bool physicore_microenvironment_adapter::setup_microenvironment_from_XML(const s
 
 void physicore_microenvironment_adapter::initialize() {
 	me->solver->initialize(*me);
-
-	gradient_vectors.resize(number_of_voxels());
-	for (unsigned int n = 0; n < number_of_voxels(); n++) {
-		gradient_vectors[n].resize(number_of_densities());
-		for (unsigned int q = 0; q < number_of_densities(); q++) {
-			gradient_vectors[n][q].resize(me->mesh.dims, 0.0);
-		}
-	}
 
 	me->print_info(std::cout);
 }
