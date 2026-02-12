@@ -930,7 +930,7 @@ void Cell::update_position( double dt )
 	
 	previous_velocity = velocity; 
 	
-	velocity.resize(3, 0);
+	velocity[0]=0; velocity[1]=0; velocity[2]=0;
 	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1], dims == 3 ? position[2] : 0))
 	{
 		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( get_position() );
