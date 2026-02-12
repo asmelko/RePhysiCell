@@ -49,8 +49,6 @@
 #ifndef __BioFVM_implementation_h__
 #define __BioFVM_implementation_h__
 
-#include <memory>
-
 #include "BioFVM_basic_agent_interface.h"
 #include "BioFVM_microenvironment_interface.h"
 
@@ -59,7 +57,7 @@ namespace BioFVM{
 // This class provides a contract for any new BioFVM implementation
 class BioFVM_implementation 
 {
-    static std::unique_ptr<BioFVM_implementation> instance_;
+    static BioFVM_implementation* instance_;
 public:
     virtual Microenvironment_Interface* get_microenvironment() = 0;
     virtual Basic_Agent_Interface* create_basic_agent() = 0;
@@ -69,7 +67,7 @@ public:
     // set_instance is called at the start of a simulation to set the implementation
     // which will be used throughout the simulation
     static BioFVM_implementation* get_instance();
-    static void set_instance( std::unique_ptr<BioFVM_implementation> implementation );
+    static void set_instance( BioFVM_implementation* implementation );
 };
 
 }

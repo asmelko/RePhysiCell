@@ -50,13 +50,13 @@
 
 namespace BioFVM {
 
-std::unique_ptr<BioFVM_implementation> BioFVM_implementation::instance_ = nullptr;
+BioFVM_implementation* BioFVM_implementation::instance_ = nullptr;
 
 BioFVM_implementation* BioFVM_implementation::get_instance() {
-    return instance_.get();
+    return instance_;
 }
-void BioFVM_implementation::set_instance( std::unique_ptr<BioFVM_implementation> implementation ) {
-    instance_ = std::move(implementation);
+void BioFVM_implementation::set_instance( BioFVM_implementation* implementation ) {
+    instance_ = implementation;
 }
 
 Microenvironment_Interface* get_microenvironment_i()
