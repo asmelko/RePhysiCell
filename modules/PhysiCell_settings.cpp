@@ -118,6 +118,12 @@ void load_biofvm_implementation()
 	{
 		// default to legacy implementation
 		impl_str = "physicore";
+
+		if (BioFVM::BioFVM_implementation::get_instance() != nullptr) 
+		{ 
+			std::cout << "BioFVM implementation set from within the code. Skipping BioFVM implementation selection." << std::endl; 
+			return; 
+		}
 	}
 	else
 	{
