@@ -79,7 +79,7 @@
 
 // loade PhysiCell library
 #include "./BioFVM/BioFVM.h"
-#include "./BioFVM/BioFVM_implementation.h"
+#include "./BioFVM/BioFVM_legacy_implementation.h"
 #include "./core/PhysiCell.h"
 #include "./modules/PhysiCell_standard_modules.h"
 #include "./custom_modules/custom.h"
@@ -92,6 +92,8 @@ using namespace PhysiCell;
 // main function
 int main( int argc, char* argv[] )
 	{
+	// Episode is compatible only with legacy BioFVM implementation
+	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
 
 	////////////////////////
 	// EPISODE LOOP BEGIN //
