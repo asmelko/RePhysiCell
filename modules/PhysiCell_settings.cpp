@@ -127,18 +127,18 @@ void load_biofvm_implementation()
 	if (impl_str == "legacy")
 	{
 		std::cout << "Using BioFVM legacy implementation." << std::endl;
-		BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+		BioFVM::BioFVM_implementation::set_instance( std::make_unique<BioFVM::legacy_implementation>() );
 		return;
 	}
 	if (impl_str == "physicore")
 	{
 		std::cout << "Using BioFVM physicore implementation." << std::endl;
-		BioFVM::BioFVM_implementation::set_instance( new BioFVM::physicore_implementation() );
+		BioFVM::BioFVM_implementation::set_instance( std::make_unique<BioFVM::physicore_implementation>() );
 		return;
 	}
 	std::cout << "ERROR: Unknown BioFVM implementation " << impl_str << " ! Choosing legacy." << std::endl;
 #endif
-	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+	BioFVM::BioFVM_implementation::set_instance( std::make_unique<BioFVM::legacy_implementation>() );
 }
 
 bool load_PhysiCell_config_file( std::string filename )

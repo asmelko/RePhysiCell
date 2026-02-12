@@ -93,7 +93,7 @@ using namespace PhysiCell;
 int main( int argc, char* argv[] )
 	{
 	// Episode is compatible only with legacy BioFVM implementation
-	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+	BioFVM::BioFVM_implementation::set_instance( std::make_unique<BioFVM::legacy_implementation>() );
 
 	////////////////////////
 	// EPISODE LOOP BEGIN //
