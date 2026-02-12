@@ -58,16 +58,15 @@ void physicore_basic_agent_adapter::set_total_volume(double volume)
 
 void physicore_basic_agent_adapter::update_voxel_index()
 {
-	if (microenvironment) {
-        if(!microenvironment->get_mesh().is_position_valid(
-            get_position()[0], get_position()[1], get_position()[2]))
-        {	
-            cached_voxel_index = -1;
-            agent->is_active() = 0;
-            return;
-        }
-		cached_voxel_index = microenvironment->nearest_voxel_index(get_position());
+	get_position(); // Ensure position cache is updated
+	if(!microenvironment->get_mesh().is_position_valid(
+		position_cache[0], position_cache[1], position_cache[2]))
+	{	
+		cached_voxel_index = -1;
+		agent->is_active() = 0;
+		return;
 	}
+	cached_voxel_index = microenvironment->nearest_voxel_index(position_cache);
 }
 
 // ============================================================================

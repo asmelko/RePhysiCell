@@ -981,11 +981,14 @@ void advanced_chemotaxis_function( Cell* pCell, Phenotype& phenotype , double dt
 
 void standard_elastic_contact_function( Cell* pC1, Phenotype& p1, Cell* pC2, Phenotype& p2 , double dt )
 {
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
+	auto& pC1_position = pC1->get_position();
+	auto& pC2_position = pC2->get_position();
+
+	if( pC1_position.size() != 3 || pC2_position.size() != 3 )
 	{ return; }
 	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
+	std::vector<double> displacement = pC2_position;
+	displacement -= pC1_position; 
 
 	// update May 2022 - effective adhesion 
 	int ii = find_cell_definition_index( pC1->get_type() ); 
@@ -1003,11 +1006,14 @@ void standard_elastic_contact_function( Cell* pC1, Phenotype& p1, Cell* pC2, Phe
 
 void standard_elastic_contact_function_confluent_rest_length( Cell* pC1, Phenotype& p1, Cell* pC2, Phenotype& p2 , double dt )
 {
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
+	auto& pC1_position = pC1->get_position();
+	auto& pC2_position = pC2->get_position();
+
+	if( pC1_position.size() != 3 || pC2_position.size() != 3 )
 	{ return; }
 	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
+	std::vector<double> displacement = pC2_position;
+	displacement -= pC1_position; 
 
 	// update May 2022 - effective adhesion 
 	int ii = find_cell_definition_index( pC1->get_type() ); 
@@ -1055,15 +1061,17 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 		
 	double min_distance = 9e99; 
 	int nearest_boundary = -1; 
+
+	auto& cell_position = pCell->get_position();
 	
 	// check against xL and xU
-	double temp_distance = pCell->get_position()[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double temp_distance = cell_position[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 0; 
 	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - pCell->get_position()[0]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - cell_position[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
@@ -1071,13 +1079,13 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 	}
 	
 	// check against yL and yU
-	temp_distance = pCell->get_position()[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	temp_distance = cell_position[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 2; 
 	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - pCell->get_position()[1]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - cell_position[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
@@ -1087,13 +1095,13 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		// if in 3D, check against zL and zU
-		temp_distance = pCell->get_position()[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
+		temp_distance = cell_position[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 
 			nearest_boundary = 4; 
 		}
-		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - pCell->get_position()[2]; 
+		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - cell_position[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 
@@ -1103,32 +1111,32 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 		// check for 3D exceptions 
 		
 		// lines 
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance && 
-			fabs( (pCell->get_position()[1]) - (pCell->get_position()[2]) ) < tolerance && 
-			fabs( (pCell->get_position()[0]) - (pCell->get_position()[2]) ) < tolerance )
+		if( fabs( (cell_position[0]) - (cell_position[1]) ) < tolerance && 
+			fabs( (cell_position[1]) - (cell_position[2]) ) < tolerance && 
+			fabs( (cell_position[0]) - (cell_position[2]) ) < tolerance )
 		{
-			if( pCell->get_position()[0] > 0 )
+			if( cell_position[0] > 0 )
 			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+				if( cell_position[0] > 0 && cell_position[1] > 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+				if( cell_position[0] < 0 && cell_position[1] > 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
 				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+				if( cell_position[0] > 0 && cell_position[1] < 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+				if( cell_position[0] < 0 && cell_position[1] < 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
 			} 
 			else
 			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+				if( cell_position[0] > 0 && cell_position[1] > 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+				if( cell_position[0] < 0 && cell_position[1] > 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
 				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+				if( cell_position[0] > 0 && cell_position[1] < 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+				if( cell_position[0] < 0 && cell_position[1] < 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }				
 			}
 			return min_distance; 
@@ -1141,16 +1149,16 @@ double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 	{
 		// check for 2D  exceptions 
 		
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance )
+		if( fabs( (cell_position[0]) - (cell_position[1]) ) < tolerance )
 		{
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+			if( cell_position[0] > 0 && cell_position[1] > 0 )
 			{ pCell->displacement = { -one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+			if( cell_position[0] < 0 && cell_position[1] > 0 )
 			{ pCell->displacement = { one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
 			
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+			if( cell_position[0] > 0 && cell_position[1] < 0 )
 			{ pCell->displacement = { -one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+			if( cell_position[0] < 0 && cell_position[1] < 0 )
 			{ pCell->displacement = { one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
 			return min_distance; 
 		}

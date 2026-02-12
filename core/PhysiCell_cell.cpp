@@ -651,20 +651,23 @@ Cell* Cell::divide( )
 
 	rand_vec *= phenotype.geometry.radius;
 
-	child->assign_position(get_position()[0] + rand_vec[0],
-						   get_position()[1] + rand_vec[1],
-						   get_position()[2] + rand_vec[2]);
+	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+
+	double* position = get_position_internal();
+
+	child->assign_position(position[0] + rand_vec[0],
+						   position[1] + rand_vec[1],
+						   dims == 3 ? position[2] + rand_vec[2] : 0);
 						 
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
-	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 	for ( int i = 0 ; i < dims ; i++ )
-	{ get_position_internal()[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
+	{ position[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->underlying_mesh.is_position_valid(get_position()[0], get_position()[1], get_position()[2]))
+	if( !get_container()->underlying_mesh.is_position_valid(position[0], position[1], dims == 3 ? position[2] : 0))
 	{
 		is_out_of_domain = true;
 		set_is_active(false);
@@ -719,10 +722,12 @@ void Cell::set_previous_velocity(double xV, double yV, double zV)
 
 bool Cell::assign_position(double x, double y, double z)
 {
-	get_position_internal()[0] = x;
-	get_position_internal()[1] = y;
+	double* position = get_position_internal();
+
+	position[0] = x;
+	position[1] = y;
 	if ( !get_microenvironment_i()->simulate_2D() )
-	{ get_position_internal()[2] = z; }
+	{ position[2] = z; }
 	
 	// update microenvironment current voxel index
 	update_voxel_index();
@@ -902,27 +907,31 @@ void Cell::update_position( double dt )
 		d2 *= -0.5; 
 		constants_defined = true; 
 	}
+
+	std::vector<double>& velocity = get_velocity();
+	std::vector<double>& previous_velocity = get_previous_velocity();
+	double* position = get_position_internal();
 	
 	// new AUgust 2017
 	if( get_microenvironment_i()->simulate_2D() == true )
-	{ get_velocity()[2] = 0.0; }
+	{ velocity[2] = 0.0; }
 	
 	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 
 	// std::vector<double> old_position = position;
 	for ( int i = 0 ; i < dims ; i++ )
 	{
-		get_position_internal()[i] += 
-			( d1 * get_velocity()[i] + d2 * get_previous_velocity()[i] );
+		position[i] += 
+			( d1 * velocity[i] + d2 * previous_velocity[i] );
 	}
 	// overwrite previous_velocity for future use 
 	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
 	
-	get_previous_velocity() = get_velocity(); 
+	previous_velocity = velocity; 
 	
-	get_velocity()[0]=0; get_velocity()[1]=0; get_velocity()[2]=0;
-	if(get_container()->underlying_mesh.is_position_valid(get_position()[0],get_position()[1],get_position()[2]))
+	velocity.resize(3, 0);
+	if(get_container()->underlying_mesh.is_position_valid(position[0],position[1], dims == 3 ? position[2] : 0))
 	{
 		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( get_position() );
 	}
@@ -1021,11 +1030,15 @@ void Cell::add_potentials(Cell* other_agent)
 	// 12 uniform neighbors at a close packing distance, after dividing out all constants
 	static double simple_pressure_scale = 0.027288820670331; // 12 * (1 - sqrt(pi/(2*sqrt(3))))^2 
 	// 9.820170012151277; // 12 * ( 1 - sqrt(2*pi/sqrt(3)))^2
+	
+	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+	double* position = get_position_internal();
+	double* oth_position = other_agent->get_position_internal();
 
 	double distance = 0; 
-	for( int i = 0 ; i < 3 ; i++ ) 
+	for( int i = 0 ; i < dims ; i++ ) 
 	{ 
-		displacement[i] = get_position()[i] - (*other_agent).get_position()[i]; 
+		displacement[i] = position[i] - oth_position[i]; 
 		distance += displacement[i] * displacement[i]; 
 	}
 	// Make sure that the distance is not zero
@@ -1317,6 +1330,8 @@ bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::ve
 {
 	double max_interactive_distance = pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
 		+ pCell->get_container()->max_cell_interactive_distance_in_voxel[other_voxel_index];
+
+	auto& position = pCell->get_position();
 	
 	int comparing_dimension = -1, comparing_dimension2 = -1;
 	if(my_voxel_center[0] == other_voxel_center[0] && my_voxel_center[1] == other_voxel_center[1])
@@ -1335,7 +1350,7 @@ bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::ve
 	if(comparing_dimension != -1) 
 	{ //then it is an immediate neighbor (through side faces)
 		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->get_position()[comparing_dimension] - surface_coord) > max_interactive_distance)
+		if(std::fabs(position[comparing_dimension] - surface_coord) > max_interactive_distance)
 		{ return false; }
 		return true;
 	}
@@ -1357,15 +1372,15 @@ bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::ve
 	{
 		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
 		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->get_position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->get_position()[comparing_dimension2] - line_coord2,2);
+		double distance_squared= std::pow( position[comparing_dimension] - line_coord1,2)+ std::pow( position[comparing_dimension2] - line_coord2,2);
 		if(distance_squared > max_interactive_distance * max_interactive_distance)
 		{ return false; }
 		return true;
 	}
 	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->get_position()[0])*(corner_point[0]-pCell->get_position()[0])
-		+(corner_point[1]-pCell->get_position()[1])*(corner_point[1]-pCell->get_position()[1]) 
-		+(corner_point[2]-pCell->get_position()[2]) * (corner_point[2]-pCell->get_position()[2]);
+	double distance_squared= (corner_point[0]-position[0])*(corner_point[0]-position[0])
+		+(corner_point[1]-position[1])*(corner_point[1]-position[1]) 
+		+(corner_point[2]-position[2]) * (corner_point[2]-position[2]);
 	if(distance_squared > max_interactive_distance * max_interactive_distance)
 	{ return false; }
 	return true;
