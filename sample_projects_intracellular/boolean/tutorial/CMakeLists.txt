@@ -5,7 +5,7 @@ file(GLOB MODULES "custom_modules/*.cpp")
 
 target_sources(${project} PRIVATE main.cpp ${MODULES})
 
-target_link_libraries(${project} PRIVATE BioFVM PhysiCell-core-no-addon
+target_link_libraries(${project} PRIVATE BioFVM PhysiCell-mechanics PhysiCell-core-no-addon
                                          PhysiCell-modules-no-addon)
 
 target_include_directories(${project}

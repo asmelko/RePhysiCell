@@ -155,7 +155,7 @@ void create_cell_types( void )
 	cell_defaults.phenotype.motility.restrict_to_2D = true; // true; 
 	
 	// set to no motility for cancer cells 
-	cell_defaults.phenotype.motility.is_motile = false; 
+	cell_defaults.phenotype.motility.is_motile() = false; 
 
 	// turn the default cycle model to live,
 	// so it's easier to turn off proliferation

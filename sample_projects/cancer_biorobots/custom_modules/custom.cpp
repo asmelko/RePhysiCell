@@ -86,7 +86,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -140,13 +139,13 @@ void create_cell_types( void )
 
 	// figure out mechanics parameters 
 	
-	pCD->phenotype.mechanics.relative_maximum_attachment_distance 
+	pCD->phenotype.mechanics.relative_maximum_attachment_distance() 
 		= pCD->custom_data["max_attachment_distance"] / pCD->phenotype.geometry.radius ; 
 
-	pCD->phenotype.mechanics.relative_detachment_distance 
+	pCD->phenotype.mechanics.relative_detachment_distance() 
 		= pCD->custom_data["max_elastic_displacement"] / pCD->phenotype.geometry.radius ; 
 		
-	pCD->phenotype.mechanics.attachment_elastic_constant 
+	pCD->phenotype.mechanics.attachment_elastic_constant() 
 		= pCD->custom_data["elastic_coefficient"]; 
 	
 	// set functions 
@@ -159,13 +158,13 @@ void create_cell_types( void )
 
 	pCD = find_cell_definition( "worker cell");
 
-	pCD->phenotype.mechanics.relative_maximum_attachment_distance 
+	pCD->phenotype.mechanics.relative_maximum_attachment_distance() 
 		= pCD->custom_data["max_attachment_distance"] / pCD->phenotype.geometry.radius ; 
 
-	pCD->phenotype.mechanics.relative_detachment_distance 
+	pCD->phenotype.mechanics.relative_detachment_distance() 
 		= pCD->custom_data["max_elastic_displacement"] / pCD->phenotype.geometry.radius ; 
 		
-	pCD->phenotype.mechanics.attachment_elastic_constant 
+	pCD->phenotype.mechanics.attachment_elastic_constant() 
 		= pCD->custom_data["elastic_coefficient"]; 
 
 	pCD->functions.update_phenotype = NULL; // worker_cell_rule; 
@@ -487,7 +486,7 @@ void biorobots_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttache
 {
 	std::vector<double> displacement = pAttachedTo->get_position() - pActingOn->get_position(); 
 	
-	static double max_elastic_displacement = pao.geometry.radius * pao.mechanics.relative_detachment_distance; 
+	static double max_elastic_displacement = pao.geometry.radius * pao.mechanics.relative_detachment_distance(); 
 	static double max_displacement_squared = max_elastic_displacement*max_elastic_displacement; 
 	
 	// detach cells if too far apart 
@@ -498,7 +497,7 @@ void biorobots_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttache
 		return; 
 	}
 	
-	axpy( &(pActingOn->get_velocity()) , pao.mechanics.attachment_elastic_constant , displacement ); 
+	axpy( pActingOn->get_velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
 	
 	return; 
 }

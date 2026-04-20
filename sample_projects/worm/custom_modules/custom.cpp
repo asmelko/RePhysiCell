@@ -86,7 +86,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -111,7 +110,7 @@ void create_cell_types( void )
 	cell_defaults.functions.custom_cell_rule = custom_function; 
 	cell_defaults.functions.contact_function = contact_function; 
 	
-	cell_defaults.phenotype.mechanics.attachment_elastic_constant = 
+	cell_defaults.phenotype.mechanics.attachment_elastic_constant() = 
 		parameters.doubles("attachment_elastic_constant"); 
 		
 	/*
@@ -327,11 +326,11 @@ void contact_function( Cell* pMe, Phenotype& phenoMe,
 
 void head_migration_direction( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	phenotype.motility.chemotaxis_direction = parameters.doubles("head_migration_direction"); 
+	phenotype.motility.chemotaxis_direction() = parameters.doubles("head_migration_direction"); 
 	
-	phenotype.motility.migration_speed = parameters.doubles("head_migration_speed"); 
-	phenotype.motility.migration_bias = parameters.doubles("head_migration_bias");
-	phenotype.motility.persistence_time =parameters.doubles("head_migration_persistence"); 
+	phenotype.motility.migration_speed() = parameters.doubles("head_migration_speed"); 
+	phenotype.motility.migration_bias() = parameters.doubles("head_migration_bias");
+	phenotype.motility.persistence_time() =parameters.doubles("head_migration_persistence"); 
 	
 	// use this for fun rotational paths 
 	/*
@@ -348,11 +347,11 @@ void head_migration_direction( Cell* pCell, Phenotype& phenotype, double dt )
 
 void tail_migration_direction( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	phenotype.motility.chemotaxis_direction = parameters.doubles("tail_migration_direction"); 
+	phenotype.motility.chemotaxis_direction() = parameters.doubles("tail_migration_direction"); 
 	
-	phenotype.motility.migration_speed = parameters.doubles("tail_migration_speed");  0; 
-	phenotype.motility.migration_bias = parameters.doubles("tail_migration_bias");0.5; 
-	phenotype.motility.persistence_time = parameters.doubles("tail_migration_persistence"); 100; 
+	phenotype.motility.migration_speed() = parameters.doubles("tail_migration_speed");  0; 
+	phenotype.motility.migration_bias() = parameters.doubles("tail_migration_bias");0.5; 
+	phenotype.motility.persistence_time() = parameters.doubles("tail_migration_persistence"); 100; 
 
 	return chemotaxis_function( pCell,phenotype,dt); 
 }
@@ -366,11 +365,11 @@ void middle_migration_direction( Cell* pCell, Phenotype& phenotype , double dt )
 		pCell->state.attached_cells[0]->custom_data["head"] )
 	{ pUpstream = pCell->state.attached_cells[1]; }
 	
-	phenotype.motility.migration_speed = parameters.doubles("middle_migration_speed"); 
-	phenotype.motility.migration_bias_direction = 
-		pUpstream->phenotype.motility.migration_bias_direction;
-		
-	normalize( &(phenotype.motility.migration_bias_direction) ); 
+	phenotype.motility.migration_speed() = parameters.doubles("middle_migration_speed"); 
+	int dims = phenotype.motility.restrict_to_2D() ? 2 : 3;
+	for (int i = 0; i < dims; i++)
+		phenotype.motility.migration_bias_direction()[i] = pUpstream->phenotype.motility.migration_bias_direction()[i];
+	normalize( phenotype.motility.migration_bias_direction(), dims ); 
 		
 	return; 
 }

@@ -81,20 +81,20 @@ void create_immune_cell_type( void )
 	pImmuneCell->phenotype.secretion.uptake_rates()[oxygen_ID] *= 
 		parameters.doubles("immune_o2_relative_uptake");  
 	
-	pImmuneCell->phenotype.mechanics.cell_cell_adhesion_strength *= 
+	pImmuneCell->phenotype.mechanics.cell_cell_adhesion_strength() *= 
 		parameters.doubles("immune_relative_adhesion"); 
-	pImmuneCell->phenotype.mechanics.cell_cell_repulsion_strength *= 
+	pImmuneCell->phenotype.mechanics.cell_cell_repulsion_strength() *= 
 		parameters.doubles("immune_relative_repulsion"); 
 		
 	// figure out mechanics parameters 
 	
-	pImmuneCell->phenotype.mechanics.relative_maximum_attachment_distance 
+	pImmuneCell->phenotype.mechanics.relative_maximum_attachment_distance() 
 		= pImmuneCell->custom_data["max_attachment_distance"] / pImmuneCell->phenotype.geometry.radius ; 
 		
-	pImmuneCell->phenotype.mechanics.attachment_elastic_constant 
+	pImmuneCell->phenotype.mechanics.attachment_elastic_constant() 
 		= pImmuneCell->custom_data["elastic_coefficient"]; 		
 	
-	pImmuneCell->phenotype.mechanics.relative_detachment_distance 
+	pImmuneCell->phenotype.mechanics.relative_detachment_distance() 
 		= pImmuneCell->custom_data["max_attachment_distance" ] / pImmuneCell->phenotype.geometry.radius ; 		
 	
 	// set functions 
@@ -141,13 +141,13 @@ void create_cell_types( void )
 	initialize_cell_definitions_from_pugixml(); 
 	
 	// change the max cell-cell adhesion distance 
-	cell_defaults.phenotype.mechanics.relative_maximum_attachment_distance = 
+	cell_defaults.phenotype.mechanics.relative_maximum_attachment_distance() = 
 		cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius;
 		
-	cell_defaults.phenotype.mechanics.relative_detachment_distance 
+	cell_defaults.phenotype.mechanics.relative_detachment_distance() 
 		= cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius ; 
 		
-	cell_defaults.phenotype.mechanics.attachment_elastic_constant 
+	cell_defaults.phenotype.mechanics.attachment_elastic_constant() 
 		= cell_defaults.custom_data[ "elastic_coefficient" ];	
 		
 	cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_and_immune_stimulation; 
@@ -520,14 +520,18 @@ void immune_cell_motility( Cell* pCell, Phenotype& phenotype, double dt )
 	// if not docked, attempt biased chemotaxis 
 	if( pCell->state.attached_cells.size() == 0 )
 	{
-		phenotype.motility.is_motile = true; 
+		phenotype.motility.is_motile() = true; 
+
+		int dims = phenotype.motility.restrict_to_2D() ? 2 : 3;
+
+		for ( int i=0; i < dims; i++ )
+		{ phenotype.motility.migration_bias_direction()[i] = pCell->nearest_gradient(immune_factor_index)[i]; }
 		
-		phenotype.motility.migration_bias_direction = pCell->nearest_gradient(immune_factor_index);	
-		normalize( &( phenotype.motility.migration_bias_direction ) );			
+		normalize( phenotype.motility.migration_bias_direction(), dims );			
 	}
 	else
 	{
-		phenotype.motility.is_motile = false; 
+		phenotype.motility.is_motile() = false; 
 	}
 	
 	return; 
@@ -679,7 +683,7 @@ void immune_cell_rule( Cell* pCell, Phenotype& phenotype, double dt )
 		if( detach_me )
 		{
 			detach_cells( pCell, pCell->state.attached_cells[0] ); 
-			phenotype.motility.is_motile = true; 
+			phenotype.motility.is_motile() = true; 
 		}
 		return; 
 	}
@@ -690,10 +694,10 @@ void immune_cell_rule( Cell* pCell, Phenotype& phenotype, double dt )
 	if( immune_cell_check_neighbors_for_attachment( pCell , dt) )
 	{
 		// set motility off 
-		phenotype.motility.is_motile = false; 
+		phenotype.motility.is_motile() = false; 
 		return; 
 	}
-	phenotype.motility.is_motile = true; 
+	phenotype.motility.is_motile() = true; 
 	
 	return; 
 }
@@ -702,7 +706,7 @@ void adhesion_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttached
 {
 	std::vector<double> displacement = pAttachedTo->get_position() - pActingOn->get_position();
 	
-	static double max_elastic_displacement = pao.geometry.radius * pao.mechanics.relative_detachment_distance; 
+	static double max_elastic_displacement = pao.geometry.radius * pao.mechanics.relative_detachment_distance(); 
 	static double max_displacement_squared = max_elastic_displacement*max_elastic_displacement; 
 	
 	// detach cells if too far apart 
@@ -713,7 +717,7 @@ void adhesion_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttached
 		return; 
 	}
 	
-	axpy( &(pActingOn->get_velocity()) , pao.mechanics.attachment_elastic_constant , displacement ); 
+	axpy( pActingOn->get_velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
 	
 	return; 
 }

@@ -85,7 +85,6 @@ void create_cell_types( void )
 	initialize_default_cell_definition(); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = weighted_motility_function; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -280,8 +279,8 @@ void weighted_motility_function( Cell* pCell, Phenotype& phenotype, double dt )
 	static int food_index = microenvironment.find_density_index( "food"); 
 	
 	// zero out the motility bias direction. use a pointer to make this easier 
-	std::vector<double>* pV = &phenotype.motility.migration_bias_direction; 
-	(*pV) = {0,0,0}; // pCell->position; 
+	double* pV = phenotype.motility.migration_bias_direction(); 
+	pV[0] = 0.0; pV[1] = 0.0; pV[2] = 0.0; // pCell->position; 
 	//*pV *= -0.00001; 
  	
 	// v += prey_weight * grad(prey) 
@@ -324,8 +323,12 @@ void avoid_boundaries( Cell* pCell )
 	
 	if( near_edge )
 	{
-		pCell->get_velocity() = pCell->get_position(); // move towards origin 
-		pCell->get_velocity() *= avoid_speed; // move towards origin 
+		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+		for (int i=0; i < dims; i++ )
+		{
+			pCell->get_velocity()[i] = pCell->get_position()[i]; // move towards origin
+			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
+		}
 	}
 	
 	return; 
@@ -414,33 +417,6 @@ void wrap_boundaries( Cell* pCell )
 	return; 
 }
 
-std::vector<Cell*> get_possible_neighbors( Cell* pCell)
-{
-	std::vector<Cell*> neighbors = {};
-	
-	// First check the neighbors in my current voxel
-	std::vector<Cell*>::iterator neighbor;
-	std::vector<Cell*>::iterator end =
-		pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-		
-	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
-	{ neighbors.push_back( *neighbor ); }
-	
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end
-		= pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-	
-	for( neighbor_voxel_index = pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin(); neighbor_voxel_index!= neighbor_voxel_index_end; ++neighbor_voxel_index)
-	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
-		continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
-		{ neighbors.push_back( *neighbor ); }
-	}
-	return neighbors;
-}	
-
 /* prey functions */ 
 
 void prey_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
@@ -492,7 +468,7 @@ void predator_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	// see who is nearby 
 	
-	std::vector<Cell*> nearby = get_possible_neighbors( pCell); 
+	std::vector<Cell*> nearby = pCell->nearby_cells();
 	
 	for( int i=0 ; i < nearby.size() ; i++ )
 	{

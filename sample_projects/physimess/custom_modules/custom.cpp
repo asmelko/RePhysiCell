@@ -257,7 +257,7 @@ void setup_tissue( void )
 std::vector<std::string> paint_by_cell_pressure( Cell* pCell ){
 
 	std::vector< std::string > output( 0);
-	int color = (int) round( ((pCell->state.simple_pressure) / 10) * 255 );
+	int color = (int) round( ((pCell->get_simple_pressure()) / 10) * 255 );
 	if(color > 255){
 		color = 255;
 	}
@@ -309,6 +309,7 @@ void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
 {
 	// Here this version of the degrade function takes cell pressure into account in the degradation rate
     double distance = 0.0;
+    std::vector<double> displacement(3, 0.0);
     pFibre->nearest_point_on_fibre(get_position(), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
@@ -320,7 +321,7 @@ void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
         double stuck_threshold = this->custom_data["fibre_stuck_time"];
         double pressure_threshold = this->custom_data["fibre_pressure_threshold"];
         if (this->custom_data["fibre_degradation"] > 0.5 && (stuck_counter >= stuck_threshold
-                                                        || state.simple_pressure > pressure_threshold)) {
+                                                        || get_simple_pressure() > pressure_threshold)) {
             // if (stuck_counter >= stuck_threshold){
             //     std::cout << "Cell " << ID << " is stuck at time " << PhysiCell::PhysiCell_globals.current_time
             //                 << " near fibre " << pFibre->ID  << std::endl;;
@@ -330,12 +331,12 @@ void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
             //                 << PhysiCell::PhysiCell_globals.current_time << " near fibre " << pFibre->ID  << std::endl;;
             // }
             displacement *= -1.0/distance;
-            double dotproduct = dot_product(displacement, phenotype.motility.motility_vector);
+            double dotproduct = dot_product(displacement, phenotype.motility.motility_vector());
             if (dotproduct >= 0) {
                 double rand_degradation = PhysiCell::UniformRandom();
                 double prob_degradation = this->custom_data["fibre_degradation_rate"];
-                if (state.simple_pressure > pressure_threshold){
-                    prob_degradation *= state.simple_pressure;
+                if (get_simple_pressure() > pressure_threshold){
+                    prob_degradation *= get_simple_pressure();
                 }
                 if (rand_degradation <= prob_degradation) {
                     //std::cout << " --------> fibre " << (*other_agent).ID << " is flagged for degradation " << std::endl;

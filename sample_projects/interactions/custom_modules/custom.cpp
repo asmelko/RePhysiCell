@@ -86,7 +86,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -408,21 +407,21 @@ void bacteria_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// resource decreases motile speed  
 
 	double signal = R; 
-	base_val = pCD->phenotype.motility.migration_speed; 
+	base_val = pCD->phenotype.motility.migration_speed(); 
 	double max_response = 0.0; 
 	static double motility_resource_halfmax = 
 		pCD->custom_data["migration_speed_halfmax"]; // 0.25 // parameters.doubles("bacteria_motility_resource_halfmax");
 	double hill = Hill_response_function( signal, motility_resource_halfmax , 1.5);  
-	phenotype.motility.migration_speed = base_val + (max_response-base_val)*hill;
+	phenotype.motility.migration_speed() = base_val + (max_response-base_val)*hill;
 
 	// quorum and resource increases motility bias 
 	signal = Q+R; 
-	base_val = pCD->phenotype.motility.migration_speed; 
+	base_val = pCD->phenotype.motility.migration_speed(); 
 	max_response = 1.0; 
 	static double bias_halfmax = pCD->custom_data["migration_bias_halfmax"]; 
 		// 0.5 //  parameters.doubles("bacteria_migration_bias_halfmax");
 	hill = Hill_response_function( signal, bias_halfmax , 1.5);  
-	phenotype.motility.migration_bias = base_val + (max_response-base_val)*hill; 
+	phenotype.motility.migration_bias() = base_val + (max_response-base_val)*hill; 
 
 	// damage increases death 
 	static int nApoptosis = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );
@@ -473,9 +472,9 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 	int num_bacteria = 0; 
 	int num_dead = 0; 
-	for( int n=0; n < pCell->state.neighbors.size(); n++ )
+	for( int n=0; n < pCell->get_neighbors_count(); n++ )
 	{
-		Cell* pC = pCell->state.neighbors[n]; 
+		Cell* pC = pCell->get_neighbor(n); 
 		if( pC->phenotype.death.dead == true )
 		{ num_dead++; }
 		else
@@ -521,13 +520,13 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	static double bias_debris_sensitivity = 0.1; 
 	static double bias_quorum_sensitivity = 1; 
 
-	base_val = pCD->phenotype.motility.migration_bias; 
+	base_val = pCD->phenotype.motility.migration_bias(); 
 	max_response = 0.75; 
 	signal = bias_debris_sensitivity*debris + 
 		bias_quorum_sensitivity*Q ; // + 10 * PIF; 
 	half_max = pCD->custom_data["migration_bias_halfmax"]; // 0.01 // 0.005 //0.1 // 0.05
 	hill = Hill_response_function( signal , half_max , 1.5 ); 
-	phenotype.motility.migration_bias = base_val + (max_response-base_val)*hill; 	
+	phenotype.motility.migration_bias() = base_val + (max_response-base_val)*hill; 	
 
 /*
 	#pragma omp critical 
@@ -543,13 +542,13 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 	// migration speed slows down in the presence of debris or quorum factor 
 
-	base_val = pCD->phenotype.motility.migration_speed; 
+	base_val = pCD->phenotype.motility.migration_speed(); 
 	max_response = 0.1 * base_val; 
 	signal = bias_debris_sensitivity*debris + 
 		bias_quorum_sensitivity*Q ; // + 10 * PIF; 
 	half_max = pCD->custom_data["migration_speed_halfmax"]; // 0.1 // 0.05 
 	hill = Hill_response_function( signal , half_max , 1.5 ); 
-	phenotype.motility.migration_speed = base_val + (max_response-base_val)*hill; 	
+	phenotype.motility.migration_speed() = base_val + (max_response-base_val)*hill; 	
 
 	return; 
 }
@@ -580,12 +579,12 @@ void CD8Tcell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// migration bias increases with pro-inflammatory 
 
 	double signal = PIF; 
-	double base_val = pCD->phenotype.motility.migration_bias; 
+	double base_val = pCD->phenotype.motility.migration_bias(); 
 	double max_val = 0.75; 
 	double half_max = pCD->custom_data["migration_bias_halfmax"]; // 0.05 // 0.25 
 	double hill = Hill_response_function( PIF , half_max , 1.5 ); 
 
-	phenotype.motility.migration_bias = base_val + (max_val-base_val)*hill; 
+	phenotype.motility.migration_bias() = base_val + (max_val-base_val)*hill; 
 	
 /*	
 	#pragma omp critical 
@@ -628,12 +627,12 @@ void neutrophil_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// migration bias increases with pro-inflammatory 
 
 	double signal = PIF; 
-	double base_val = pCD->phenotype.motility.migration_bias; 
+	double base_val = pCD->phenotype.motility.migration_bias(); 
 	double max_val = 0.75; 
 	double half_max = pCD->custom_data["migration_bias_halfmax"]; // 0.25 
 	double hill = Hill_response_function( PIF , half_max , 1.5 ); 
 
-	phenotype.motility.migration_bias = base_val + (max_val-base_val)*hill; 
+	phenotype.motility.migration_bias() = base_val + (max_val-base_val)*hill; 
 
 	return; 
 }
@@ -671,9 +670,9 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	int num_differentiated = 0; 
 	int num_bacteria = 0; 
 	int num_dead = 0; 
-	for( int n=0; n < pCell->state.neighbors.size(); n++ )
+	for( int n=0; n < pCell->get_neighbors_count(); n++ )
 	{
-		Cell* pC = pCell->state.neighbors[n]; 
+		Cell* pC = pCell->get_neighbor(n); 
 		if( pC->phenotype.death.dead == true )
 		{ num_dead++; }
 		else
@@ -765,7 +764,7 @@ void differentiated_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt
 	double hill = 0.0; 
 
 	// pressure reduces proliferation 
-	signal = pCell->state.simple_pressure;  
+	signal = pCell->get_simple_pressure();  
 	static double pressure_halfmax = pCD->custom_data["cycling_pressure_halfmax"]; // 0.5 
 	hill = Hill_response_function( signal, pressure_halfmax , 1.5 );  
 	double base_val = pCD->phenotype.cycle.data.exit_rate(0); 

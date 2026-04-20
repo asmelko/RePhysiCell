@@ -86,7 +86,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; 
@@ -124,7 +123,7 @@ void create_cell_types( void )
 	pEpithelial->phenotype.molecular.fraction_released_at_death()[ nInterferon ] = 0;
 	pEpithelial->phenotype.molecular.fraction_transferred_when_ingested()[ nInterferon ] = 0; 		
 */		
-	pMacrophage->phenotype.mechanics.cell_cell_adhesion_strength *= parameters.doubles( "macrophage_relative_adhesion" ); 
+	pMacrophage->phenotype.mechanics.cell_cell_adhesion_strength() *= parameters.doubles( "macrophage_relative_adhesion" ); 
 	pMacrophage->phenotype.molecular.fraction_released_at_death()[ virus_index ]= 0.0; 
 	pMacrophage->phenotype.molecular.fraction_transferred_when_ingested()[ virus_index ]= 0.0; 
 		
@@ -343,37 +342,6 @@ std::vector<std::string> viral_coloring_function_bar( Cell* pCell )
 	return output; 
 }
 
-
-std::vector<Cell*> get_possible_neighbors( Cell* pCell )
-{
-	std::vector<Cell*> neighbors = {}; 
-
-	// First check the neighbors in my current voxel
-	std::vector<Cell*>::iterator neighbor;
-	std::vector<Cell*>::iterator end =
-		pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
-	{ neighbors.push_back( *neighbor ); }
-
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
-	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
-			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
-		{ neighbors.push_back( *neighbor ); }
-	}
-	
-	return neighbors; 
-}
-
 void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// bookkeeping 
@@ -391,7 +359,7 @@ void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 	// check for contact with a cell
 	
 	Cell* pTestCell = NULL; 
-	std::vector<Cell*> neighbors = get_possible_neighbors(pCell);
+	std::vector<Cell*> neighbors = pCell->nearby_cells();
 	
 //	for( int n=0; n < pCell->cells_in_my_container().size() ; n++ )
 	for( int n=0; n < neighbors.size() ; n++ )
@@ -524,8 +492,12 @@ void avoid_boundaries( Cell* pCell )
 	
 	if( near_edge )
 	{
-		pCell->get_velocity() = pCell->get_position(); // move towards origin 
-		pCell->get_velocity() *= avoid_speed; // move towards origin 
+		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
+		for (int i=0; i < dims; i++ )
+		{
+			pCell->get_velocity()[i] = pCell->get_position()[i]; // move towards origin
+			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
+		}
 	}
 	
 	return; 

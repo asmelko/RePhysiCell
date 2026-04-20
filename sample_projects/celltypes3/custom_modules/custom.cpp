@@ -84,7 +84,6 @@ void create_cell_types( void )
 	
 	initialize_default_cell_definition(); 
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -491,7 +490,7 @@ void A_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 		phenotype.secretion.set_all_secretion_to_zero(); 
 		phenotype.secretion.set_all_uptake_to_zero(); 
-		phenotype.motility.is_motile = false; 
+		phenotype.motility.is_motile() = false; 
 
 		pCell->functions.update_phenotype = NULL; 
 		return; 
@@ -507,7 +506,7 @@ void A_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->state.simple_pressure; 
+	double p = pCell->get_simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];
@@ -577,7 +576,7 @@ void A_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// R 
 	sig.add_effect( C , parameters.strings("A_speed_R") );	
 
-	phenotype.motility.migration_speed = sig.compute_effect();
+	phenotype.motility.migration_speed() = sig.compute_effect();
 
 	// secretion 
 	static double base_secretion = parameters.doubles("A_base_secretion");
@@ -611,7 +610,7 @@ void B_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 		phenotype.secretion.set_all_secretion_to_zero(); 
 		phenotype.secretion.set_all_uptake_to_zero(); 
-		phenotype.motility.is_motile = false; 
+		phenotype.motility.is_motile() = false; 
 
 		pCell->functions.update_phenotype = NULL; 
 		return; 
@@ -627,7 +626,7 @@ void B_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->state.simple_pressure; 
+	double p = pCell->get_simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];
@@ -695,7 +694,7 @@ void B_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// R 
 	sig.add_effect( C , parameters.strings("B_speed_R") );	
 
-	phenotype.motility.migration_speed = sig.compute_effect();
+	phenotype.motility.migration_speed() = sig.compute_effect();
 
 	// secretion 
 
@@ -731,7 +730,7 @@ void C_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 
 		phenotype.secretion.set_all_secretion_to_zero(); 
 		phenotype.secretion.set_all_uptake_to_zero(); 
-		phenotype.motility.is_motile = false; 
+		phenotype.motility.is_motile() = false; 
 
 		pCell->functions.update_phenotype = NULL; 
 		return; 
@@ -747,7 +746,7 @@ void C_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->state.simple_pressure; 
+	double p = pCell->get_simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];
@@ -817,7 +816,7 @@ void C_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	// R 
 	sig.add_effect( C , parameters.strings("C_speed_R") );	
 
-	phenotype.motility.migration_speed = sig.compute_effect();
+	phenotype.motility.migration_speed() = sig.compute_effect();
 
 	// secretion 
 

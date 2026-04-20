@@ -89,7 +89,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -142,14 +141,12 @@ void create_cell_types( void )
 	pCD->functions.post_update_intracellular = post_update_intracellular;
 	pCD->functions.custom_cell_rule = custom_function; 
 	pCD->functions.contact_function = contact_function; 
-	pCD->functions.update_velocity = standard_update_cell_velocity; 
 
 	pCD = find_cell_definition( "mesenchymal");
 	pCD->functions.pre_update_intracellular = pre_update_intracellular;
 	pCD->functions.post_update_intracellular = post_update_intracellular;
 	pCD->functions.custom_cell_rule = custom_function; 
 	pCD->functions.contact_function = contact_function;
-	pCD->functions.update_velocity = standard_update_cell_velocity; 
 	
 	/*
 	   This builds the map of cell definitions and summarizes the setup. 
@@ -237,9 +234,9 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 		contact_function(pCell, phenotype, pTest, pTest->phenotype, dt);
     }
 	
-	for( int j=0; j < pCell->state.spring_attachments.size(); j++ )
+	for( int j=0; j < pCell->get_spring_attachments_count(); j++ )
     {
-        Cell* pTest = pCell->state.spring_attachments[j]; 
+        Cell* pTest = pCell->get_spring_attachment(j); 
         contact_function(pCell, phenotype, pTest, pTest->phenotype, dt);
     }
 

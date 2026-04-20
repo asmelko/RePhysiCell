@@ -86,7 +86,6 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -133,31 +132,31 @@ void create_cell_types( void )
 
 /*
 	Cell_Definition* pCD = find_cell_definition( "cancer"); 
-	pCD->phenotype.mechanics.maximum_number_of_attachments = 6; 
-	pCD->phenotype.mechanics.attachment_elastic_constant = 0.002; // 0.00142; // 0.1; // 0.00142; // 0.1;  
-	pCD->phenotype.mechanics.attachment_rate = 1;  
-	pCD->phenotype.mechanics.detachment_rate = 0.01; // 0.01
+	pCD->phenotype.mechanics.maximum_number_of_attachments() = 6; 
+	pCD->phenotype.mechanics.attachment_elastic_constant() = 0.002; // 0.00142; // 0.1; // 0.00142; // 0.1;  
+	pCD->phenotype.mechanics.attachment_rate() = 1;  
+	pCD->phenotype.mechanics.detachment_rate() = 0.01; // 0.01
 	pCD->functions.update_phenotype = cancer_phenotype_function; 
 	
 	pCD = find_cell_definition( "BM"); 
-	pCD->phenotype.mechanics.maximum_number_of_attachments = 6; 
-	pCD->phenotype.mechanics.attachment_elastic_constant = 1; // 0.0142; // 100; // 0.0142 ; // 1;  
-	pCD->phenotype.mechanics.attachment_rate = 1;  
-	pCD->phenotype.mechanics.detachment_rate = 0; 
+	pCD->phenotype.mechanics.maximum_number_of_attachments() = 6; 
+	pCD->phenotype.mechanics.attachment_elastic_constant() = 1; // 0.0142; // 100; // 0.0142 ; // 1;  
+	pCD->phenotype.mechanics.attachment_rate() = 1;  
+	pCD->phenotype.mechanics.detachment_rate() = 0; 
 */
 
 	Cell_Definition* pCD = find_cell_definition( "cancer"); 
-	pCD->phenotype.mechanics.maximum_number_of_attachments = 6; 
-	pCD->phenotype.mechanics.attachment_elastic_constant = 0.00142; // 0.00142; // 0.1 for confluent version; // 0.002
-	pCD->phenotype.mechanics.attachment_rate = 1;  
-	pCD->phenotype.mechanics.detachment_rate = 0.01; // 0.01
+	pCD->phenotype.mechanics.maximum_number_of_attachments() = 6; 
+	pCD->phenotype.mechanics.attachment_elastic_constant() = 0.00142; // 0.00142; // 0.1 for confluent version; // 0.002
+	pCD->phenotype.mechanics.attachment_rate() = 1;  
+	pCD->phenotype.mechanics.detachment_rate() = 0.01; // 0.01
 	pCD->functions.update_phenotype = cancer_phenotype_function; 
 	
 	pCD = find_cell_definition( "BM"); 
-	pCD->phenotype.mechanics.maximum_number_of_attachments = 6; 
-	pCD->phenotype.mechanics.attachment_elastic_constant = 0.05; // 0.0142; // 1;   
-	pCD->phenotype.mechanics.attachment_rate = 1;  
-	pCD->phenotype.mechanics.detachment_rate = 0; 
+	pCD->phenotype.mechanics.maximum_number_of_attachments() = 6; 
+	pCD->phenotype.mechanics.attachment_elastic_constant() = 0.05; // 0.0142; // 1;   
+	pCD->phenotype.mechanics.attachment_rate() = 1;  
+	pCD->phenotype.mechanics.detachment_rate() = 0; 
 	
 	/*
 	   This builds the map of cell definitions and summarizes the setup. 
@@ -241,7 +240,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 { 
 	std::vector<std::string> out = { "black" , "black" , "black" , "black"};
 
-	int n_springs = pCell->state.spring_attachments.size(); 
+	int n_springs = pCell->get_spring_attachments_count(); 
 	if( pCell->type_name != "BM" )
 	{
 		if( n_springs == 0 )
