@@ -798,7 +798,7 @@ std::vector<double> get_signals( Cell* pCell )
 
 	// mechanical pressure 
 	static int pressure_ind = find_signal_index( "pressure"); 
-	signals[pressure_ind] = pCell->state.simple_pressure;
+	signals[pressure_ind] = pCell->get_simple_pressure();
 
 	// cell volume 
 	static int volume_ind = find_signal_index( "volume"); 
@@ -812,9 +812,9 @@ std::vector<double> get_signals( Cell* pCell )
 	int other_dead_cells = 0; 
 	int live_cells = 0; 
 	static int contact_ind = find_signal_index( "contact with " + cell_definitions_by_type[0]->name ); 
-	for( int i=0; i < pCell->state.neighbors.size(); i++ )
+	for( int i=0; i < pCell->get_neighbors_count(); i++ )
 	{
-		Cell* pC = pCell->state.neighbors[i]; 
+		Cell* pC = pCell->get_neighbor(i); 
 		if( pC->phenotype.death.dead == true )
 		{
 			dead_cells++; 
@@ -934,9 +934,9 @@ std::vector<double> get_cell_contact_signals( Cell* pCell )
     int necro_cells = 0; 
     int other_dead_cells = 0; 
 
-	for( int i=0; i < pCell->state.neighbors.size(); i++ )
+	for( int i=0; i < pCell->get_neighbors_count(); i++ )
 	{
-		Cell* pC = pCell->state.neighbors[i]; 
+		Cell* pC = pCell->get_neighbor(i); 
 		if( pC->phenotype.death.dead == true )
 		{
 			dead_cells++; 
@@ -1049,7 +1049,7 @@ double get_single_signal( Cell* pCell, int index )
 	static int pressure_ind = find_signal_index( "pressure" ); 
 	if( index == pressure_ind )
 	{
-		out = pCell->state.simple_pressure;
+		out = pCell->get_simple_pressure();
 		out /= signal_scales[index]; 
 		return out; 
 	}
@@ -1075,9 +1075,9 @@ double get_single_signal( Cell* pCell, int index )
 		int necro_cells = 0; 
 		int other_dead_cells = 0; 
 		int live_cells = 0; 
-		for( int i=0; i < pCell->state.neighbors.size(); i++ )
+		for( int i=0; i < pCell->get_neighbors_count(); i++ )
 		{
-			Cell* pC = pCell->state.neighbors[i]; 
+			Cell* pC = pCell->get_neighbor(i); 
 			if( pC->phenotype.death.dead == true )
 			{
 				dead_cells++;
@@ -1334,51 +1334,51 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 
 	// migration speed
 	static int migration_speed_index = find_behavior_index("migration speed"); 
-	pCell->phenotype.motility.migration_speed = parameters[migration_speed_index]; 
+	pCell->phenotype.motility.migration_speed() = parameters[migration_speed_index]; 
 
 	// migration bias 
 	static int migration_bias_index = find_behavior_index("migration bias"); 
-	pCell->phenotype.motility.migration_bias = parameters[migration_bias_index]; 
+	pCell->phenotype.motility.migration_bias() = parameters[migration_bias_index]; 
 
 	// migration persistence time
 	static int migration_pt_index = find_behavior_index("migration persistence time"); 
-	pCell->phenotype.motility.persistence_time = parameters[migration_pt_index]; 
+	pCell->phenotype.motility.persistence_time() = parameters[migration_pt_index]; 
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	std::copy(  parameters.begin()+first_chemotaxis_index , 
 				parameters.begin()+first_chemotaxis_index + m , 
-				pCell->phenotype.motility.chemotactic_sensitivities.begin() ); 	
+				pCell->phenotype.motility.chemotactic_sensitivities() ); 	
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index("cell-cell adhesion"); 
-	pCell->phenotype.mechanics.cell_cell_adhesion_strength = parameters[cca_index]; 
+	pCell->phenotype.mechanics.cell_cell_adhesion_strength() = parameters[cca_index]; 
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index("cell-cell adhesion elastic constant"); 
-	pCell->phenotype.mechanics.attachment_elastic_constant = parameters[cca_spring_index]; 
+	pCell->phenotype.mechanics.attachment_elastic_constant() = parameters[cca_spring_index]; 
 
     // cell adhesion affinities 
 	static int first_affinity_index = find_behavior_index( "adhesive affinity to " + cell_definitions_by_type[0]->name ); 
 	std::copy(  parameters.begin()+first_affinity_index , 
 				parameters.begin()+first_affinity_index + n , 
-				pCell->phenotype.mechanics.cell_adhesion_affinities.begin() ); 	
+				pCell->phenotype.mechanics.cell_adhesion_affinities() ); 	
 
 	// max relative maximum adhesion distance 
 	static int max_adhesion_distance_index = find_behavior_index("relative maximum adhesion distance"); 
-	pCell->phenotype.mechanics.relative_maximum_adhesion_distance = parameters[max_adhesion_distance_index]; 
+	pCell->phenotype.mechanics.relative_maximum_adhesion_distance() = parameters[max_adhesion_distance_index]; 
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion"); 
-	pCell->phenotype.mechanics.cell_cell_repulsion_strength = parameters[ccr_index]; 
+	pCell->phenotype.mechanics.cell_cell_repulsion_strength() = parameters[ccr_index]; 
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion"); 
-	pCell->phenotype.mechanics.cell_BM_adhesion_strength = parameters[cba_index]; 
+	pCell->phenotype.mechanics.cell_BM_adhesion_strength() = parameters[cba_index]; 
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion"); 
-	pCell->phenotype.mechanics.cell_BM_repulsion_strength = parameters[cbr_index]; 
+	pCell->phenotype.mechanics.cell_BM_repulsion_strength() = parameters[cbr_index]; 
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell"); 
@@ -1433,9 +1433,9 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 	// set cell to movable / not movable 
 	static int movable_ind = find_behavior_index( "is_movable"); 
 	if( parameters[movable_ind] > 0.5 )
-	{ pCell->is_movable = true; }
+	{ pCell->get_is_movable() = true; }
 	else
-	{ pCell->is_movable = false; }
+	{ pCell->get_is_movable() = false; }
 
 	// vector of immunogenicity signals 
 	static int start_immunogenicity_ind = find_behavior_index( "immunogenicity to " + cell_definitions_by_type[0]->name ); 
@@ -1445,15 +1445,15 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
-	pCell->phenotype.mechanics.attachment_rate = parameters[attachment_rate_ind];
+	pCell->phenotype.mechanics.attachment_rate() = parameters[attachment_rate_ind];
 
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
-	pCell->phenotype.mechanics.detachment_rate = parameters[detachment_rate_ind];
+	pCell->phenotype.mechanics.detachment_rate() = parameters[detachment_rate_ind];
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
-	pCell->phenotype.mechanics.maximum_number_of_attachments = (int) parameters[max_attachments_ind];
+	pCell->phenotype.mechanics.maximum_number_of_attachments() = (int) parameters[max_attachments_ind];
 
 	// cell damage rate (for effector attack)
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -1537,57 +1537,57 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	// migration speed
 	static int migration_speed_index = find_behavior_index( "migration speed"); 
 	if( index == migration_speed_index )
-	{ pCell->phenotype.motility.migration_speed = parameter; return; } 
+	{ pCell->phenotype.motility.migration_speed() = parameter; return; } 
 
 	// migration bias 
 	static int migration_bias_index = find_behavior_index( "migration bias"); 
 	if( index == migration_bias_index )
-	{ pCell->phenotype.motility.migration_bias = parameter; return; } 
+	{ pCell->phenotype.motility.migration_bias() = parameter; return; } 
 
 	// migration persistence time
 	static int persistence_time_index = find_behavior_index( "migration persistence time"); 
 	if( index == persistence_time_index )
-	{ pCell->phenotype.motility.persistence_time = parameter; return; } 
+	{ pCell->phenotype.motility.persistence_time() = parameter; return; } 
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
-	{ pCell->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index] = parameter; return; } 
+	{ pCell->phenotype.motility.chemotactic_sensitivities()[index-first_chemotaxis_index] = parameter; return; } 
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index( "cell-cell adhesion"); 
 	if( index == cca_index )
-	{ pCell->phenotype.mechanics.cell_cell_adhesion_strength = parameter; return; } 
+	{ pCell->phenotype.mechanics.cell_cell_adhesion_strength() = parameter; return; } 
 
 	// cell-cell "springs"
 	static int elastic_index = find_behavior_index( "cell-cell adhesion elastic constant"); 
 	if( index == elastic_index )
-	{ pCell->phenotype.mechanics.attachment_elastic_constant = parameter; return; } 
+	{ pCell->phenotype.mechanics.attachment_elastic_constant() = parameter; return; } 
 
     // cell adhesion affinities 
 	static int first_affinity_index = find_behavior_index( "adhesive affinity to " + cell_definitions_by_type[0]->name ); 
 	if( index >= first_affinity_index && index < first_affinity_index + n )
-	{ pCell->phenotype.mechanics.cell_adhesion_affinities[index-first_affinity_index] = parameter; return; } 
+	{ pCell->phenotype.mechanics.cell_adhesion_affinities()[index-first_affinity_index] = parameter; return; } 
  
 	// max relative maximum adhesion distance 
 	static int max_adh_distance_index = find_behavior_index( "relative maximum adhesion distance" ); 
 	if( index == max_adh_distance_index )
-	{ pCell->phenotype.mechanics.relative_maximum_adhesion_distance = parameter; return; } 
+	{ pCell->phenotype.mechanics.relative_maximum_adhesion_distance() = parameter; return; } 
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index( "cell-cell repulsion" ); 
 	if( index == ccr_index )
-	{ pCell->phenotype.mechanics.cell_cell_repulsion_strength = parameter; return; } 
+	{ pCell->phenotype.mechanics.cell_cell_repulsion_strength() = parameter; return; } 
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index( "cell-BM adhesion" ); 
 	if( index == cba_index )
-	{ pCell->phenotype.mechanics.cell_BM_adhesion_strength = parameter; return; } 
+	{ pCell->phenotype.mechanics.cell_BM_adhesion_strength() = parameter; return; } 
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index( "cell-BM repulsion" ); 
 	if( index == cbr_index )
-	{ pCell->phenotype.mechanics.cell_BM_repulsion_strength = parameter; return; } 
+	{ pCell->phenotype.mechanics.cell_BM_repulsion_strength() = parameter; return; } 
 
 	// apoptotic cell phagocytosis
 	static int apop_phago_index = find_behavior_index( "phagocytose apoptotic cell" ); 
@@ -1640,9 +1640,9 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	if( index == movable_ind )
 	{
 		if( parameter > 0.5 )
-		{ pCell->is_movable = true; }
+		{ pCell->get_is_movable() = true; }
 		else
-		{ pCell->is_movable = false; }
+		{ pCell->get_is_movable() = false; }
 	}
 
     // immunogenicity to each cell type 
@@ -1654,17 +1654,17 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
 	if( index == attachment_rate_ind )
-	{ pCell->phenotype.mechanics.attachment_rate = parameter; }
+	{ pCell->phenotype.mechanics.attachment_rate() = parameter; }
 
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
 	if( index == detachment_rate_ind )
-	{ pCell->phenotype.mechanics.detachment_rate = parameter; }
+	{ pCell->phenotype.mechanics.detachment_rate() = parameter; }
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
 	if( index == max_attachments_ind )
-	{ pCell->phenotype.mechanics.maximum_number_of_attachments = (int) parameter; }
+	{ pCell->phenotype.mechanics.maximum_number_of_attachments() = (int) parameter; }
 
 	// cell damage rate (for effector attack)
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -1753,52 +1753,52 @@ std::vector<double> get_behaviors( Cell* pCell )
 
 	// migration speed
 	static int migration_speed_index = find_behavior_index("migration speed"); 
-	parameters[migration_speed_index] = pCell->phenotype.motility.migration_speed; 
+	parameters[migration_speed_index] = pCell->phenotype.motility.migration_speed(); 
 
 	// migration bias 
 	static int migration_bias_index = find_behavior_index("migration bias"); 
-	parameters[migration_bias_index] = pCell->phenotype.motility.migration_bias; 
+	parameters[migration_bias_index] = pCell->phenotype.motility.migration_bias(); 
 
 	// migration persistence time
 	static int migration_pt_index = find_behavior_index("migration persistence time"); 
-	parameters[migration_pt_index] = pCell->phenotype.motility.persistence_time; 
+	parameters[migration_pt_index] = pCell->phenotype.motility.persistence_time(); 
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
-	std::copy(  pCell->phenotype.motility.chemotactic_sensitivities.begin() ,
-				pCell->phenotype.motility.chemotactic_sensitivities.end() ,
+	std::copy(  pCell->phenotype.motility.chemotactic_sensitivities() ,
+				pCell->phenotype.motility.chemotactic_sensitivities() + m ,
 			 	parameters.begin()+first_chemotaxis_index ); 
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index("cell-cell adhesion"); 
-	parameters[cca_index] = pCell->phenotype.mechanics.cell_cell_adhesion_strength; 
+	parameters[cca_index] = pCell->phenotype.mechanics.cell_cell_adhesion_strength(); 
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index("cell-cell adhesion elastic constant"); 
-	parameters[cca_spring_index] = pCell->phenotype.mechanics.attachment_elastic_constant; 
+	parameters[cca_spring_index] = pCell->phenotype.mechanics.attachment_elastic_constant(); 
 
     // cell adhesion affinities 
 	static std::string search_for1 = "adhesive affinity to " + cell_definitions_by_type[0]->name ; 
 	static int first_affinity_index = find_behavior_index( search_for1 ); 
-	std::copy(  pCell->phenotype.mechanics.cell_adhesion_affinities.begin(), 
-				pCell->phenotype.mechanics.cell_adhesion_affinities.end() ,
+	std::copy(  pCell->phenotype.mechanics.cell_adhesion_affinities(), 
+				pCell->phenotype.mechanics.cell_adhesion_affinities() + m ,
 				parameters.begin()+first_affinity_index ); 
 
 	// max relative maximum adhesion distance 
 	static int max_adhesion_distance_index = find_behavior_index("relative maximum adhesion distance"); 
-	parameters[max_adhesion_distance_index] = pCell->phenotype.mechanics.relative_maximum_adhesion_distance; 
+	parameters[max_adhesion_distance_index] = pCell->phenotype.mechanics.relative_maximum_adhesion_distance(); 
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion"); 
-	parameters[ccr_index] = pCell->phenotype.mechanics.cell_cell_repulsion_strength; 
+	parameters[ccr_index] = pCell->phenotype.mechanics.cell_cell_repulsion_strength(); 
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion"); 
-	parameters[cba_index] = pCell->phenotype.mechanics.cell_BM_adhesion_strength; 
+	parameters[cba_index] = pCell->phenotype.mechanics.cell_BM_adhesion_strength(); 
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion"); 
-	parameters[cbr_index] = pCell->phenotype.mechanics.cell_BM_repulsion_strength; 
+	parameters[cbr_index] = pCell->phenotype.mechanics.cell_BM_repulsion_strength(); 
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell"); 
@@ -1853,7 +1853,7 @@ std::vector<double> get_behaviors( Cell* pCell )
 
 	// is the cell movable / not movable 
 	static int movable_ind = find_behavior_index( "is_movable"); 
-	if( pCell->is_movable == true )
+	if( pCell->get_is_movable() == true )
 	{ parameters[movable_ind] = 1; }
 	else
 	{ parameters[movable_ind] = 0; }
@@ -1866,15 +1866,15 @@ std::vector<double> get_behaviors( Cell* pCell )
 
 	// get cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
-	parameters[attachment_rate_ind] = pCell->phenotype.mechanics.attachment_rate; 
+	parameters[attachment_rate_ind] = pCell->phenotype.mechanics.attachment_rate(); 
 
 	// get cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
-	parameters[detachment_rate_ind] = pCell->phenotype.mechanics.detachment_rate; 
+	parameters[detachment_rate_ind] = pCell->phenotype.mechanics.detachment_rate(); 
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
-	parameters[max_attachments_ind] = pCell->phenotype.mechanics.maximum_number_of_attachments; 
+	parameters[max_attachments_ind] = pCell->phenotype.mechanics.maximum_number_of_attachments(); 
 
 	// attack get damage rate 
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -1963,57 +1963,57 @@ double get_single_behavior( Cell* pCell , int index )
 	// migration speed
 	static int migr_spd_index = find_behavior_index( "migration speed"); 
 	if( index == migr_spd_index )
-	{ return pCell->phenotype.motility.migration_speed; }
+	{ return pCell->phenotype.motility.migration_speed(); }
 
 	// migration bias 
 	static int migr_bias_index = find_behavior_index( "migration bias"); 
 	if( index == migr_bias_index )
-	{ return pCell->phenotype.motility.migration_bias; }
+	{ return pCell->phenotype.motility.migration_bias(); }
 
 	// migration persistence time
 	static int migr_pt_index = find_behavior_index( "migration persistence time"); 
 	if( index == migr_pt_index )
-	{ return pCell->phenotype.motility.persistence_time; }
+	{ return pCell->phenotype.motility.persistence_time(); }
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
-	{ return pCell->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
+	{ return pCell->phenotype.motility.chemotactic_sensitivities()[index-first_chemotaxis_index]; }
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index( "cell-cell adhesion" ); 
 	if( index == cca_index )
-	{ return pCell->phenotype.mechanics.cell_cell_adhesion_strength; }
+	{ return pCell->phenotype.mechanics.cell_cell_adhesion_strength(); }
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index( "cell-cell adhesion elastic constant" );  
 	if( index == cca_spring_index )
-	{ return pCell->phenotype.mechanics.attachment_elastic_constant; }
+	{ return pCell->phenotype.mechanics.attachment_elastic_constant(); }
 
     // cell adhesion affinities 
 	static int first_affinity_index = find_behavior_index("adhesive affinity to " + cell_definitions_by_type[0]->name ); 
 	if( index >= first_affinity_index && index < first_affinity_index + n )
-	{ return pCell->phenotype.mechanics.cell_adhesion_affinities[index-first_affinity_index]; }
+	{ return pCell->phenotype.mechanics.cell_adhesion_affinities()[index-first_affinity_index]; }
 
 	// max relative maximum adhesion distance 
 	static int max_adh_index = find_behavior_index("relative maximum adhesion distance" ); 
 	if( index == max_adh_index )
-	{ return pCell->phenotype.mechanics.relative_maximum_adhesion_distance; }
+	{ return pCell->phenotype.mechanics.relative_maximum_adhesion_distance(); }
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion" ); 
 	if( index == ccr_index )
-	{ return pCell->phenotype.mechanics.cell_cell_repulsion_strength; }
+	{ return pCell->phenotype.mechanics.cell_cell_repulsion_strength(); }
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion" ); 
 	if( index == cba_index )
-	{ return pCell->phenotype.mechanics.cell_BM_adhesion_strength; }
+	{ return pCell->phenotype.mechanics.cell_BM_adhesion_strength(); }
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion" ); 
 	if( index == cbr_index )
-	{ return pCell->phenotype.mechanics.cell_BM_repulsion_strength; }
+	{ return pCell->phenotype.mechanics.cell_BM_repulsion_strength(); }
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell" ); 
@@ -2065,7 +2065,7 @@ double get_single_behavior( Cell* pCell , int index )
 	static int movable_ind = find_behavior_index( "is_movable"); 
 	if( index == movable_ind )
 	{
-		if( pCell->is_movable == true )
+		if( pCell->get_is_movable() == true )
 		{ return 1.0; }
 		else
 		{ return 0.0; }
@@ -2081,17 +2081,17 @@ double get_single_behavior( Cell* pCell , int index )
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
 	if( index == attachment_rate_ind )
-	return pCell->phenotype.mechanics.attachment_rate; 
+	return pCell->phenotype.mechanics.attachment_rate(); 
 	
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
 	if( index == detachment_rate_ind )
-	{ return pCell->phenotype.mechanics.detachment_rate; }
+	{ return pCell->phenotype.mechanics.detachment_rate(); }
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
 	if( index == max_attachments_ind )
-	{ return pCell->phenotype.mechanics.maximum_number_of_attachments; }
+	{ return pCell->phenotype.mechanics.maximum_number_of_attachments(); }
 
 	// get attack damage rate 
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -2209,52 +2209,52 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 
 	// migration speed
 	static int migration_speed_index = find_behavior_index("migration speed"); 
-	parameters[migration_speed_index] = pCD->phenotype.motility.migration_speed; 
+	parameters[migration_speed_index] = pCD->phenotype.motility.migration_speed(); 
 
 	// migration bias 
 	static int migration_bias_index = find_behavior_index("migration bias"); 
-	parameters[migration_bias_index] = pCD->phenotype.motility.migration_bias; 
+	parameters[migration_bias_index] = pCD->phenotype.motility.migration_bias(); 
 
 	// migration persistence time
 	static int migration_pt_index = find_behavior_index("migration persistence time"); 
-	parameters[migration_pt_index] = pCD->phenotype.motility.persistence_time; 
+	parameters[migration_pt_index] = pCD->phenotype.motility.persistence_time(); 
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
-	std::copy(  pCD->phenotype.motility.chemotactic_sensitivities.begin() ,
-				pCD->phenotype.motility.chemotactic_sensitivities.end() ,
+	std::copy(  pCD->phenotype.motility.chemotactic_sensitivities() ,
+				pCD->phenotype.motility.chemotactic_sensitivities() + m ,
 			 	parameters.begin()+first_chemotaxis_index ); 
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index("cell-cell adhesion"); 
-	parameters[cca_index] = pCD->phenotype.mechanics.cell_cell_adhesion_strength; 
+	parameters[cca_index] = pCD->phenotype.mechanics.cell_cell_adhesion_strength(); 
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index("cell-cell adhesion elastic constant"); 
-	parameters[cca_spring_index] = pCD->phenotype.mechanics.attachment_elastic_constant; 
+	parameters[cca_spring_index] = pCD->phenotype.mechanics.attachment_elastic_constant(); 
 
     // cell adhesion affinities 
 	static std::string search_for1 = "adhesive affinity to " + cell_definitions_by_type[0]->name ; 
 	static int first_affinity_index = find_behavior_index( search_for1 ); 
-	std::copy(  pCD->phenotype.mechanics.cell_adhesion_affinities.begin(), 
-				pCD->phenotype.mechanics.cell_adhesion_affinities.end() ,
+	std::copy(  pCD->phenotype.mechanics.cell_adhesion_affinities(), 
+				pCD->phenotype.mechanics.cell_adhesion_affinities() + n ,
 				parameters.begin()+first_affinity_index ); 
 
 	// max relative maximum adhesion distance 
 	static int max_adhesion_distance_index = find_behavior_index("relative maximum adhesion distance"); 
-	parameters[max_adhesion_distance_index] = pCD->phenotype.mechanics.relative_maximum_adhesion_distance; 
+	parameters[max_adhesion_distance_index] = pCD->phenotype.mechanics.relative_maximum_adhesion_distance(); 
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion"); 
-	parameters[ccr_index] = pCD->phenotype.mechanics.cell_cell_repulsion_strength; 
+	parameters[ccr_index] = pCD->phenotype.mechanics.cell_cell_repulsion_strength(); 
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion"); 
-	parameters[cba_index] = pCD->phenotype.mechanics.cell_BM_adhesion_strength; 
+	parameters[cba_index] = pCD->phenotype.mechanics.cell_BM_adhesion_strength(); 
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion"); 
-	parameters[cbr_index] = pCD->phenotype.mechanics.cell_BM_repulsion_strength; 
+	parameters[cbr_index] = pCD->phenotype.mechanics.cell_BM_repulsion_strength(); 
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell"); 
@@ -2323,15 +2323,15 @@ std::vector<double> get_base_behaviors( Cell* pCell )
 
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
-	parameters[attachment_rate_ind] = pCD->phenotype.mechanics.attachment_rate; 
+	parameters[attachment_rate_ind] = pCD->phenotype.mechanics.attachment_rate(); 
 
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
-	parameters[detachment_rate_ind] = pCD->phenotype.mechanics.detachment_rate; 
+	parameters[detachment_rate_ind] = pCD->phenotype.mechanics.detachment_rate(); 
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
-	parameters[max_attachments_ind] = pCD->phenotype.mechanics.maximum_number_of_attachments; 
+	parameters[max_attachments_ind] = pCD->phenotype.mechanics.maximum_number_of_attachments(); 
 
 	// cell damage rate (effector attack)
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -2422,57 +2422,57 @@ double get_single_base_behavior( Cell* pCell , int index )
 	// migration speed
 	static int migr_spd_index = find_behavior_index( "migration speed"); 
 	if( index == migr_spd_index )
-	{ return pCD->phenotype.motility.migration_speed; }
+	{ return pCD->phenotype.motility.migration_speed(); }
 
 	// migration bias 
 	static int migr_bias_index = find_behavior_index( "migration bias"); 
 	if( index == migr_bias_index )
-	{ return pCD->phenotype.motility.migration_bias; }
+	{ return pCD->phenotype.motility.migration_bias(); }
 
 	// migration persistence time
 	static int migr_pt_index = find_behavior_index( "migration persistence time"); 
 	if( index == migr_pt_index )
-	{ return pCD->phenotype.motility.persistence_time; }
+	{ return pCD->phenotype.motility.persistence_time(); }
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
-	{ return pCD->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
+	{ return pCD->phenotype.motility.chemotactic_sensitivities()[index-first_chemotaxis_index]; }
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index( "cell-cell adhesion" ); 
 	if( index == cca_index )
-	{ return pCD->phenotype.mechanics.cell_cell_adhesion_strength; }
+	{ return pCD->phenotype.mechanics.cell_cell_adhesion_strength(); }
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index( "cell-cell adhesion elastic constant" );  
 	if( index == cca_spring_index )
-	{ return pCD->phenotype.mechanics.attachment_elastic_constant; }
+	{ return pCD->phenotype.mechanics.attachment_elastic_constant(); }
 
     // cell adhesion affinities 
 	static int first_affinity_index = find_behavior_index("adhesive affinity to " + cell_definitions_by_type[0]->name ); 
 	if( index >= first_affinity_index && index < first_affinity_index + n )
-	{ return pCD->phenotype.mechanics.cell_adhesion_affinities[index-first_affinity_index]; }
+	{ return pCD->phenotype.mechanics.cell_adhesion_affinities()[index-first_affinity_index]; }
 
 	// max relative maximum adhesion distance 
 	static int max_adh_index = find_behavior_index("relative maximum adhesion distance" ); 
 	if( index == max_adh_index )
-	{ return pCD->phenotype.mechanics.relative_maximum_adhesion_distance; }
+	{ return pCD->phenotype.mechanics.relative_maximum_adhesion_distance(); }
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion" ); 
 	if( index == ccr_index )
-	{ return pCD->phenotype.mechanics.cell_cell_repulsion_strength; }
+	{ return pCD->phenotype.mechanics.cell_cell_repulsion_strength(); }
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion" ); 
 	if( index == cba_index )
-	{ return pCD->phenotype.mechanics.cell_BM_adhesion_strength; }
+	{ return pCD->phenotype.mechanics.cell_BM_adhesion_strength(); }
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion" ); 
 	if( index == cbr_index )
-	{ return pCD->phenotype.mechanics.cell_BM_repulsion_strength; }
+	{ return pCD->phenotype.mechanics.cell_BM_repulsion_strength(); }
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell" ); 
@@ -2539,17 +2539,17 @@ double get_single_base_behavior( Cell* pCell , int index )
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
 	if( index == attachment_rate_ind )
-	{ return pCD->phenotype.mechanics.attachment_rate; }
+	{ return pCD->phenotype.mechanics.attachment_rate(); }
 
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
 	if( index == detachment_rate_ind )
-	{ return pCD->phenotype.mechanics.detachment_rate; }
+	{ return pCD->phenotype.mechanics.detachment_rate(); }
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
 	if( index == max_attachments_ind )
-	{ return pCD->phenotype.mechanics.maximum_number_of_attachments; }
+	{ return pCD->phenotype.mechanics.maximum_number_of_attachments(); }
 
 	// cell attack damage rate (effector attack)
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 
@@ -2644,57 +2644,57 @@ double get_single_base_behavior( Cell_Definition* pCD , int index )
 	// migration speed
 	static int migr_spd_index = find_behavior_index( "migration speed"); 
 	if( index == migr_spd_index )
-	{ return pCD->phenotype.motility.migration_speed; }
+	{ return pCD->phenotype.motility.migration_speed(); }
 
 	// migration bias 
 	static int migr_bias_index = find_behavior_index( "migration bias"); 
 	if( index == migr_bias_index )
-	{ return pCD->phenotype.motility.migration_bias; }
+	{ return pCD->phenotype.motility.migration_bias(); }
 
 	// migration persistence time
 	static int migr_pt_index = find_behavior_index( "migration persistence time"); 
 	if( index == migr_pt_index )
-	{ return pCD->phenotype.motility.persistence_time; }
+	{ return pCD->phenotype.motility.persistence_time(); }
 
 	// chemotactic sensitivities 
 	static int first_chemotaxis_index = find_behavior_index( "chemotactic response to " + get_microenvironment_i()->get_density_names()[0] ); 
 	if( index >= first_chemotaxis_index && index < first_chemotaxis_index + m )
-	{ return pCD->phenotype.motility.chemotactic_sensitivities[index-first_chemotaxis_index]; }
+	{ return pCD->phenotype.motility.chemotactic_sensitivities()[index-first_chemotaxis_index]; }
 
 	// cell-cell adhesion 
 	static int cca_index = find_behavior_index( "cell-cell adhesion" ); 
 	if( index == cca_index )
-	{ return pCD->phenotype.mechanics.cell_cell_adhesion_strength; }
+	{ return pCD->phenotype.mechanics.cell_cell_adhesion_strength(); }
 
 	// cell-cell "springs"
 	static int cca_spring_index = find_behavior_index( "cell-cell adhesion elastic constant" );  
 	if( index == cca_spring_index )
-	{ return pCD->phenotype.mechanics.attachment_elastic_constant; }
+	{ return pCD->phenotype.mechanics.attachment_elastic_constant(); }
 
     // cell adhesion affinities 
 	static int first_affinity_index = find_behavior_index("adhesive affinity to " + cell_definitions_by_type[0]->name ); 
 	if( index >= first_affinity_index && index < first_affinity_index + n )
-	{ return pCD->phenotype.mechanics.cell_adhesion_affinities[index-first_affinity_index]; }
+	{ return pCD->phenotype.mechanics.cell_adhesion_affinities()[index-first_affinity_index]; }
 
 	// max relative maximum adhesion distance 
 	static int max_adh_index = find_behavior_index("relative maximum adhesion distance" ); 
 	if( index == max_adh_index )
-	{ return pCD->phenotype.mechanics.relative_maximum_adhesion_distance; }
+	{ return pCD->phenotype.mechanics.relative_maximum_adhesion_distance(); }
 
 	// cell-cell repulsion 
 	static int ccr_index = find_behavior_index("cell-cell repulsion" ); 
 	if( index == ccr_index )
-	{ return pCD->phenotype.mechanics.cell_cell_repulsion_strength; }
+	{ return pCD->phenotype.mechanics.cell_cell_repulsion_strength(); }
 
 	// cell-BM adhesion 
 	static int cba_index = find_behavior_index("cell-BM adhesion" ); 
 	if( index == cba_index )
-	{ return pCD->phenotype.mechanics.cell_BM_adhesion_strength; }
+	{ return pCD->phenotype.mechanics.cell_BM_adhesion_strength(); }
 	
 	// cell-BM repulsion 
 	static int cbr_index = find_behavior_index("cell-BM repulsion" ); 
 	if( index == cbr_index )
-	{ return pCD->phenotype.mechanics.cell_BM_repulsion_strength; }
+	{ return pCD->phenotype.mechanics.cell_BM_repulsion_strength(); }
 
 	// apoptotic cell phagocytosis
 	static int apop_phag_index = find_behavior_index("phagocytose apoptotic cell" ); 
@@ -2761,17 +2761,17 @@ double get_single_base_behavior( Cell_Definition* pCD , int index )
 	// set cell attachment rate  
 	static int attachment_rate_ind = find_behavior_index( "cell attachment rate"); 
 	if( index == attachment_rate_ind )
-	{ return pCD->phenotype.mechanics.attachment_rate; }
+	{ return pCD->phenotype.mechanics.attachment_rate(); }
 
 	// set cell detachment rate  
 	static int detachment_rate_ind = find_behavior_index( "cell detachment rate"); 
 	if( index == detachment_rate_ind )
-	{ return pCD->phenotype.mechanics.detachment_rate; }
+	{ return pCD->phenotype.mechanics.detachment_rate(); }
 
 	// maximum number of cell attachments 
 	static int max_attachments_ind = find_behavior_index( "maximum number of cell attachments"); 
 	if( index == max_attachments_ind )
-	{ return pCD->phenotype.mechanics.maximum_number_of_attachments; }
+	{ return pCD->phenotype.mechanics.maximum_number_of_attachments(); }
 
 	// cell attack damage rate (effector attack)
 	static int attack_damage_rate_ind = find_behavior_index( "attack damage rate"); 

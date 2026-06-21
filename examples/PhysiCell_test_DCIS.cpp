@@ -126,18 +126,18 @@ double distance_to_membrane_duct(Cell* pCell, Phenotype& phenotype, double dummy
 	{
 		double distance_to_x_axis= sqrt(pCell->get_position()[1]* pCell->get_position()[1] + pCell->get_position()[2]*pCell->get_position()[2]);
 		distance_to_x_axis = std::max(distance_to_x_axis, epsillon);		// prevents division by zero
-		pCell->displacement[0]=0; 
-		pCell->displacement[1]= -pCell->get_position()[1]/ distance_to_x_axis; 
-		pCell->displacement[2]= -pCell->get_position()[2]/ distance_to_x_axis; 
+		// pCell->displacement[0]=0; 
+		// pCell->displacement[1]= -pCell->get_position()[1]/ distance_to_x_axis; 
+		// pCell->displacement[2]= -pCell->get_position()[2]/ distance_to_x_axis; 
 		return fabs(duct_radius- distance_to_x_axis);
 	}
 	
 	// Cell is inside the cap of the duct
 	double distance_to_origin= dist(pCell->get_position(), {0.0,0.0,0.0});  // distance to the origin 
 	distance_to_origin = std::max(distance_to_origin, epsillon);			  // prevents division by zero
-	pCell->displacement[0]= -pCell->get_position()[0]/ distance_to_origin;
-	pCell->displacement[1]= -pCell->get_position()[1]/ distance_to_origin;
-	pCell->displacement[2]= -pCell->get_position()[2]/ distance_to_origin;
+	// pCell->displacement[0]= -pCell->get_position()[0]/ distance_to_origin;
+	// pCell->displacement[1]= -pCell->get_position()[1]/ distance_to_origin;
+	// pCell->displacement[2]= -pCell->get_position()[2]/ distance_to_origin;
 	return fabs(duct_radius- distance_to_origin);
 }
 

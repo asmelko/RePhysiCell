@@ -66,6 +66,7 @@
 */
 
 #include "../BioFVM/BioFVM_implementation.h"
+#include "../mechanics/PhysiCell_mechanics_implementation.h"
 #include "PhysiCell_constants.h"
 #include "PhysiCell_cell.h"
 
@@ -78,7 +79,7 @@ namespace PhysiCell{
 
 std::vector<Cell*> *all_cells;
 
-Cell_Container::Cell_Container()
+Cell_Container::Cell_Container() : mechanics_env_(*get_mechanics_environment_i())
 {
 	all_cells = (std::vector<Cell*> *) BioFVM_implementation::get_instance()->get_all_basic_agents();
 	boundary_condition_for_pushed_out_agents= PhysiCell_constants::default_boundary_condition_for_pushed_out_agents;
@@ -102,10 +103,7 @@ void Cell_Container::initialize(double x_start, double x_end, double y_start, do
 	std::vector<Cell*> cells_ready_to_divide;
 	std::vector<Cell*> cells_ready_to_die;
 
-	underlying_mesh.resize(x_start, x_end, y_start, y_end, z_start, z_end , dx, dy, dz);
-	agent_grid.resize(underlying_mesh.voxels.size());
-	max_cell_interactive_distance_in_voxel.resize(underlying_mesh.voxels.size(), 0.0);
-	agents_in_outer_voxels.resize(6);
+	mechanics_env_.initialize(x_start, x_end, y_start, y_end, z_start, z_end, dx, dy, dz);
 	
 	return; 
 }
@@ -126,7 +124,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_cells).size(); i++ )
 	{
-		if( (*all_cells)[i]->is_out_of_domain == false )
+		if( (*all_cells)[i]->get_is_out_of_domain() == false )
 		{
 			(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
 		}
@@ -143,7 +141,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_cells).size(); i++ )
 	{
-		if( (*all_cells)[i]->is_out_of_domain == false && initialzed ) {
+		if( (*all_cells)[i]->get_is_out_of_domain() == false && initialzed ) {
 
 			if( (*all_cells)[i]->phenotype.intracellular != NULL  && (*all_cells)[i]->phenotype.intracellular->need_update())
 			{
@@ -174,7 +172,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		#pragma omp parallel for 
 		for( int i=0; i < (*all_cells).size(); i++ )
 		{
-			if( (*all_cells)[i]->is_out_of_domain == false )
+			if( (*all_cells)[i]->get_is_out_of_domain() == false )
 			{
 				(*all_cells)[i]->advance_bundled_phenotype_functions( time_since_last_cycle ); 
 			}
@@ -218,7 +216,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		for( int i=0; i < (*all_cells).size(); i++ )
 		{
 			Cell* pC = (*all_cells)[i]; 
-			if( pC->functions.contact_function && pC->is_out_of_domain == false )
+			if( pC->functions.contact_function && pC->get_is_out_of_domain() == false )
 			{ evaluate_interactions( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
 		
@@ -229,45 +227,21 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		{
 			Cell* pC = (*all_cells)[i]; 
 						
-			if( pC->functions.custom_cell_rule && pC->is_out_of_domain == false )
+			if( pC->functions.custom_cell_rule && pC->get_is_out_of_domain() == false )
 			{ pC->functions.custom_cell_rule( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
 		
 		// update velocities 
 		
-		#pragma omp parallel for 
-		for( int i=0; i < (*all_cells).size(); i++ )
-		{
-			Cell* pC = (*all_cells)[i]; 
-			if( pC->functions.update_velocity && pC->is_out_of_domain == false && pC->is_movable )
-			{ pC->functions.update_velocity( pC,pC->phenotype,time_since_last_mechanics ); }
-		}
+		get_mechanics_environment_i()->compute_velocities(time_since_last_mechanics);
+
 
 		// new March 2023: 
 		// dynamic spring attachments, followed by built-in springs
 
 		if( PhysiCell_settings.disable_automated_spring_adhesions == false )
 		{
-			#pragma omp parallel for 
-			for( int i=0; i < (*all_cells).size(); i++ )
-			{
-				Cell* pC = (*all_cells)[i]; 
-				dynamic_spring_attachments(pC,pC->phenotype,time_since_last_mechanics); 
-			}		
-			#pragma omp parallel for 
-			for( int i=0; i < (*all_cells).size(); i++ )
-			{
-				Cell* pC = (*all_cells)[i]; 
-				if( pC->is_movable )
-				{
-					for( int j=0; j < pC->state.spring_attachments.size(); j++ )
-					{
-						Cell* pC1 = pC->state.spring_attachments[j]; 
-						// standard_elastic_contact_function_confluent_rest_length(pC,pC->phenotype,pC1,pC1->phenotype,time_since_last_mechanics);  
-						standard_elastic_contact_function(pC,pC->phenotype,pC1,pC1->phenotype,time_since_last_mechanics);  
-					}
-				}
-			}	
+			get_mechanics_environment_i()->compute_spring_attachments(time_since_last_mechanics);
 		}
 
 		// new March 2022: 
@@ -293,23 +267,12 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 			cells_ready_to_die.clear();
 		}
 		
-
 		// update positions 
-		
-		#pragma omp parallel for 
-		for( int i=0; i < (*all_cells).size(); i++ )
-		{
-			Cell* pC = (*all_cells)[i]; 
-			if( pC->is_out_of_domain == false && pC->is_movable)
-			{ pC->update_position(time_since_last_mechanics); }
-		}
-		
-		// When somebody reviews this code, let's add proper braces for clarity!!! 
+		get_mechanics_environment_i()->update_positions(time_since_last_mechanics);
 		
 		// Update cell indices in the container
-		for( int i=0; i < (*all_cells).size(); i++ )
-			if(!(*all_cells)[i]->is_out_of_domain && (*all_cells)[i]->is_movable)
-				(*all_cells)[i]->update_voxel_in_container();
+		get_mechanics_environment_i()->update_container();
+
 		last_mechanics_time=t;
 	}
 	
@@ -319,71 +282,32 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 
 void Cell_Container::register_agent( Cell* agent )
 {
-	agent_grid[agent->get_current_mechanics_voxel_index()].push_back(agent);
-	return; 
+	mechanics_env_.register_agent(agent);
 }
 
 void Cell_Container::remove_agent(Cell* agent )
 {
-	remove_agent_from_voxel(agent, agent->get_current_mechanics_voxel_index());
-	return; 
+	mechanics_env_.remove_agent(agent);
 }
 
 void Cell_Container::add_agent_to_outer_voxel(Cell* agent)
 {
-	int escaping_face= find_escaping_face_index(agent);
-	agents_in_outer_voxels[escaping_face].push_back(agent);
-	agent->is_out_of_domain=true;
-	return; 
+	mechanics_env_.add_agent_to_outer_voxel(agent);
 }
 
 void Cell_Container::remove_agent_from_voxel(Cell* agent, int voxel_index)
 {
-	if (voxel_index < 0)
-	{
-		return; 
-	}
-	int delete_index = 0; 
-	while( agent_grid[voxel_index][ delete_index ] != agent )
-	{
-		delete_index++; 
-	}
-	
-	// move last item to index location
-    agent_grid[voxel_index][delete_index] = agent_grid[voxel_index][agent_grid[voxel_index].size()-1 ];
-    // shrink the vector
-    agent_grid[voxel_index].pop_back();
-    
-	return; 
+	mechanics_env_.remove_agent_from_voxel(agent, voxel_index);
 }		
 
 void Cell_Container::add_agent_to_voxel(Cell* agent, int voxel_index)
 {
-	agent_grid[voxel_index].push_back(agent); 
-	return; 
+	mechanics_env_.add_agent_to_voxel(agent, voxel_index);
 }	
 
 bool Cell_Container::contain_any_cell(int voxel_index)
 {
-	// Let's replace this with clearer statements. 
-	return agent_grid[voxel_index].size()==0?false:true;
-}
-
-int find_escaping_face_index(Cell* agent)
-{
-	if(agent->get_position()[0] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
-	{ return PhysiCell_constants::mesh_lx_face_index; }
-	if(agent->get_position()[0] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
-	{ return PhysiCell_constants::mesh_ux_face_index; }
-	if(agent->get_position()[1] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
-	{ return PhysiCell_constants::mesh_ly_face_index; }
-	if(agent->get_position()[1] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
-	{ return PhysiCell_constants::mesh_uy_face_index; }
-	if(agent->get_position()[2] <= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
-	{ return PhysiCell_constants::mesh_lz_face_index; }
-	if(agent->get_position()[2] >= agent->get_container()->underlying_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
-	{ return PhysiCell_constants::mesh_uz_face_index; }
-	return -1; 
+	return mechanics_env_.contain_any_cell(voxel_index);
 }
 
 void Cell_Container::flag_cell_for_division( Cell* pCell )

@@ -70,7 +70,7 @@
 #include "../modules/PhysiCell_pathology.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 
-#include "../BioFVM/BioFVM_vector.h"
+#include "../mechanics/PhysiCell_mechanics_implementation.h"
 
 namespace PhysiCell{
 	
@@ -614,102 +614,14 @@ void basic_volume_model( Cell* pCell, Phenotype& phenotype, double dt )
 	return; 
 }
 
-void standard_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt)
-{
-	if( pCell->functions.add_cell_basement_membrane_interactions )
-	{
-		pCell->functions.add_cell_basement_membrane_interactions(pCell, phenotype,dt);
-	}
-	
-	pCell->state.simple_pressure = 0.0; 
-	pCell->state.neighbors.clear(); // new 1.8.0
-	
-	//First check the neighbors in my current voxel
-	std::vector<Cell*>::iterator neighbor;
-	std::vector<Cell*>::iterator end = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for(neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
-	{
-		pCell->add_potentials(*neighbor);
-	}
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
-	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
-			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
-		{
-			pCell->add_potentials(*neighbor);
-		}
-	}
-
-	pCell->update_motility_vector(dt); 
-	pCell->get_velocity() += phenotype.motility.motility_vector; 
-	
-	return; 
-}
-
 void standard_add_basement_membrane_interactions( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	if( pCell->functions.calculate_distance_to_membrane == NULL )
-	{ return; }
-	
-	double max_interactive_distance = phenotype.mechanics.relative_maximum_adhesion_distance * phenotype.geometry.radius;
-	double distance = pCell->functions.calculate_distance_to_membrane(pCell,phenotype,dt); 
-	//Note that the distance_to_membrane function must set displacement values (as a normal vector)
-		
-	double temp_a=0;
-	// Adhesion to basement membrane
-	if(distance< max_interactive_distance)
-	{
-		temp_a= (1- distance/max_interactive_distance);
-		temp_a*=temp_a;
-		temp_a*=-phenotype.mechanics.cell_BM_adhesion_strength;
-	}
-	// Repulsion from basement membrane
-	double temp_r = 0;
-	if(distance < phenotype.geometry.radius)
-	{
-		temp_r = (1- distance/phenotype.geometry.radius);
-		temp_r *= temp_r;
-		temp_r *= phenotype.mechanics.cell_BM_repulsion_strength;
-	}
-	temp_r += temp_a;
-	if( fabs( temp_r ) < 1e-16 )
-	{ return; }
-	
-	axpy( &( pCell->get_velocity() ) , temp_r , pCell->displacement ); 
-	return;	
+	get_mechanics_environment_i()->standard_add_basement_membrane_interactions( pCell, dt );
 }
 
 void standard_domain_edge_avoidance_interactions( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	if( pCell->functions.calculate_distance_to_membrane == NULL )
-	{ pCell->functions.calculate_distance_to_membrane = distance_to_domain_edge; }
-	phenotype.mechanics.cell_BM_repulsion_strength = 100;  
-		
-	double distance = pCell->functions.calculate_distance_to_membrane(pCell,phenotype,dt); 
-	//Note that the distance_to_membrane function must set displacement values (as a normal vector)
-		
-	// Repulsion from basement membrane
-	double temp_r = 0;
-	if(distance < phenotype.geometry.radius)
-	{
-		temp_r = (1- distance/phenotype.geometry.radius);
-		temp_r *= temp_r;
-		temp_r *= phenotype.mechanics.cell_BM_repulsion_strength;
-	}
-	if( fabs( temp_r ) < 1e-16 )
-	{ return; }
-	
-	axpy( &( pCell->get_velocity() ) , temp_r , pCell->displacement ); 
-	return;
+	get_mechanics_environment_i()->standard_domain_edge_avoidance_interactions( pCell, dt );
 }
 
 void empty_function( Cell* pCell, Phenotype& phenotype, double dt )
@@ -756,7 +668,6 @@ void initialize_default_cell_definition( void )
 	cell_defaults.functions.update_phenotype = update_cell_and_death_parameters_O2_based; // NULL; 
 	cell_defaults.functions.custom_cell_rule = NULL; 
 	
-	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL; 
 	cell_defaults.functions.calculate_distance_to_membrane = NULL; 
 	
@@ -782,8 +693,8 @@ void initialize_default_cell_definition( void )
 	cell_defaults.phenotype.cell_interactions.sync_to_cell_definitions(); 
 	cell_defaults.phenotype.cell_transformations.sync_to_cell_definitions(); 
 	cell_defaults.phenotype.cycle.asymmetric_division.sync_to_cell_definitions();
-	cell_defaults.phenotype.motility.sync_to_current_microenvironment(); 
-	cell_defaults.phenotype.mechanics.sync_to_cell_definitions(); 
+	cell_defaults.motility_data.sync_to_current_microenvironment(); 
+	cell_defaults.mechanics_data.sync_to_cell_definitions(); 
 	
 	return; 	
 }
@@ -915,122 +826,27 @@ void update_cell_and_death_parameters_O2_based( Cell* pCell, Phenotype& phenotyp
 
 void chemotaxis_function( Cell* pCell, Phenotype& phenotype , double dt )
 {
-	// bias direction is gradient for the indicated substrate 
-	phenotype.motility.migration_bias_direction = pCell->nearest_gradient(phenotype.motility.chemotaxis_index);
-	// move up or down gradient based on this direction 
-	phenotype.motility.migration_bias_direction *= phenotype.motility.chemotaxis_direction; 
-
-	// normalize 
-	normalize( &( phenotype.motility.migration_bias_direction ) );
-	
-	return;
+	get_mechanics_environment_i()->chemotaxis_function( pCell, dt);
 }
 
 void advanced_chemotaxis_function_normalized( Cell* pCell, Phenotype& phenotype , double dt )
 {
-	// We'll work directly on the migration bias direction 
-	std::vector<double>* pVec = &(phenotype.motility.migration_bias_direction);  
-	// reset to zero. use memset to be faster??
-	pVec->assign( 3, 0.0 ); 
-	
-	// a place to put each gradient prior to normalizing it 
-	std::vector<double> temp(3,0.0); 
-
-	// weighted combination of the gradients 
-	for( int i=0; i < phenotype.motility.chemotactic_sensitivities.size(); i++ )
-	{
-		// get and normalize ith gradient 
-		temp = pCell->nearest_gradient(i); 
-		normalize( &temp ); 
-		axpy( pVec , phenotype.motility.chemotactic_sensitivities[i] , temp ); 
-	}
-	// normalize that 
-	normalize( pVec ); 
-	
-	return;
-}
+	get_mechanics_environment_i()->advanced_chemotaxis_function_normalized( pCell, dt);
+}	
 
 void advanced_chemotaxis_function( Cell* pCell, Phenotype& phenotype , double dt )
 {
-	// We'll work directly on the migration bias direction 
-	std::vector<double>* pVec = &(phenotype.motility.migration_bias_direction);  
-	// reset to zero. use memset to be faster??
-	pVec->assign( 3, 0.0 ); 
-
-	// weighted combination of the gradients 
-	for( int i=0; i < phenotype.motility.chemotactic_sensitivities.size(); i++ )
-	{
-		// get and normalize ith gradient 
-		axpy( pVec , phenotype.motility.chemotactic_sensitivities[i] , pCell->nearest_gradient(i) ); 
-	}
-	// normalize that 
-	normalize( pVec ); 
-
-/*
- #pragma omp critical
- {
-	std::cout << "\t\ttype: " << pCell->type_name 
-	<< " bias: " << phenotype.motility.migration_bias 
-	<< " speed: " << phenotype.motility.migration_speed 
-	<< " direction: " << phenotype.motility.migration_bias_direction << std::endl; 
- }
- */
-
-	return;
+	get_mechanics_environment_i()->advanced_chemotaxis_function( pCell, dt);
 }
 
 void standard_elastic_contact_function( Cell* pC1, Phenotype& p1, Cell* pC2, Phenotype& p2 , double dt )
 {
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
-	{ return; }
-	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
-
-	// update May 2022 - effective adhesion 
-	int ii = find_cell_definition_index( pC1->get_type() ); 
-	int jj = find_cell_definition_index( pC2->get_type() ); 
-
-	double adhesion_ii = pC1->phenotype.mechanics.attachment_elastic_constant * pC1->phenotype.mechanics.cell_adhesion_affinities[jj]; 
-	double adhesion_jj = pC2->phenotype.mechanics.attachment_elastic_constant * pC2->phenotype.mechanics.cell_adhesion_affinities[ii]; 
-
-	double effective_attachment_elastic_constant = sqrt( adhesion_ii*adhesion_jj ); 
-
-	// axpy( &(pC1->velocity) , p1.mechanics.attachment_elastic_constant , displacement ); 
-	axpy( &(pC1->get_velocity()) , effective_attachment_elastic_constant , displacement ); 
-	return; 
+	get_mechanics_environment_i()->standard_elastic_contact_function( pC1, pC2, dt);
 }
-
 void standard_elastic_contact_function_confluent_rest_length( Cell* pC1, Phenotype& p1, Cell* pC2, Phenotype& p2 , double dt )
 {
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
-	{ return; }
-	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
-
-	// update May 2022 - effective adhesion 
-	int ii = find_cell_definition_index( pC1->get_type() ); 
-	int jj = find_cell_definition_index( pC2->get_type() ); 
-
-	double adhesion_ii = pC1->phenotype.mechanics.attachment_elastic_constant * pC1->phenotype.mechanics.cell_adhesion_affinities[jj]; 
-	double adhesion_jj = pC2->phenotype.mechanics.attachment_elastic_constant * pC2->phenotype.mechanics.cell_adhesion_affinities[ii]; 
-
-	double effective_attachment_elastic_constant = sqrt( adhesion_ii*adhesion_jj ); 
-	// axpy( &(pC1->velocity) , effective_attachment_elastic_constant , displacement ); 
-
-	// have the adhesion strength taper away at this rest lenght
-	// set the rest length = confluent cell-cell spacing 
-	// 
-	double rest_length = ( p1.geometry.radius + p2.geometry.radius ) * 0.9523809523809523;  
-
-	double strength = ( norm(displacement) - rest_length )*effective_attachment_elastic_constant;
-	normalize( &displacement );
-	axpy( &(pC1->get_velocity()) , strength , displacement ); 
-
-	return; 
+	get_mechanics_environment_i()->standard_elastic_contact_function_confluent_rest_length( pC1, pC2, dt);
 }
-
 
 void evaluate_interactions( Cell* pCell, Phenotype& phenotype, double dt )
 {
@@ -1048,143 +864,8 @@ void evaluate_interactions( Cell* pCell, Phenotype& phenotype, double dt )
 
 double distance_to_domain_edge(Cell* pCell, Phenotype& phenotype, double dummy)
 {
-	static double tolerance = 1e-7;
-	static double one_over_sqrt_2 = 0.70710678118;
-	static double one_over_sqrt_3 = 0.57735026919; 
-	
-		
-	double min_distance = 9e99; 
-	int nearest_boundary = -1; 
-	
-	// check against xL and xU
-	double temp_distance = pCell->get_position()[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
-	if( temp_distance < min_distance )
-	{
-		min_distance = temp_distance; 
-		nearest_boundary = 0; 
-	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - pCell->get_position()[0]; 
-	if( temp_distance < min_distance )
-	{
-		min_distance = temp_distance; 
-		nearest_boundary = 1; 
-	}
-	
-	// check against yL and yU
-	temp_distance = pCell->get_position()[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
-	if( temp_distance < min_distance )
-	{
-		min_distance = temp_distance; 
-		nearest_boundary = 2; 
-	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - pCell->get_position()[1]; 
-	if( temp_distance < min_distance )
-	{
-		min_distance = temp_distance; 
-		nearest_boundary = 3; 
-	}	
-	
-	if( get_microenvironment_i()->simulate_2D() == false )
-	{
-		// if in 3D, check against zL and zU
-		temp_distance = pCell->get_position()[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
-		if( temp_distance < min_distance )
-		{
-			min_distance = temp_distance; 
-			nearest_boundary = 4; 
-		}
-		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - pCell->get_position()[2]; 
-		if( temp_distance < min_distance )
-		{
-			min_distance = temp_distance; 
-			nearest_boundary = 5; 
-		}			
-		
-		// check for 3D exceptions 
-		
-		// lines 
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance && 
-			fabs( (pCell->get_position()[1]) - (pCell->get_position()[2]) ) < tolerance && 
-			fabs( (pCell->get_position()[0]) - (pCell->get_position()[2]) ) < tolerance )
-		{
-			if( pCell->get_position()[0] > 0 )
-			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
-				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
-				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
-				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
-				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
-			} 
-			else
-			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
-				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
-				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
-				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
-				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
-				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }				
-			}
-			return min_distance; 
-		}
-		
-		// planes - let's not worry for today 
-		
-	}
-	else
-	{
-		// check for 2D  exceptions 
-		
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance )
-		{
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
-			{ pCell->displacement = { -one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
-			{ pCell->displacement = { one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
-			
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
-			{ pCell->displacement = { -one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
-			{ pCell->displacement = { one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
-			return min_distance; 
-		}
-	}
-	
-	// no exceptions 
-	switch(nearest_boundary)
-	{
-		case 0:
-			pCell->displacement = {1,0,0}; 
-			return min_distance; 
-		case 1:
-			pCell->displacement = {-1,0,0}; 
-			return min_distance;
-		case 2:
-			pCell->displacement = {0,1,0}; 
-			return min_distance; 
-		case 3: 
-			pCell->displacement = {0,-1,0}; 
-			return min_distance; 
-		case 4: 
-			pCell->displacement = {0,0,1}; 
-			return min_distance; 
-		case 5: 
-			pCell->displacement = {0,0,-1}; 
-			return min_distance; 
-		default:
-			pCell->displacement = {0,0,0};
-			return 9e99; 
-	}
-	
-	pCell->displacement = {0,0,0};
-	return 9e99; 
-}	
+	return get_mechanics_environment_i()->distance_to_domain_edge(pCell);
+}
 
 void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double dt )
 {
@@ -1200,9 +881,9 @@ void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double 
 	bool phagocytosed = false; 
 	bool fused = false; 
 	
-	for( int n=0; n < pCell->state.neighbors.size(); n++ )
+	for( int n=0; n < pCell->get_neighbors_count(); n++ )
 	{
-		pTarget = pCell->state.neighbors[n]; 
+		pTarget = pCell->get_neighbor(n); 
 		type = pTarget->get_type(); 
 		type_name = pTarget->type_name; 
 		
@@ -1277,7 +958,7 @@ void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double 
 					<< "attack damage rate: " << pCell->phenotype.cell_interactions.attack_damage_rate <<  std::endl; 
 					*/
 					// spring-link these cells 
-					attach_cells_as_spring(pCell,pTarget); 
+					get_mechanics_environment_i()->attach_cells_as_spring(pCell,pTarget, true); 
 				} 
 			}
 
@@ -1344,7 +1025,7 @@ void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double 
 				<< "damage delivered: " << pCell->phenotype.cell_interactions.total_damage_delivered << std::endl; 
 				*/
 
-				detach_cells_as_spring(pCell,pTarget); 
+				get_mechanics_environment_i()->detach_cells_as_spring(pCell,pTarget); 
 
 				pCell->phenotype.cell_interactions.pAttackTarget = NULL; 
 			} 
@@ -1424,7 +1105,7 @@ void standard_asymmetric_division_function( Cell* pCell_parent, Cell* pCell_daug
 void dynamic_attachments( Cell* pCell , Phenotype& phenotype, double dt )
 {
     // check for detachments 
-    double detachment_probability = phenotype.mechanics.detachment_rate * dt; 
+    double detachment_probability = phenotype.mechanics.detachment_rate() * dt; 
 	// detach_cells swaps the detached cell with the last cell in the vector, so we need to iterate backwards
     for( int j=pCell->state.attached_cells.size()-1; j >= 0; j-- )
     {
@@ -1434,17 +1115,17 @@ void dynamic_attachments( Cell* pCell , Phenotype& phenotype, double dt )
     }
 
     // check if I have max number of attachments 
-    if( pCell->state.attached_cells.size() >= phenotype.mechanics.maximum_number_of_attachments )
+    if( pCell->state.attached_cells.size() >= phenotype.mechanics.maximum_number_of_attachments() )
     { return; }
 
     // check for new attachments; 
-    double attachment_probability = phenotype.mechanics.attachment_rate * dt; 
+    double attachment_probability = phenotype.mechanics.attachment_rate() * dt; 
     bool done = false; 
     int j = 0; 
-    while( done == false && j < pCell->state.neighbors.size() )
+    while( done == false && j < pCell->get_neighbors_count() )
     {
-        Cell* pTest = pCell->state.neighbors[j]; 
-        if( pTest->state.number_of_attached_cells() < pTest->phenotype.mechanics.maximum_number_of_attachments )
+        Cell* pTest = pCell->get_neighbor(j); 
+        if( pTest->state.number_of_attached_cells() < pTest->phenotype.mechanics.maximum_number_of_attachments() )
         {
             // std::string search_string = "adhesive affinity to " + pTest->type_name; 
             // double affinity = get_single_behavior( pCell , search_string );
@@ -1455,7 +1136,7 @@ void dynamic_attachments( Cell* pCell , Phenotype& phenotype, double dt )
             {
                 // attempt the attachment. testing for prior connection is already automated 
                 attach_cells( pCell, pTest ); 
-                if( pCell->state.attached_cells.size() >= phenotype.mechanics.maximum_number_of_attachments )
+                if( pCell->state.attached_cells.size() >= phenotype.mechanics.maximum_number_of_attachments() )
                 { done = true; }
             }
         }
@@ -1466,48 +1147,7 @@ void dynamic_attachments( Cell* pCell , Phenotype& phenotype, double dt )
 
 void dynamic_spring_attachments( Cell* pCell , Phenotype& phenotype, double dt )
 {
-    // check for detachments 
-    double detachment_probability = phenotype.mechanics.detachment_rate * dt; 
-	// detach_cells_as_spring swaps the detached cell with the last cell in the vector, so we need to iterate backwards
-    for( int j=pCell->state.spring_attachments.size()-1; j >= 0; j-- )
-    {
-        Cell* pTest = pCell->state.spring_attachments[j];
-		if (phenotype.cell_interactions.pAttackTarget==pTest || pTest->phenotype.cell_interactions.pAttackTarget==pCell) // do not let attackers detach randomly
-		{ continue; }
-        if( UniformRandom() <= detachment_probability )
-        { detach_cells_as_spring( pCell , pTest ); }
-    }
-
-    // check if I have max number of attachments 
-    if( pCell->state.spring_attachments.size() >= phenotype.mechanics.maximum_number_of_attachments )
-    { return; }
-
-    // check for new attachments; 
-    double attachment_probability = phenotype.mechanics.attachment_rate * dt; 
-    bool done = false; 
-    int j = 0; 
-    while( done == false && j < pCell->state.neighbors.size() )
-    {
-        Cell* pTest = pCell->state.neighbors[j]; 
-        if( pTest->state.spring_attachments.size() < pTest->phenotype.mechanics.maximum_number_of_attachments )
-        {
-            // std::string search_string = "adhesive affinity to " + pTest->type_name; 
-            // double affinity = get_single_behavior( pCell , search_string );
-			double affinity = phenotype.mechanics.cell_adhesion_affinity(pTest->type_name); 
-
-            double prob = attachment_probability * affinity; 
-            if( UniformRandom() <= prob )
-            {
-                // attempt the attachment. testing for prior connection is already automated 
-                attach_cells_as_spring( pCell, pTest ); 
-                if( pCell->state.spring_attachments.size() >= phenotype.mechanics.maximum_number_of_attachments )
-                { done = true; }
-            }
-        }
-        j++; 
-    }
-    return; 
+	get_mechanics_environment_i()->dynamic_spring_attachments( pCell, dt);
 }
-
 	
 };

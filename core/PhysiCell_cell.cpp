@@ -72,6 +72,7 @@
 #include "PhysiCell_rules.h"
 #include "../BioFVM/BioFVM_vector.h"
 #include "../BioFVM/BioFVM_implementation.h"
+#include "../mechanics/PhysiCell_mechanics_implementation.h"
 
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"
@@ -83,9 +84,7 @@
 #include "../addons/dFBA/src/dfba_intracellular.h"
 #endif
 
-#include<limits.h>
-
-#include <signal.h>  // for segfault
+#include <limits.h>
 
 #include <algorithm>
 #include <iterator> 
@@ -176,8 +175,8 @@ Cell_Definition::Cell_Definition()
 	phenotype.cell_interactions.sync_to_cell_definitions(); 
 	phenotype.cell_transformations.sync_to_cell_definitions(); 
 	phenotype.cycle.asymmetric_division.sync_to_cell_definitions();
-	phenotype.motility.sync_to_current_microenvironment(); 
-	phenotype.mechanics.sync_to_cell_definitions(); 
+	motility_data.sync_to_current_microenvironment(); 
+	mechanics_data.sync_to_cell_definitions(); 
 	
 	cell_definitions_by_index.push_back( this ); 
 
@@ -244,9 +243,14 @@ void Cell_Definition::sync_to_microenvironment( Microenvironment_Interface* pNew
 	internalized_total_substrates.resize( pNew_Microenvironment->number_of_densities() );
 	fraction_released_at_death.resize( pNew_Microenvironment->number_of_densities() );
 	fraction_transferred_when_ingested.resize( pNew_Microenvironment->number_of_densities() );
+	
+	mechanics_data.sync_to_cell_definitions();
+	motility_data.sync_to_current_microenvironment();
 
 	phenotype.secretion.sync_to_cell_definition( this );
 	phenotype.molecular.sync_to_cell_definition( this );
+	phenotype.mechanics.sync_to_cell_definition( this );
+	phenotype.motility.sync_to_cell_definition( this );
 
 	return; 
 }
@@ -255,15 +259,7 @@ Cell_Definition cell_defaults;
 
 Cell_State::Cell_State()
 {
-	neighbors.resize(0); 
-	spring_attachments.resize(0); 
-
 	orientation.resize( 3 , 0.0 ); 
-	
-	simple_pressure = 0.0; 
-	
-	attached_cells.clear(); 
-	spring_attachments.clear(); 
 	
 	number_of_nuclei = 1; 
 	
@@ -274,63 +270,6 @@ Cell_State::Cell_State()
 
 	return; 
 }
-
-void Cell::update_motility_vector( double dt_ )
-{
-	if( phenotype.motility.is_motile == false )
-	{
-		phenotype.motility.motility_vector.assign( 3, 0.0 ); 
-		return; 
-	}
-	
-	if( UniformRandom() < dt_ / phenotype.motility.persistence_time || phenotype.motility.persistence_time < dt_ )
-	{
-		/*
-		// choose a uniformly random unit vector 
-		double temp_angle = 6.28318530717959*UniformRandom();
-		double temp_phi = 3.1415926535897932384626433832795*UniformRandom();
-		
-		double sin_phi = sin(temp_phi);
-		double cos_phi = cos(temp_phi);
-		
-		if( phenotype.motility.restrict_to_2D == true )
-		{ 
-			sin_phi = 1.0; 
-			cos_phi = 0.0;
-		}
-		
-		std::vector<double> randvec; 
-		randvec.resize(3,sin_phi); 
-		
-		randvec[0] *= cos( temp_angle ); // cos(theta)*sin(phi)
-		randvec[1] *= sin( temp_angle ); // sin(theta)*sin(phi)
-		randvec[2] = cos_phi; //  cos(phi)
-		*/
-		std::vector<double> randvec(3,0.0);
-		if( phenotype.motility.restrict_to_2D == true )
-		{ randvec = UniformOnUnitCircle(); }
-		else
-		{ randvec = UniformOnUnitSphere(); }
-
-		// if the update_bias_vector function is set, use it  
-		if( functions.update_migration_bias )
-		{
-			functions.update_migration_bias( this,phenotype,dt_ ); 
-		}
-		
-		phenotype.motility.motility_vector = phenotype.motility.migration_bias_direction; // motiltiy = bias_vector
-		phenotype.motility.motility_vector *= phenotype.motility.migration_bias; // motility = bias*bias_vector 
-		
-		double one_minus_bias = 1.0 - phenotype.motility.migration_bias; 
-		
-		axpy( &(phenotype.motility.motility_vector), one_minus_bias, randvec ); // motility = (1-bias)*randvec + bias*bias_vector
-		
-		normalize( &(phenotype.motility.motility_vector) ); 
-		
-		phenotype.motility.motility_vector *= phenotype.motility.migration_speed; 
-	}	
-	return; 
-} 
 
 void Cell::advance_bundled_phenotype_functions( double dt_ )
 {
@@ -388,8 +327,10 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 		
 		// also, turn off motility.
 		
-		phenotype.motility.is_motile = false; 
-		phenotype.motility.motility_vector.assign( 3, 0.0 ); 
+		phenotype.motility.is_motile() = false; 
+		int dims = phenotype.motility.restrict_to_2D() ? 2 : 3; 
+		for ( int i = 0 ; i < dims; i++ )
+		{ phenotype.motility.motility_vector()[i] = 0.0; }
 		functions.update_migration_bias = NULL;
 		
 		// turn off secretion, and reduce uptake by a factor of 10 
@@ -419,7 +360,8 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 	return; 
 }
 
-Cell::Cell() : Basic_Agent_PIMPL(BioFVM::BioFVM_implementation::get_instance()->create_basic_agent())
+Cell::Cell() : Basic_Agent_PIMPL(BioFVM_implementation::get_instance()->create_basic_agent()), 
+			   Mechanics_Agent_PIMPL(Mechanics_implementation::get_instance()->create_mechanics_agent(Basic_Agent_PIMPL::pImpl, this))
 {
 	// use the cell defaults; 
 	
@@ -432,18 +374,12 @@ Cell::Cell() : Basic_Agent_PIMPL(BioFVM::BioFVM_implementation::get_instance()->
 	
 	phenotype.secretion.sync_to_cell( this ); 
 	phenotype.molecular.sync_to_cell( this ); 
+	phenotype.mechanics.sync_to_cell( this );
+	phenotype.motility.sync_to_cell( this );
 	
 	phenotype = cell_defaults.phenotype; 
 	
 	// cell state should be fine by the default constructor 
-	
-	current_mechanics_voxel_index=-1;
-	
-	updated_current_mechanics_voxel_index = 0;
-	
-	is_movable = true;
-	is_out_of_domain = false;
-	displacement.resize(3,0.0); // state? 
 	
 	assign_orientation();
 	container = NULL;
@@ -529,8 +465,10 @@ void Cell::start_death( int death_model_index )
 	phenotype.secretion.scale_all_uptake_by_factor( 0.10 );
 		
 	// turn off motility.
-	phenotype.motility.is_motile = false; 
-	phenotype.motility.motility_vector.assign( 3, 0.0 ); 
+	phenotype.motility.is_motile() = false; 
+	int dims = phenotype.motility.restrict_to_2D() ? 2 : 3;
+	for ( int i = 0 ; i < dims ; i++ )
+	{ phenotype.motility.motility_vector()[i] = 0.0; }
 	functions.update_migration_bias = NULL;
 		
 	// make sure to run the death entry function 
@@ -664,11 +602,11 @@ Cell* Cell::divide( )
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->underlying_mesh.is_position_valid(get_position()[0], get_position()[1], get_position()[2]))
+	if( !get_container()->get_underlying_mesh().is_position_valid(get_position()[0], get_position()[1], get_position()[2]))
 	{
-		is_out_of_domain = true;
+		get_is_out_of_domain() = true;
 		set_is_active(false);
-		is_movable = false;
+		get_is_movable() = false;
 	}	
 	 
 	update_voxel_in_container();
@@ -703,59 +641,9 @@ Cell* Cell::divide( )
 	return child;
 }
 
-bool Cell::assign_position(const std::vector<double>& new_position)
-{
-	return assign_position(new_position[0], new_position[1], new_position[2]);
-}
-
-void Cell::set_previous_velocity(double xV, double yV, double zV)
-{
-	get_previous_velocity()[0] = xV;
-	get_previous_velocity()[1] = yV;
-	get_previous_velocity()[2] = zV;
-
-	return; 
-}
-
-bool Cell::assign_position(double x, double y, double z)
-{
-	get_position_internal()[0] = x;
-	get_position_internal()[1] = y;
-	if ( !get_microenvironment_i()->simulate_2D() )
-	{ get_position_internal()[2] = z; }
-	
-	// update microenvironment current voxel index
-	update_voxel_index();
-	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index= get_container()->underlying_mesh.nearest_voxel_index( get_position() );
-
-    // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
-	// which was not initialized at cell creation
-	if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
-		phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance )
-	{
-		// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius*parameters.max_interaction_distance_factor;
-		get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
-			* phenotype.mechanics.relative_maximum_adhesion_distance;
-	}
-
-	get_container()->register_agent(this);
-	
-	if( !get_container()->underlying_mesh.is_position_valid(x,y,z) )
-	{	
-		is_out_of_domain = true; 
-		set_is_active(false); 
-		is_movable = false; 
-		
-		return false;
-	}
-	
-	return true;
-}
-
 void Cell::set_total_volume(double volume)
 {
-	pImpl->set_total_volume(volume);
+	Basic_Agent_PIMPL::pImpl->set_total_volume(volume);
 	
 	// If the new volume is significantly different than the 
 	// current total volume, adjust all the sub-volumes 
@@ -777,12 +665,12 @@ void Cell::set_total_volume(double volume)
 	// Here the current mechanics voxel index may not be initialized, when position is still unknown. 
 	if (get_current_mechanics_voxel_index() >= 0)
     {
-        if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
-            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance )
+        if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
+            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
             // get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius*parameters.max_interaction_distance_factor;
-            get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
-                * phenotype.mechanics.relative_maximum_adhesion_distance;
+            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
+                * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
 	
@@ -883,104 +771,6 @@ void Cell::die()
 	return; 
 } 
 
-void Cell::update_position( double dt )
-{
-	// BioFVM Basic_Agent::update_position(dt) returns without doing anything. 
-	// So we remove this to avoid any future surprises. 
-	// 
-	// Basic_Agent::update_position(dt);
-		
-	// use Adams-Bashforth 
-	static double d1; 
-	static double d2; 
-	static bool constants_defined = false; 
-	if( constants_defined == false )
-	{
-		d1 = dt; 
-		d1 *= 1.5; 
-		d2 = dt; 
-		d2 *= -0.5; 
-		constants_defined = true; 
-	}
-	
-	// new AUgust 2017
-	if( get_microenvironment_i()->simulate_2D() == true )
-	{ get_velocity()[2] = 0.0; }
-	
-	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
-
-	// std::vector<double> old_position = position;
-	for ( int i = 0 ; i < dims ; i++ )
-	{
-		get_position_internal()[i] += 
-			( d1 * get_velocity()[i] + d2 * get_previous_velocity()[i] );
-	}
-	// overwrite previous_velocity for future use 
-	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
-		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
-	
-	get_previous_velocity() = get_velocity(); 
-	
-	get_velocity()[0]=0; get_velocity()[1]=0; get_velocity()[2]=0;
-	if(get_container()->underlying_mesh.is_position_valid(get_position()[0],get_position()[1],get_position()[2]))
-	{
-		updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( get_position() );
-	}
-	else
-	{
-		updated_current_mechanics_voxel_index=-1;
-		
-		is_out_of_domain = true; 
-		set_is_active(false); 
-		is_movable = false; 
-	}
-	return; 
-}
-
-int Cell::get_current_mechanics_voxel_index()
-{
-	return current_mechanics_voxel_index;
-}
-
-void Cell::update_voxel_in_container()
-{
-	// call the method from BioFVM_basic_agent to update microenvironment's voxel index
-	update_voxel_index();
-	// int temp_current_voxel_index;
-	// Check to see if we need to remove agents that are pushed out of boundary
-	// if(!get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2]))	
-		
-	if(updated_current_mechanics_voxel_index==-1)// updated_current_mechanics_voxel_index is updated in update_position
-	{
-		// check if this agent has a valid voxel index, if so, remove it from previous voxel
-		if( get_current_mechanics_voxel_index() >= 0)
-		{
-			{get_container()->remove_agent_from_voxel(this, get_current_mechanics_voxel_index());}
-		}
-		{get_container()->add_agent_to_outer_voxel(this);}
-		// std::cout<<"cell out of boundary..."<< __LINE__<<" "<<ID<<std::endl;
-		current_mechanics_voxel_index=-1;
-		is_out_of_domain=true;
-		set_is_active(false);
-		return;
-	}
-	
-	// temp_current_voxel_index= get_current_mechanics_voxel_index();
-	// updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( position );
-	
-	// update mesh indices (if needed)
-	if(updated_current_mechanics_voxel_index!= get_current_mechanics_voxel_index())
-	{
-		{
-			container->remove_agent_from_voxel(this, get_current_mechanics_voxel_index());
-			container->add_agent_to_voxel(this, updated_current_mechanics_voxel_index);
-		}
-		current_mechanics_voxel_index=updated_current_mechanics_voxel_index;
-	}
-	
-	return; 
-}
-
 void Cell::copy_data(Cell* copy_me)
 {
 	// phenotype=copyMe->phenotype; //it is taken care in set_phenotype
@@ -989,8 +779,12 @@ void Cell::copy_data(Cell* copy_me)
 	
 	custom_data = copy_me->custom_data; 
 	parameters = copy_me->parameters; 
+
+	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 	
-	get_velocity() = copy_me->get_velocity(); 
+	for ( int i = 0 ; i < dims ; i++ )
+	{ get_velocity()[i] = copy_me->get_velocity()[i]; }
+	
 	// expected_phenotype = copy_me-> expected_phenotype; //it is taken care in set_phenotype
 	for ( int i = 0 ; i < copy_me->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
 	{
@@ -1005,116 +799,6 @@ void Cell::copy_function_pointers(Cell* copy_me)
 {
 	functions = copy_me->functions; 
 	return; 
-}
-
-void Cell::add_potentials(Cell* other_agent)
-{
-	// if( this->ID == other_agent->ID )
-	if( this == other_agent )
-	{ return; }
-/*
-	// new April 2022: don't interact with cells with 0 volume 
-	// does not seem to really help 
-	if( other_agent->phenotype.volume.total < 1e-15 )
-	{ std::cout << "zero size cell in mechanics!" << std::endl; return; }
-*/
-	// 12 uniform neighbors at a close packing distance, after dividing out all constants
-	static double simple_pressure_scale = 0.027288820670331; // 12 * (1 - sqrt(pi/(2*sqrt(3))))^2 
-	// 9.820170012151277; // 12 * ( 1 - sqrt(2*pi/sqrt(3)))^2
-
-	double distance = 0; 
-	for( int i = 0 ; i < 3 ; i++ ) 
-	{ 
-		displacement[i] = get_position()[i] - (*other_agent).get_position()[i]; 
-		distance += displacement[i] * displacement[i]; 
-	}
-	// Make sure that the distance is not zero
-	
-	distance = std::max(sqrt(distance), 0.00001); 
-	
-	//Repulsive
-	double R = phenotype.geometry.radius+ (*other_agent).phenotype.geometry.radius; 
-	
-	// double RN = phenotype.geometry.nuclear_radius + (*other_agent).phenotype.geometry.nuclear_radius;	
-	double temp_r, c;
-	if( distance > R ) 
-	{
-		temp_r=0;
-	}
-	// else if( distance < RN ) 
-	// {
-		// double M = 1.0; 
-		// c = 1.0 - RN/R; 
-		// c *= c; 
-		// c -= M; 
-		// temp_r = ( c*distance/RN  + M  ); 
-	// }
-	else
-	{
-		// temp_r = 1 - distance/R;
-		temp_r = -distance; // -d
-		temp_r /= R; // -d/R
-		temp_r += 1.0; // 1-d/R
-		temp_r *= temp_r; // (1-d/R)^2 
-		
-		// add the relative pressure contribution 
-		state.simple_pressure += ( temp_r / simple_pressure_scale ); // New July 2017 
-	}
-	
-	// August 2017 - back to the original if both have same coefficient 
-
-	double effective_repulsion = sqrt( phenotype.mechanics.cell_cell_repulsion_strength * other_agent->phenotype.mechanics.cell_cell_repulsion_strength ); 
-	temp_r *= effective_repulsion; 
-	
-	// temp_r *= phenotype.mechanics.cell_cell_repulsion_strength; // original 
-	//////////////////////////////////////////////////////////////////
-	
-	// Adhesive
-	//double max_interactive_distance = parameters.max_interaction_distance_factor * phenotype.geometry.radius + 
-	//	(*other_agent).parameters.max_interaction_distance_factor * (*other_agent).phenotype.geometry.radius;
-		
-	double max_interactive_distance = phenotype.mechanics.relative_maximum_adhesion_distance * phenotype.geometry.radius + 
-		(*other_agent).phenotype.mechanics.relative_maximum_adhesion_distance * (*other_agent).phenotype.geometry.radius;
-		
-	if(distance < max_interactive_distance ) 
-	{	
-		// double temp_a = 1 - distance/max_interactive_distance; 
-		double temp_a = -distance; // -d
-		temp_a /= max_interactive_distance; // -d/S
-		temp_a += 1.0; // 1 - d/S 
-		temp_a *= temp_a; // (1-d/S)^2 
-		// temp_a *= phenotype.mechanics.cell_cell_adhesion_strength; // original 
-		
-		// August 2017 - back to the original if both have same coefficient 
-		// May 2022 - back to oriinal if both affinities are 1
-		int ii = find_cell_definition_index( this->get_type() ); 
-		int jj = find_cell_definition_index( other_agent->get_type() ); 
-
-		double adhesion_ii = phenotype.mechanics.cell_cell_adhesion_strength * phenotype.mechanics.cell_adhesion_affinities[jj]; 
-		double adhesion_jj = other_agent->phenotype.mechanics.cell_cell_adhesion_strength * other_agent->phenotype.mechanics.cell_adhesion_affinities[ii]; 
-
-		// double effective_adhesion = sqrt( phenotype.mechanics.cell_cell_adhesion_strength * other_agent->phenotype.mechanics.cell_cell_adhesion_strength ); 
-		double effective_adhesion = sqrt( adhesion_ii*adhesion_jj ); 
-		temp_a *= effective_adhesion; 
-		
-		temp_r -= temp_a;
-
-		state.neighbors.push_back(other_agent); // move here in 1.10.2 so non-adhesive cells also added. 
-	}
-	/////////////////////////////////////////////////////////////////
-	if( fabs(temp_r) < 1e-16 )
-	{ return; }
-	temp_r /= distance;
-	// for( int i = 0 ; i < 3 ; i++ ) 
-	// {
-	//	velocity[i] += displacement[i] * temp_r; 
-	// }
-	axpy( &(get_velocity()) , temp_r , displacement ); 
-	
-	
-	// state.neighbors.push_back(other_agent); // new 1.8.0
-	
-	return;
 }
 
 Cell* create_cell( Cell* (*custom_instantiate)())
@@ -1163,9 +847,8 @@ Cell* create_cell( Cell_Definition& cd )
 	if (pNew->phenotype.intracellular)
 		pNew->phenotype.intracellular->start();
 
-	pNew->is_movable = cd.is_movable; //  true;
-	pNew->is_out_of_domain = false;
-	pNew->displacement.resize(3,0.0); // state? 
+	pNew->get_is_movable() = cd.is_movable; //  true;
+	pNew->get_is_out_of_domain() = false;
 	
 	pNew->assign_orientation();
 	
@@ -1226,11 +909,11 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	// Here the current mechanics voxel index may not be initialized, when position is still unknown. 
 	if (get_current_mechanics_voxel_index() >= 0)
     {
-        if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
-            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance )
+        if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
+            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
-            get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
-                * phenotype.mechanics.relative_maximum_adhesion_distance;
+            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
+                * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
 	return; 
@@ -1273,6 +956,8 @@ void delete_cell( int index )
 		// need to update the moved cell's position in the container
 		(*all_cells)[index]->phenotype.secretion.sync_to_cell( (*all_cells)[index] );
 		(*all_cells)[index]->phenotype.molecular.sync_to_cell( (*all_cells)[index] );
+		(*all_cells)[index]->phenotype.mechanics.sync_to_cell( (*all_cells)[index] );
+		(*all_cells)[index]->phenotype.motility.sync_to_cell( (*all_cells)[index] );
 	}
 
 	return; 
@@ -1312,75 +997,32 @@ void delete_cell( Cell* pDelete )
 	delete_cell(pDelete->get_index());
 	return; 
 }
-
-bool is_neighbor_voxel(Cell* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index)
+std::vector<Cell*> Cell::cells_in_my_container( void )
 {
-	double max_interactive_distance = pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
-		+ pCell->get_container()->max_cell_interactive_distance_in_voxel[other_voxel_index];
-	
-	int comparing_dimension = -1, comparing_dimension2 = -1;
-	if(my_voxel_center[0] == other_voxel_center[0] && my_voxel_center[1] == other_voxel_center[1])
-	{
-		comparing_dimension = 2;
-	}
-	else if(my_voxel_center[0] == other_voxel_center[0] && my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 1;
-	}
-	else if(my_voxel_center[1] == other_voxel_center[1] && my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 0;
-	}
-	
-	if(comparing_dimension != -1) 
-	{ //then it is an immediate neighbor (through side faces)
-		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->get_position()[comparing_dimension] - surface_coord) > max_interactive_distance)
-		{ return false; }
-		return true;
-	}
-	comparing_dimension=-1;
-	
-	if(my_voxel_center[0] == other_voxel_center[0])
-	{
-		comparing_dimension = 1; comparing_dimension2 = 2;
-	}
-	else if(my_voxel_center[1] == other_voxel_center[1])
-	{
-		comparing_dimension=0; comparing_dimension2 = 2;
-	}
-	else if(my_voxel_center[2] == other_voxel_center[2])
-	{
-		comparing_dimension = 0; comparing_dimension2=1;
-	}
-	if(comparing_dimension != -1)
-	{
-		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->get_position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->get_position()[comparing_dimension2] - line_coord2,2);
-		if(distance_squared > max_interactive_distance * max_interactive_distance)
-		{ return false; }
-		return true;
-	}
-	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->get_position()[0])*(corner_point[0]-pCell->get_position()[0])
-		+(corner_point[1]-pCell->get_position()[1])*(corner_point[1]-pCell->get_position()[1]) 
-		+(corner_point[2]-pCell->get_position()[2]) * (corner_point[2]-pCell->get_position()[2]);
-	if(distance_squared > max_interactive_distance * max_interactive_distance)
-	{ return false; }
-	return true;
-}
-
-std::vector<Cell*>& Cell::cells_in_my_container( void )
-{
-	return get_container()->agent_grid[get_current_mechanics_voxel_index()];
+	auto pimpl_vec = get_mechanics_environment_i()->agents_in_my_container(this);
+	std::vector<Cell*> result;
+	result.reserve(pimpl_vec.size());
+	for(auto* p : pimpl_vec) result.push_back(static_cast<Cell*>(p));
+	return result;
 }
 
 std::vector<Cell*> Cell::nearby_cells( void )
-{ return find_nearby_cells( this ); }
+{
+	auto pimpl_vec = get_mechanics_environment_i()->nearby_agents(this);
+	std::vector<Cell*> result;
+	result.reserve(pimpl_vec.size());
+	for(auto* p : pimpl_vec) result.push_back(static_cast<Cell*>(p));
+	return result;
+}
 
 std::vector<Cell*> Cell::nearby_interacting_cells( void )
-{ return find_nearby_interacting_cells( this ); }
+{
+	auto pimpl_vec = get_mechanics_environment_i()->nearby_interacting_agents(this);
+	std::vector<Cell*> result;
+	result.reserve(pimpl_vec.size());
+	for(auto* p : pimpl_vec) result.push_back(static_cast<Cell*>(p));
+	return result;
+}
 
 void Cell::ingest_cell( Cell* pCell_to_eat )
 {
@@ -1421,7 +1063,7 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 		pCell_to_eat->functions.volume_update_function = NULL; 
 
 		// set cell as unmovable and non-secreting 
-		pCell_to_eat->is_movable = false; 
+		pCell_to_eat->get_is_movable() = false; 
 		pCell_to_eat->set_is_active(false); 
 
 		// absorb all the volume(s)
@@ -1681,7 +1323,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// pCell_to_eat->remove_all_attached_cells();
 		
 		// set cell as unmovable and non-secreting 
-		pCell_to_fuse->is_movable = false; 
+		pCell_to_fuse->get_is_movable() = false; 
 		pCell_to_fuse->set_is_active(false); 
 
 	}
@@ -1725,7 +1367,7 @@ void Cell::lyse_cell( void )
 	set_total_volume( 0.0 ); 
 
 	// set cell as unmovable and non-secreting 
-	is_movable = false; 
+	get_is_movable() = false; 
 	set_is_active(false); 	
 
 	return; 
@@ -1813,6 +1455,15 @@ void display_ptr_as_bool( void (*ptr)(Cell*,Cell*), std::ostream& os )
 	os << "false"; 
 	return;
 }
+
+void display_ptr_as_bool( void (*ptr)(Mechanics_Agent_Interface*,Mechanics_Agent_Interface*,double), std::ostream& os )
+{
+	if( ptr )
+	{ os << "true"; return; }
+	os << "false"; 
+	return;
+}
+
 void display_ptr_as_bool( std::vector<double> (*ptr)(Cell*), std::ostream& os )
 {
 	if( ptr )
@@ -1913,17 +1564,17 @@ void display_cell_definitions( std::ostream& os )
 		
 		Motility* pM = &(pCD->phenotype.motility); 
 		std::string val = "true";
-		if( pM->is_motile == false )
+		if( pM->is_motile() == false )
 		{ val = "false"; } 
 	
 		std::string dimen = "3D"; 
-		if( pM->restrict_to_2D == true )
+		if( pM->restrict_to_2D() == true )
 		{ dimen = "2D"; } 
 
 		os << "\tmotility (enabled: " << val << " in " << dimen << ")" << std::endl 
-			<< "\t\tspeed: " << pM->migration_speed << " micron/min" << std::endl 
-			<< "\t\tbias: " << pM->migration_bias << " " << std::endl 
-			<< "\t\tpersistence time: " << pM->persistence_time << " min" << std::endl 
+			<< "\t\tspeed: " << pM->migration_speed() << " micron/min" << std::endl 
+			<< "\t\tbias: " << pM->migration_bias() << " " << std::endl 
+			<< "\t\tpersistence time: " << pM->persistence_time() << " min" << std::endl 
 			<< "\t\tchemotaxis (enabled: ";
 			
 			val = "true" ;
@@ -1931,8 +1582,8 @@ void display_cell_definitions( std::ostream& os )
 			{ val = "false"; } 
 		os << val << ")" << std::endl 
 			<< "\t\t\talong " 
-			<< pM->chemotaxis_direction << " * grad(" 
-			<< get_microenvironment_i()->get_density_names()[ pM->chemotaxis_index ] << ") " << std::endl; 
+			<< pM->chemotaxis_direction() << " * grad(" 
+			<< get_microenvironment_i()->get_density_names()[ pM->chemotaxis_index() ] << ") " << std::endl; 
 			
 		// secretion
 		
@@ -1943,14 +1594,14 @@ void display_cell_definitions( std::ostream& os )
 		Mechanics* pMech = &(pCD->phenotype.mechanics); 
 
 		os << "\tmechanics:" << std::endl 
-			<< "\t\tcell_cell_adhesion_strength: " << pMech->cell_cell_adhesion_strength << std::endl 
-			<< "\t\tcell_cell_repulsion_strength: " << pMech->cell_cell_repulsion_strength << std::endl 
-			<< "\t\trel max adhesion dist: " << pMech->relative_maximum_adhesion_distance << std::endl 
-			<< "\t\tcell_BM_adhesion_strength: " << pMech->cell_BM_adhesion_strength << std::endl 
-			<< "\t\tcell_BM_repulsion_strength: " << pMech->cell_BM_repulsion_strength << std::endl 
-			<< "\t\tattachment_elastic_constant: " << pMech->attachment_elastic_constant << std::endl 
-			<< "\t\tattachment_rate: " << pMech->attachment_rate << std::endl 
-			<< "\t\tdetachment_rate: " << pMech->detachment_rate << std::endl;
+			<< "\t\tcell_cell_adhesion_strength: " << pMech->cell_cell_adhesion_strength() << std::endl 
+			<< "\t\tcell_cell_repulsion_strength: " << pMech->cell_cell_repulsion_strength() << std::endl 
+			<< "\t\trel max adhesion dist: " << pMech->relative_maximum_adhesion_distance() << std::endl 
+			<< "\t\tcell_BM_adhesion_strength: " << pMech->cell_BM_adhesion_strength() << std::endl 
+			<< "\t\tcell_BM_repulsion_strength: " << pMech->cell_BM_repulsion_strength() << std::endl 
+			<< "\t\tattachment_elastic_constant: " << pMech->attachment_elastic_constant() << std::endl 
+			<< "\t\tattachment_rate: " << pMech->attachment_rate() << std::endl 
+			<< "\t\tdetachment_rate: " << pMech->detachment_rate() << std::endl;
 		
 		// size 
 	
@@ -2128,8 +1779,9 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			int number_of_cell_defs = cell_definition_indices_by_name.size(); 
 
 			// motility 
-			pCD->phenotype.motility.is_motile = false; 
-			pCD->phenotype.motility.chemotactic_sensitivities.assign(number_of_substrates,0.0); 
+			pCD->phenotype.motility.is_motile() = false; 
+			for (int i = 0; i < number_of_substrates; i++ )
+			{ pCD->phenotype.motility.chemotactic_sensitivities()[i] = 0.0; }
 			pCD->functions.update_migration_bias = NULL; 
 
 			// secretion  
@@ -2174,7 +1826,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		<< std::endl; 
 		pCD->functions.set_orientation = up_orientation; 
 		pCD->phenotype.geometry.polarity = 1.0; 
-		pCD->phenotype.motility.restrict_to_2D = true; 
+		pCD->phenotype.motility.restrict_to_2D() = true; 
 	}
 	
 	// make sure phenotype.secretions are correctly sized 
@@ -2188,7 +1840,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 	pCD->phenotype.cell_interactions.sync_to_cell_definitions(); 
 	pCD->phenotype.cell_transformations.sync_to_cell_definitions(); 
 	pCD->phenotype.cycle.asymmetric_division.sync_to_cell_definitions();
-	pCD->phenotype.mechanics.sync_to_cell_definitions(); 
+	pCD->mechanics_data.sync_to_cell_definitions(); 
 	
 	// set the reference phenotype 
 	pCD->parameters.pReference_live_phenotype = &(pCD->phenotype); 
@@ -2682,23 +2334,23 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		
 		pugi::xml_node node_mech = node.child( "cell_cell_adhesion_strength" );
 		if( node_mech )
-		{ pM->cell_cell_adhesion_strength = xml_get_my_double_value( node_mech ); }	
+		{ pM->cell_cell_adhesion_strength() = xml_get_my_double_value( node_mech ); }	
 
 		node_mech = node.child( "cell_BM_adhesion_strength" );
 		if( node_mech )
-		{ pM->cell_BM_adhesion_strength = xml_get_my_double_value( node_mech ); }	
+		{ pM->cell_BM_adhesion_strength() = xml_get_my_double_value( node_mech ); }	
 
 		node_mech = node.child( "cell_cell_repulsion_strength" );
 		if( node_mech )
-		{ pM->cell_cell_repulsion_strength = xml_get_my_double_value( node_mech ); }	
+		{ pM->cell_cell_repulsion_strength() = xml_get_my_double_value( node_mech ); }	
 
 		node_mech = node.child( "cell_BM_repulsion_strength" );
 		if( node_mech )
-		{ pM->cell_BM_repulsion_strength = xml_get_my_double_value( node_mech ); }	
+		{ pM->cell_BM_repulsion_strength() = xml_get_my_double_value( node_mech ); }	
 
 		node_mech = node.child( "relative_maximum_adhesion_distance" );
 		if( node_mech )
-		{ pM->relative_maximum_adhesion_distance = xml_get_my_double_value( node_mech ); }	
+		{ pM->relative_maximum_adhesion_distance() = xml_get_my_double_value( node_mech ); }	
 
 		// cell adhesion affinities 
 		node_mech = node.child( "cell_adhesion_affinities" );
@@ -2714,7 +2366,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				// if found, assign taht affinity 
 				int ind = find_cell_definition_index( target ); 
 				if( ind > -1 )
-				{ pM->cell_adhesion_affinities[ind] = value; }
+				{ pM->cell_adhesion_affinities()[ind] = value; }
 				else
 				{ std::cout << "what?!?" << std::endl; }
 
@@ -2748,20 +2400,20 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 
         node_mech = node.child( "attachment_elastic_constant" );
 		if( node_mech )
-		{ pM->attachment_elastic_constant = xml_get_my_double_value( node_mech ); }
-		std::cout << "  --------- attachment_elastic_constant = " << pM->attachment_elastic_constant << std::endl;
+		{ pM->attachment_elastic_constant() = xml_get_my_double_value( node_mech ); }
+		std::cout << "  --------- attachment_elastic_constant = " << pM->attachment_elastic_constant() << std::endl;
 
         node_mech = node.child( "attachment_rate" );
 		if( node_mech )
-		{ pM->attachment_rate = xml_get_my_double_value( node_mech ); }	
+		{ pM->attachment_rate() = xml_get_my_double_value( node_mech ); }	
 
         node_mech = node.child( "detachment_rate" );
 		if( node_mech )
-		{ pM->detachment_rate = xml_get_my_double_value( node_mech ); }	
+		{ pM->detachment_rate() = xml_get_my_double_value( node_mech ); }	
 
 		node_mech = node.child( "maximum_number_of_attachments" );
 		if ( node_mech )
-		{ pM->maximum_number_of_attachments = xml_get_my_int_value( node_mech ); }
+		{ pM->maximum_number_of_attachments() = xml_get_my_int_value( node_mech ); }
 	}
 	
 	// motility 
@@ -2773,15 +2425,15 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		
 		pugi::xml_node node_mot = node.child( "speed" );
 		if( node_mot )
-		{ pMot->migration_speed = xml_get_my_double_value( node_mot ); }	
+		{ pMot->migration_speed() = xml_get_my_double_value( node_mot ); }	
 
 		node_mot = node.child( "migration_bias" );
 		if( node_mot )
-		{ pMot->migration_bias = xml_get_my_double_value( node_mot ); }	
+		{ pMot->migration_bias() = xml_get_my_double_value( node_mot ); }	
 
 		node_mot = node.child( "persistence_time" );
 		if( node_mot )
-		{ pMot->persistence_time = xml_get_my_double_value( node_mot ); }	
+		{ pMot->persistence_time() = xml_get_my_double_value( node_mot ); }	
 
 		node_mot = node.child( "options" );
 		if( node_mot )
@@ -2790,21 +2442,21 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 			pugi::xml_node node_mot1 = node_mot.child( "enabled" ); 
 			if( node_mot1 )
 			{
-				pMot->is_motile = xml_get_my_bool_value( node_mot1 ); 
+				pMot->is_motile() = xml_get_my_bool_value( node_mot1 ); 
 			}
 			
 			// restrict to 2D? 
 			node_mot1 = node_mot.child( "use_2D" ); 
 			if( node_mot1 )
 			{
-				pMot->restrict_to_2D = xml_get_my_bool_value( node_mot1 ); 
+				pMot->restrict_to_2D() = xml_get_my_bool_value( node_mot1 ); 
 			}
 			
-			if( get_microenvironment_i()->simulate_2D() && pMot->restrict_to_2D == false )
+			if( get_microenvironment_i()->simulate_2D() && pMot->restrict_to_2D() == false )
 			{
 				std::cout << "Note: Overriding to set cell motility for " << pCD->name << " to 2D based on " 
 						  << "microenvironment domain settings ... " << std::endl; 				
-				pMot->restrict_to_2D = true; 
+				pMot->restrict_to_2D() = true; 
 			}
 			
 			// automated chemotaxis setup 
@@ -2820,15 +2472,15 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				// search for the right chemo index 
 				
 				std::string substrate_name = xml_get_string_value( node_mot1 , "substrate" ); 
-				pMot->chemotaxis_index = get_microenvironment_i()->find_density_index( substrate_name ); 
-				if( pMot->chemotaxis_index < 0)
+				pMot->chemotaxis_index() = get_microenvironment_i()->find_density_index( substrate_name ); 
+				if( pMot->chemotaxis_index() < 0)
 				{
 					std::cout << __FUNCTION__ << ": Error: parsing phenotype:motility:options:chemotaxis:  invalid substrate" << std::endl; 
 					std::cout << substrate_name << " was not found in the microenvironment. Please check for typos!" << std::endl << std::endl; 
 					exit(-1); 
 				}
 				
-				std::string actual_name = get_microenvironment_i()->get_density_names()[ pMot->chemotaxis_index ]; 
+				std::string actual_name = get_microenvironment_i()->get_density_names()[ pMot->chemotaxis_index() ]; 
 				
 				// error check 
 				if( std::strcmp( substrate_name.c_str() , actual_name.c_str() ) != 0 )
@@ -2841,7 +2493,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 				
 				// set the direction 
 				
-				pMot->chemotaxis_direction = xml_get_int_value( node_mot1 , "direction" ); 
+				pMot->chemotaxis_direction() = xml_get_int_value( node_mot1 , "direction" ); 
 				
 				// std::cout << pMot->chemotaxis_direction << " * grad( " << actual_name << " )" << std::endl; 
 
@@ -2888,7 +2540,7 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 						          	  << "\tIgnoring this invalid substrate in the chemotaxis function .. " << std::endl; 
 						}
 						else
-						{ pCD->phenotype.motility.chemotactic_sensitivities[index] = xml_get_my_double_value(node_cs); }
+						{ pCD->phenotype.motility.chemotactic_sensitivities()[index] = xml_get_my_double_value(node_cs); }
 						node_cs = node_cs.next_sibling( "chemotactic_sensitivity" ); 
 					}
 
@@ -2907,38 +2559,38 @@ Cell_Definition* initialize_cell_definition_from_pugixml( pugi::xml_node cd_node
 		}
 
 		// display summary for diagnostic help 
-		if( pCD->functions.update_migration_bias == chemotaxis_function && pMot->is_motile == true )
+		if( pCD->functions.update_migration_bias == chemotaxis_function && pMot->is_motile() == true )
 		{
 			std::cout << "Cells of type " << pCD->name << " use standard chemotaxis: " << std::endl 
-			<< "\t d_bias (before normalization) = " << pMot->chemotaxis_direction << " * grad(" 
-			<< get_microenvironment_i()->get_density_names()[pMot->chemotaxis_index] << ")" << std::endl; 
+			<< "\t d_bias (before normalization) = " << pMot->chemotaxis_direction() << " * grad(" 
+			<< get_microenvironment_i()->get_density_names()[pMot->chemotaxis_index()] << ")" << std::endl; 
 		}
 
-		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function && pMot->is_motile == true )
+		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function && pMot->is_motile() == true )
 		{
 			int number_of_substrates = get_microenvironment_i()->get_density_names().size(); 
 
 			std::cout << "Cells of type " << pCD->name << " use advanced chemotaxis: " << std::endl 
 			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")"; 
+			<< pMot->chemotactic_sensitivities()[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")"; 
 
 			for( int n=1; n < number_of_substrates; n++ )
-			{ std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"; }
+			{ std::cout << " + " << pMot->chemotactic_sensitivities()[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"; }
 			std::cout << std::endl; 
 		}		
 
-		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function_normalized && pMot->is_motile == true )
+		if( pCD->functions.update_migration_bias == advanced_chemotaxis_function_normalized && pMot->is_motile() == true )
 		{
 			int number_of_substrates = get_microenvironment_i()->get_density_names().size(); 
 
 			std::cout << "Cells of type " << pCD->name << " use normalized advanced chemotaxis: " << std::endl 
 			<< "\t d_bias (before normalization) = " 
-			<< pMot->chemotactic_sensitivities[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")" 
+			<< pMot->chemotactic_sensitivities()[0] << " * grad(" << get_microenvironment_i()->get_density_names()[0] << ")" 
 			<< " / ||grad(" << get_microenvironment_i()->get_density_names()[0] << ")||"; 
 
 			for( int n=1; n < number_of_substrates; n++ )
 			{
-				std::cout << " + " << pMot->chemotactic_sensitivities[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"
+				std::cout << " + " << pMot->chemotactic_sensitivities()[n] << " * grad(" << get_microenvironment_i()->get_density_names()[n] << ")"
 				<< " / ||grad(" << get_microenvironment_i()->get_density_names()[n] << ")||"; 
 			}
 			std::cout << std::endl; 
@@ -3385,23 +3037,6 @@ void Cell::attach_cell( Cell* pAddMe )
 	return; 
 }
 
-void Cell::attach_cell_as_spring( Cell* pAddMe )
-{
-	#pragma omp critical
-	{
-		bool already_attached = false; 
-		for( int i=0 ; i < state.spring_attachments.size() ; i++ )
-		{
-			if( state.spring_attachments[i] == pAddMe )
-			{ already_attached = true; }
-		}
-		if( already_attached == false )
-		{ state.spring_attachments.push_back( pAddMe ); }
-	}
-	// pAddMe->attach_cell( this ); 
-	return; 
-}
-
 void Cell::detach_cell( Cell* pRemoveMe )
 {
 	#pragma omp critical
@@ -3426,60 +3061,6 @@ void Cell::detach_cell( Cell* pRemoveMe )
 	return; 
 }
 
-void Cell::detach_cell_as_spring( Cell* pRemoveMe )
-{
-	#pragma omp critical
-	{
-		bool found = false; 
-		int i = 0; 
-		while( !found && i < state.spring_attachments.size() )
-		{
-			// if pRemoveMe is in the cell's list, remove it
-			if( state.spring_attachments[i] == pRemoveMe )
-			{
-				int n = state.spring_attachments.size(); 
-				// copy last entry to current position 
-				state.spring_attachments[i] = state.spring_attachments[n-1]; 
-				// shrink by one 
-				state.spring_attachments.pop_back(); 
-				found = true; 
-			}
-			i++; 
-		}
-	}
-	return; 
-}
-
-void Cell::remove_self_from_all_neighbors( void )
-{
-	Cell* pCell = this; 
-	// go through all neighbors (pN) of this (pC)
-
-	for( int j = 0 ; j < pCell->state.neighbors.size(); j++ )
-	{
-	 	Cell* pN = pCell->state.neighbors[j]; 
-
-		// for each pN, remove pC from list of neighbors 
-			// find pC in neighbors 
-
-
-			auto SearchResult = std::find( 
-				pN->state.neighbors.begin(),pN->state.neighbors.end(),pCell );  		
-
-			// if pC is indeed found, remove it  
-			// erase pC from neighbors 
-			if( SearchResult != pN->state.neighbors.end() )
-			{
-				// if the target is found, set the appropriate rate 
-				pN->state.neighbors.erase( SearchResult ); 
-			}
-			else
-			{ /* future error message */  }
-	}
-
-	return; 
-}
-
 void Cell::remove_all_attached_cells( void )
 {
 	{
@@ -3494,20 +3075,25 @@ void Cell::remove_all_attached_cells( void )
 	return; 
 }
 
-void Cell::remove_all_spring_attachments( void )
+int Cell::get_spring_attachments_count()
 {
-	{
-		// remove self from any attached cell's list. 
-		for( int i = 0; i < state.spring_attachments.size() ; i++ )
-		{
-			state.spring_attachments[i]->detach_cell_as_spring( this ); 
-		}
-		// clear my list 
-		state.spring_attachments.clear(); 
-	}
-	return; 
+	return get_springs().size();
 }
 
+Cell* Cell::get_spring_attachment( int index )
+{
+	return (*all_cells)[get_springs()[index]];
+}
+
+int Cell::get_neighbors_count()
+{
+	return get_neighbors().size();
+}
+
+Cell* Cell::get_neighbor( int index )
+{
+	return (*all_cells)[get_neighbors()[index]];
+}
 
 void attach_cells( Cell* pCell_1, Cell* pCell_2 )
 {
@@ -3516,98 +3102,11 @@ void attach_cells( Cell* pCell_1, Cell* pCell_2 )
 	return; 
 }
 
-void attach_cells_as_spring( Cell* pCell_1, Cell* pCell_2 )
-{
-	pCell_1->attach_cell_as_spring( pCell_2 );
-	pCell_2->attach_cell_as_spring( pCell_1 );
-	return; 
-}
-
 void detach_cells( Cell* pCell_1 , Cell* pCell_2 )
 {
 	pCell_1->detach_cell( pCell_2 );
 	pCell_2->detach_cell( pCell_1 );
 	return; 
-}
-
-void detach_cells_as_spring( Cell* pCell_1 , Cell* pCell_2 )
-{
-	pCell_1->detach_cell_as_spring( pCell_2 );
-	pCell_2->detach_cell_as_spring( pCell_1 );
-	return; 
-}
-
-std::vector<Cell*> find_nearby_cells( Cell* pCell )
-{
-	std::vector<Cell*> neighbors = {}; 
-
-	// First check the neighbors in my current voxel
-	std::vector<Cell*>::iterator neighbor;
-	std::vector<Cell*>::iterator end =
-		pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
-	{ neighbors.push_back( *neighbor ); }
-
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-	
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
-	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
-			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
-		{ neighbors.push_back( *neighbor ); }
-	}
-	
-	return neighbors; 
-}
-
-std::vector<Cell*> find_nearby_interacting_cells( Cell* pCell )
-{
-	std::vector<Cell*> neighbors = {}; 
-
-	// First check the neighbors in my current voxel
-	std::vector<Cell*>::iterator neighbor;
-	std::vector<Cell*>::iterator end = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for( neighbor = pCell->get_container()->agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
-	{
-		std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position(); 
-		double distance = norm( displacement ); 
-		if( distance <= pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
-			+ (*neighbor)->phenotype.mechanics.relative_maximum_adhesion_distance * (*neighbor)->phenotype.geometry.radius 
-			&& (*neighbor) != pCell )
-		{ neighbors.push_back( *neighbor ); }
-	}
-
-	std::vector<int>::iterator neighbor_voxel_index;
-	std::vector<int>::iterator neighbor_voxel_index_end = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
-	
-	for( neighbor_voxel_index = 
-		pCell->get_container()->underlying_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
-		neighbor_voxel_index != neighbor_voxel_index_end; 
-		++neighbor_voxel_index )
-	{
-		if(!is_neighbor_voxel(pCell, pCell->get_container()->underlying_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, pCell->get_container()->underlying_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
-			continue;
-		end = pCell->get_container()->agent_grid[*neighbor_voxel_index].end();
-		for(neighbor = pCell->get_container()->agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
-		{
-			std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position(); 
-			double distance = norm( displacement ); 
-			if( distance <= pCell->phenotype.mechanics.relative_maximum_adhesion_distance * pCell->phenotype.geometry.radius 
-				+ (*neighbor)->phenotype.mechanics.relative_maximum_adhesion_distance * (*neighbor)->phenotype.geometry.radius
-				&& (*neighbor) != pCell	)
-			{ neighbors.push_back( *neighbor ); }
-		}
-	}
-	
-	return neighbors; 
 }
 
 

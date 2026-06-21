@@ -70,8 +70,8 @@
 
 #include <vector>
 #include "../BioFVM/BioFVM_agent_container.h"
-#include "../BioFVM/BioFVM_mesh.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
+#include "../mechanics/PhysiCell_mechanics_environment_interface.h"
 
 namespace PhysiCell{
 
@@ -80,14 +80,15 @@ class Cell;
 class Cell_Container : public BioFVM::Agent_Container
 {
  private:	
+	Mechanics_Environment_Interface& mechanics_env_;
 	std::vector<Cell*> cells_ready_to_divide; // the index of agents ready to divide
 	std::vector<Cell*> cells_ready_to_die;
 	int boundary_condition_for_pushed_out_agents; 	// what to do with pushed out cells
 	bool initialzed = false;
 	
  public:
-	BioFVM::Cartesian_Mesh underlying_mesh;
-	std::vector<double> max_cell_interactive_distance_in_voxel;
+ 	const BioFVM::Cartesian_Mesh& get_underlying_mesh() { return mechanics_env_.get_mechanics_mesh(); }
+	std::vector<double>& get_max_cell_interactive_distance_in_voxel() { return mechanics_env_.get_max_cell_interactive_distance_in_voxel(); }
 	int num_divisions_in_current_step = 0;
 	int num_deaths_in_current_step = 0;
 
@@ -97,9 +98,7 @@ class Cell_Container : public BioFVM::Agent_Container
 	Cell_Container();
  	void initialize(double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double voxel_size);
 	void initialize(double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx, double dy, double dz);
-	std::vector<std::vector<Cell*> > agent_grid;
-	std::vector<std::vector<Cell*> > agents_in_outer_voxels;
-	
+
 	void update_all_cells(double t);
 	void update_all_cells(double t, double dt);
 	void update_all_cells(double t, double phenotype_dt, double mechanics_dt);
@@ -116,7 +115,6 @@ class Cell_Container : public BioFVM::Agent_Container
 	bool contain_any_cell(int voxel_index);
 };
 
-int find_escaping_face_index(Cell* agent);
 extern std::vector<Cell*> *all_cells; 
 
 Cell_Container* create_cell_container_for_microenvironment( BioFVM::Microenvironment_Interface& m , double mechanics_voxel_size );

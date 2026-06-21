@@ -75,6 +75,7 @@
 #include "./PhysiCell_settings.h"
 #include "../core/PhysiCell_cell.h"
 #include "../BioFVM/BioFVM_legacy_implementation.h"
+#include "../mechanics/PhysiCell_mechanics_legacy_implementation.h"
 
 using namespace BioFVM; 
 
@@ -115,6 +116,7 @@ bool load_PhysiCell_config_file( std::string filename )
 	// now read the microenvironment (optional) 
 
 	BioFVM::BioFVM_implementation::set_instance( new BioFVM::legacy_implementation() );
+	Mechanics_implementation::set_instance( new PhysiCell_mechanics_legacy_implementation() );
 	
 	if( !get_microenvironment_i()->setup_microenvironment_from_XML( filename ) )
 	{

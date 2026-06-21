@@ -17,12 +17,13 @@ option(PHYSICELL_BUILD_DFBA "Build dFBA addon" OFF)
 
 # Main libraries and modules
 add_subdirectory(BioFVM)
+add_subdirectory(mechanics)
 add_subdirectory(core)
 add_subdirectory(modules)
 
 # Examples and sample projects
 add_subdirectory(examples)
-add_subdirectory(addons/PhysiMeSS)
+# add_subdirectory(addons/PhysiMeSS)
 add_subdirectory(sample_projects/asymmetric_division)
 add_subdirectory(sample_projects/biorobots)
 add_subdirectory(sample_projects/cancer_biorobots)
@@ -34,7 +35,7 @@ add_subdirectory(sample_projects/heterogeneity)
 add_subdirectory(sample_projects/immune_function)
 add_subdirectory(sample_projects/interactions)
 add_subdirectory(sample_projects/mechano)
-add_subdirectory(sample_projects/physimess)
+# add_subdirectory(sample_projects/physimess)
 add_subdirectory(sample_projects/pred_prey_farmer)
 add_subdirectory(sample_projects/rules_sample)
 add_subdirectory(sample_projects/template)

@@ -340,15 +340,15 @@ int RoadRunnerIntracellular::update_phenotype_parameters(PhysiCell::Phenotype& p
         {
             if (elm.first == "mms")
             {
-                phenotype.motility.migration_speed = phenotype.intracellular->get_parameter_value(elm.second);
+                phenotype.motility.migration_speed() = phenotype.intracellular->get_parameter_value(elm.second);
             }
             else if (elm.first == "mpt")
             {
-                phenotype.motility.persistence_time = phenotype.intracellular->get_parameter_value(elm.second);
+                phenotype.motility.persistence_time() = phenotype.intracellular->get_parameter_value(elm.second);
             }
             else if (elm.first == "mmb")
             {
-                phenotype.motility.migration_bias = phenotype.intracellular->get_parameter_value(elm.second);
+                phenotype.motility.migration_bias() = phenotype.intracellular->get_parameter_value(elm.second);
             }
             else
             {

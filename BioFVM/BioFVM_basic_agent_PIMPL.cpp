@@ -51,18 +51,18 @@
 namespace BioFVM{
 
 Basic_Agent_PIMPL::Basic_Agent_PIMPL()
-	: pImpl(nullptr)
+	: pImpl(nullptr), owns_pImpl(false)
 {
 }
 
-Basic_Agent_PIMPL::Basic_Agent_PIMPL(Basic_Agent_Interface* impl)
-	: pImpl(impl)
+Basic_Agent_PIMPL::Basic_Agent_PIMPL(Basic_Agent_Interface* impl, bool take_ownership)
+	: pImpl(impl), owns_pImpl(take_ownership)
 {
 }
 
 Basic_Agent_PIMPL::~Basic_Agent_PIMPL()
 {
-	if (pImpl != nullptr)
+	if (pImpl != nullptr && owns_pImpl)
 	{
 		delete pImpl;
 		pImpl = nullptr;
@@ -162,27 +162,6 @@ const std::vector<double>& Basic_Agent_PIMPL::get_position() const
 void Basic_Agent_PIMPL::update_position( double dt )
 {
 	pImpl->update_position(dt);
-}
-
-// Velocity methods
-std::vector<double>& Basic_Agent_PIMPL::get_velocity()
-{
-	return pImpl->get_velocity();
-}
-
-const std::vector<double>& Basic_Agent_PIMPL::get_velocity() const
-{
-	return pImpl->get_velocity();
-}
-
-std::vector<double>& Basic_Agent_PIMPL::get_previous_velocity( void )
-{
-	return pImpl->get_previous_velocity();
-}
-
-const std::vector<double>& Basic_Agent_PIMPL::get_previous_velocity( void ) const
-{
-	return pImpl->get_previous_velocity();
 }
 
 // Activity status

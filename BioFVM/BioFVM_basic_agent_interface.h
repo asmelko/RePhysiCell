@@ -94,12 +94,6 @@ public:
 	virtual const std::vector<double>& get_position() const = 0;
 	virtual void update_position( double dt ) = 0;
 	
-	// Velocity methods
-	virtual std::vector<double>& get_velocity() = 0;
-	virtual const std::vector<double>& get_velocity() const = 0;
-	virtual std::vector<double>& get_previous_velocity( void ) = 0;
-	virtual const std::vector<double>& get_previous_velocity( void ) const = 0;
-	
 	// Activity status
 	virtual bool get_is_active() const = 0;
 	virtual void set_is_active(bool active) = 0;

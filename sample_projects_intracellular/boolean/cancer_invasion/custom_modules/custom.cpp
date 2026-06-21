@@ -280,7 +280,7 @@ void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& 
 			
 	double max_distance = pMe->phenotype.geometry.radius + 
 				pOther->phenotype.geometry.radius; 
-	max_distance *=  pMe->phenotype.mechanics.relative_maximum_adhesion_distance;  //parameters.doubles("max_interaction_factor"); 
+	max_distance *=  pMe->phenotype.mechanics.relative_maximum_adhesion_distance();  //parameters.doubles("max_interaction_factor"); 
 
 			//std::cout << max_distance << " - " << distance << "\n";
 

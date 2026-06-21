@@ -72,8 +72,6 @@ Basic_Agent::Basic_Agent()
 	volume = 1.0; 
 	
 	position.assign( 3 , 0.0 ); 
-	velocity.assign( 3 , 0.0 );
-	previous_velocity.assign( 3 , 0.0 ); 
 	// link into the microenvironment, if one is defined 
 	secretion_rates= std::vector<double>(0);
 	uptake_rates= std::vector<double>(0);
@@ -326,26 +324,6 @@ double* Basic_Agent::get_position_internal()
 const std::vector<double>& Basic_Agent::get_position() const
 {
 	return position;
-}
-
-std::vector<double>& Basic_Agent::get_velocity()
-{
-	return velocity;
-}
-
-const std::vector<double>& Basic_Agent::get_velocity() const
-{
-	return velocity;
-}
-
-std::vector<double>& Basic_Agent::get_previous_velocity( void )
-{
-	return previous_velocity;
-}
-
-const std::vector<double>& Basic_Agent::get_previous_velocity( void ) const
-{
-	return previous_velocity;
 }
 
 int Basic_Agent::get_ID() const

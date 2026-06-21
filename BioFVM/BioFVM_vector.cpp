@@ -235,14 +235,19 @@ std::vector<double> normalize( std::vector<double>& v )
 // this one normalizes v
 void normalize( std::vector<double>* v )
 {
+ normalize( &(*v)[0], v->size() );
+}
+
+void normalize( double* v, int n )
+{
  double norm = 1e-32; 
 
- for( unsigned int i=0; i < v->size(); i++ )
- { norm += ( (*v)[i] * (*v)[i] ); }
+ for( int i=0; i < n; i++ )
+ { norm += ( v[i] * v[i] ); }
  norm = sqrt( norm ); 
 
- for( unsigned int i=0; i < v->size(); i++ )
- { (*v)[i] /=  norm ; }
+ for( int i=0; i < n; i++ )
+ { v[i] /=  norm ; }
 
  // If the norm is small, normalizing doens't make sense. 
  // Just set the entire vector to zero. 
@@ -255,8 +260,8 @@ void normalize( std::vector<double>* v )
    I_warned_you = true; 
   }
 
-  for( unsigned int i=0; i < v->size(); i++ )
-  { (*v)[i] = 0.0; }
+  for( int i=0; i < n; i++ )
+  { v[i] = 0.0; }
  }
 
  return; 
@@ -335,6 +340,20 @@ void axpy( std::vector<double>* y, const double& a , const std::vector<double>& 
   (*y)[i] += a * x[i] ; 
  }
  return ; 
+}
+
+void axpy( double* y, const double& a , const std::vector<double>& x )
+{
+ for( unsigned int i=0; i < x.size(); i++ )
+ { y[i] += a * x[i]; }
+ return;
+}
+
+void axpy( double* y, const double& a , const double* x, int n )
+{
+ for( int i=0; i < n; i++ )
+ { y[i] += a * x[i]; }
+ return;
 }
 
 void axpy( std::vector<double>* y, const std::vector<double>& a , const std::vector<double>& x )
@@ -542,6 +561,11 @@ void vector3_to_list( const std::vector<double>& vect , char*& buffer , char del
 }
 
 double dot_product( const std::vector<double>& a , const std::vector<double>& b )
+{
+	return dot_product( a , &b[0] );
+}
+
+double dot_product( const std::vector<double>& a , const double* b )
 {
 	double out = 0.0; 
 	for( unsigned int i=0 ; i < a.size() ; i++ )

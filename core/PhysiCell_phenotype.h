@@ -76,6 +76,8 @@
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "../BioFVM/BioFVM_basic_agent_interface.h"
 
+#include "../mechanics/PhysiCell_mechanics_agent_interface.h"
+
 #include "../modules/PhysiCell_settings.h"
 
 using namespace BioFVM; 
@@ -376,7 +378,7 @@ class Geometry
 	void update( Cell* pCell, Phenotype& phenotype, double dt ); // done 
 };
 
-class Mechanics
+class Mechanics_Data
 {
  private:
  public:
@@ -387,10 +389,6 @@ class Mechanics
 	double cell_BM_repulsion_strength; 
 
 	std::vector<double> cell_adhesion_affinities; 
-	double& cell_adhesion_affinity( std::string type_name ); // done 
-	void sync_to_cell_definitions(); // done 
-	void set_fully_heterotypic( void ); // done 
-	void set_fully_homotypic( Cell* pCell ); // done 
 
 	// this is a multiple of the cell (equivalent) radius
 	double relative_maximum_adhesion_distance; 
@@ -409,18 +407,60 @@ class Mechanics
 	double relative_maximum_attachment_distance; 
 	double relative_detachment_distance; 
 	double maximum_attachment_rate; 
+
+	Mechanics_Data();
+	void sync_to_cell_definitions();
+};
+
+class Mechanics
+{
+ private:
+ 	Mechanics_Agent_Interface* pCell;
+	Cell_Definition* pCD;
+ public:
+	double& cell_cell_adhesion_strength() const; 
+	double& cell_BM_adhesion_strength() const;
+
+	double& cell_cell_repulsion_strength() const;
+	double& cell_BM_repulsion_strength() const; 
+
+	double* cell_adhesion_affinities() const; 
+	double& cell_adhesion_affinity( std::string type_name ); // done 
+	void set_fully_heterotypic( void ); // done 
+	void set_fully_homotypic( Cell* pCell ); // done 
+
+	// this is a multiple of the cell (equivalent) radius
+	double& relative_maximum_adhesion_distance() const; 
+	// double maximum_adhesion_distance; // needed? 
+
+	/* for spring attachments */ 
+
+	int& maximum_number_of_attachments() const; 
+	double& attachment_elastic_constant() const; 
+
+	double& attachment_rate() const; 
+	double& detachment_rate() const; 
+
+	/* to be deprecated */ 
+
+	double& relative_maximum_attachment_distance() const; 
+	double& relative_detachment_distance() const; 
+	double& maximum_attachment_rate() const; 
 	
-	Mechanics(); // done 
+	// Mechanics(); // done 
 	
 	void set_relative_maximum_adhesion_distance( double new_value ); // done 
 	void set_relative_equilibrium_distance( double new_value ); // done 
 	
 	void set_absolute_equilibrium_distance( Phenotype& phenotype, double new_value ); // done 
 	
-	
+	void sync_to_cell( Mechanics_Agent_Interface* pCell ); 
+	void sync_to_cell_definition( Cell_Definition* pCD ); 
+
+	Mechanics& operator=( const Mechanics& rhs );
 };
 
-class Motility
+class Motility_Data
 {
  public:
 	bool is_motile; 
@@ -445,13 +485,47 @@ class Motility
 	
 	// advanced chemotaxis 
 	std::vector<double> chemotactic_sensitivities; 
-	double& chemotactic_sensitivity( std::string name ); 
+		
+	Motility_Data(); // done 
 	
 	void sync_to_current_microenvironment( void ); 
 	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment ); 
+};
+
+class Motility
+{
+ private:
+ 	Mechanics_Agent_Interface* pCell;
+	Cell_Definition* pCD;
+ public:
+	bool& is_motile() const; 
+ 
+	double& persistence_time() const; // mean time to keep going in one direction 
+		// before resampling for a new direction. 
+	double& migration_speed() const; // migration speed along chosen direction, 
+		// in absence of all other adhesive / repulsive forces 
 	
+	double* migration_bias_direction() const; // a unit vector
+		// random motility is biased in this direction (e.g., chemotaxis)
+	double& migration_bias() const; // how biased is motility
+		// if 0, completely random. if 1, deterministic along the bias vector 
 		
-	Motility(); // done 
+	bool& restrict_to_2D() const; 
+		// if true, set random motility to 2D only. 
+		
+	double* motility_vector() const; 
+	
+	int& chemotaxis_index() const; 
+	int& chemotaxis_direction() const; 
+	
+	// advanced chemotaxis 
+	double* chemotactic_sensitivities() const; 
+	double& chemotactic_sensitivity( std::string name ); 
+	
+	void sync_to_cell( Mechanics_Agent_Interface* pCell ); 
+	void sync_to_cell_definition( Cell_Definition* pCD ); 
+
+	Motility& operator=( const Motility& rhs );
 };
 
 class Secretion

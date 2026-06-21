@@ -473,7 +473,7 @@ void Death::trigger_death( int death_model_index )
 	
 	// also, turn off motility.
 	
-	phenotype.motility.is_motile = false; 
+	phenotype.motility.is_motile() = false; 
 	phenotype.motility.motility_vector.assign( 3, 0.0 ); 
 	functions.update_migration_bias = NULL;
 	
@@ -673,7 +673,7 @@ void Geometry::update( Cell* pCell, Phenotype& phenotype, double dt )
 	return; 
 }
 	
-Mechanics::Mechanics()
+Mechanics_Data::Mechanics_Data()
 {
 	cell_cell_adhesion_strength = 0.4; 
 	cell_BM_adhesion_strength = 4.0;
@@ -703,7 +703,7 @@ Mechanics::Mechanics()
 	return; 
 }
 
-void Mechanics::sync_to_cell_definitions()
+void Mechanics_Data::sync_to_cell_definitions()
 {
 	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 	int number_of_cell_defs = cell_definition_indices_by_name.size(); 
@@ -717,7 +717,7 @@ double& Mechanics::cell_adhesion_affinity( std::string type_name )
 {
 	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 	int n = cell_definition_indices_by_name[type_name]; 
-	return cell_adhesion_affinities[n]; 
+	return cell_adhesion_affinities()[n]; 
 }
 
 void Mechanics::set_fully_heterotypic( void )
@@ -725,7 +725,8 @@ void Mechanics::set_fully_heterotypic( void )
 	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 	int number_of_cell_defs = cell_definition_indices_by_name.size(); 	
 
-	cell_adhesion_affinities.assign( number_of_cell_defs, 1.0);
+	for (int i=0; i < number_of_cell_defs ; i++ )
+	{ cell_adhesion_affinities()[i] = 1.0; }
 	return; 
 }
 
@@ -734,7 +735,8 @@ void Mechanics::set_fully_homotypic( Cell* pC )
 	extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
 	int number_of_cell_defs = cell_definition_indices_by_name.size(); 	
 
-	cell_adhesion_affinities.assign( number_of_cell_defs, 0.0);
+	for (int i=0; i < number_of_cell_defs ; i++ )
+	{ cell_adhesion_affinities()[i] = 0.0; }
 
 	// now find my type and set to 1 
 //	cell_adhesion_affinity( pC->type_name ) = 1.0; 
@@ -752,8 +754,8 @@ void Mechanics::set_relative_maximum_adhesion_distance( double new_value )
 		// relative equilibrium spacing (relative to mean cell radius)
 	double s_relative = 2.0; 
 	
-	double temp1 = cell_cell_adhesion_strength; 
-	temp1 /= cell_cell_repulsion_strength;
+	double temp1 = cell_cell_adhesion_strength(); 
+	temp1 /= cell_cell_repulsion_strength();
 	temp1 = sqrt( temp1 ); 
 	
 	double temp2 = 1.0; 
@@ -762,7 +764,7 @@ void Mechanics::set_relative_maximum_adhesion_distance( double new_value )
 	
 	s_relative *= temp2; // 2*( 1 - sqrt( alpha_CCA / alpha_CCR ) ); 
 	
-	temp1 /= relative_maximum_adhesion_distance; // sqrt( alpha_CCA / alpha_CCR)/f;
+	temp1 /= relative_maximum_adhesion_distance(); // sqrt( alpha_CCA / alpha_CCR)/f;
 	temp2 = 1.0; 
 	temp2 -= temp1; // 1 - sqrt( alpha_CCA / alpha_CCR )/f;
 
@@ -770,7 +772,7 @@ void Mechanics::set_relative_maximum_adhesion_distance( double new_value )
 	
 	// now, adjust the relative max adhesion distance 
 	
-	relative_maximum_adhesion_distance = new_value; 
+	relative_maximum_adhesion_distance() = new_value; 
 	
 	// adjust the adhesive coefficient to preserve the old equilibrium distance
 
@@ -780,15 +782,15 @@ void Mechanics::set_relative_maximum_adhesion_distance( double new_value )
 	temp2 = 1.0;
 	temp2 -= temp1; // 1 - s_relative/2.0 
 	
-	temp1 /= relative_maximum_adhesion_distance; // s_relative/(2*relative_maximum_adhesion_distance); 
+	temp1 /= relative_maximum_adhesion_distance(); // s_relative/(2*relative_maximum_adhesion_distance); 
 	temp1 *= -1.0; // -s_relative/(2*relative_maximum_adhesion_distance); 
 	temp1 += 1.0; // 1.0 -s_relative/(2*relative_maximum_adhesion_distance); 
 	
 	temp2 /= temp1; 
 	temp2 *= temp2; 
 	
-	cell_cell_adhesion_strength = cell_cell_repulsion_strength;
-	cell_cell_adhesion_strength *= temp2; 
+	cell_cell_adhesion_strength() = cell_cell_repulsion_strength();
+	cell_cell_adhesion_strength() *= temp2; 
 
 	return; 
 }		
@@ -817,15 +819,15 @@ void Mechanics::set_relative_equilibrium_distance( double new_value )
 	double temp2 = 1.0;
 	temp2 -= temp1; // 1 - s_relative/2.0 
 	
-	temp1 /= relative_maximum_adhesion_distance; // s_relative/(2*relative_maximum_adhesion_distance); 
+	temp1 /= relative_maximum_adhesion_distance(); // s_relative/(2*relative_maximum_adhesion_distance); 
 	temp1 *= -1.0; // -s_relative/(2*relative_maximum_adhesion_distance); 
 	temp1 += 1.0; // 1.0 -s_relative/(2*relative_maximum_adhesion_distance); 
 	
 	temp2 /= temp1; 
 	temp2 *= temp2; 
 	
-	cell_cell_adhesion_strength = cell_cell_repulsion_strength;
-	cell_cell_adhesion_strength *= temp2; 
+	cell_cell_adhesion_strength() = cell_cell_repulsion_strength();
+	cell_cell_adhesion_strength() *= temp2; 
 
 	return; 
 }
@@ -835,11 +837,179 @@ void Mechanics::set_absolute_equilibrium_distance( Phenotype& phenotype, double 
 	return set_relative_equilibrium_distance( new_value / phenotype.geometry.radius ); 
 }
 
+double& Mechanics::cell_cell_adhesion_strength( void ) const
+{
+	if( pCell )
+	{ return pCell->get_cell_cell_adhesion_strength(); }
+	if( pCD )
+	{ return pCD->mechanics_data.cell_cell_adhesion_strength; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::cell_BM_adhesion_strength( void ) const
+{
+	if( pCell )
+	{ return pCell->get_cell_BM_adhesion_strength(); }
+	if( pCD )
+	{ return pCD->mechanics_data.cell_BM_adhesion_strength; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::cell_cell_repulsion_strength( void ) const
+{
+	if( pCell )
+	{ return pCell->get_cell_cell_repulsion_strength(); }
+	if( pCD )
+	{ return pCD->mechanics_data.cell_cell_repulsion_strength; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::cell_BM_repulsion_strength( void ) const
+{
+	if( pCell )
+	{ return pCell->get_cell_BM_repulsion_strength(); }
+	if( pCD )
+	{ return pCD->mechanics_data.cell_BM_repulsion_strength; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double* Mechanics::cell_adhesion_affinities( void ) const
+{
+	if( pCell )
+	{ return pCell->get_cell_adhesion_affinities(); }
+	if( pCD )
+	{ return pCD->mechanics_data.cell_adhesion_affinities.data(); }
+	return nullptr;
+}
+
+double& Mechanics::relative_maximum_adhesion_distance( void ) const
+{
+	if( pCell )
+	{ return pCell->get_relative_maximum_adhesion_distance(); }
+	if( pCD )
+	{ return pCD->mechanics_data.relative_maximum_adhesion_distance; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+int& Mechanics::maximum_number_of_attachments( void ) const
+{
+	if( pCell )
+	{ return pCell->get_maximum_number_of_attachments(); }
+	if( pCD )
+	{ return pCD->mechanics_data.maximum_number_of_attachments; }
+	static int dummy = 0;
+	return dummy;
+}
+
+double& Mechanics::attachment_elastic_constant( void ) const
+{
+	if( pCell )
+	{ return pCell->get_attachment_elastic_constant(); }
+	if( pCD )
+	{ return pCD->mechanics_data.attachment_elastic_constant; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::attachment_rate( void ) const
+{
+	if( pCell )
+	{ return pCell->get_attachment_rate(); }
+	if( pCD )
+	{ return pCD->mechanics_data.attachment_rate; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::detachment_rate( void ) const
+{
+	if( pCell )
+	{ return pCell->get_detachment_rate(); }
+	if( pCD )
+	{ return pCD->mechanics_data.detachment_rate; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::relative_maximum_attachment_distance( void ) const
+{
+	if( pCell )
+	{ return pCell->get_relative_maximum_attachment_distance(); }
+	if( pCD )
+	{ return pCD->mechanics_data.relative_maximum_attachment_distance; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::relative_detachment_distance( void ) const
+{
+	if( pCell )
+	{ return pCell->get_relative_detachment_distance(); }
+	if( pCD )
+	{ return pCD->mechanics_data.relative_detachment_distance; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Mechanics::maximum_attachment_rate( void ) const
+{
+	if( pCell )
+	{ return pCell->get_maximum_attachment_rate(); }
+	if( pCD )
+	{ return pCD->mechanics_data.maximum_attachment_rate; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+void Mechanics::sync_to_cell( Mechanics_Agent_Interface* pC )
+{
+	// make sure the cell adhesion affinities are the right size 
+	this->pCell = pC;
+	this->pCD = nullptr;
+}
+
+void Mechanics::sync_to_cell_definition( Cell_Definition* pCD )
+{
+	this->pCD = pCD;
+	this->pCell = nullptr;
+}
+
+Mechanics& Mechanics::operator=( const Mechanics& rhs )
+{
+	if (this != &rhs) // self-assignment check expected
+	{
+		this->cell_cell_adhesion_strength() = rhs.cell_cell_adhesion_strength();
+		this->cell_BM_adhesion_strength() = rhs.cell_BM_adhesion_strength();
+		this->cell_cell_repulsion_strength() = rhs.cell_cell_repulsion_strength();
+		this->cell_BM_repulsion_strength() = rhs.cell_BM_repulsion_strength();
+		this->relative_maximum_adhesion_distance() = rhs.relative_maximum_adhesion_distance();
+		this->maximum_number_of_attachments() = rhs.maximum_number_of_attachments();
+		this->attachment_elastic_constant() = rhs.attachment_elastic_constant();
+		this->attachment_rate() = rhs.attachment_rate();
+		this->detachment_rate() = rhs.detachment_rate();
+		relative_maximum_attachment_distance() = rhs.relative_maximum_attachment_distance();
+		relative_detachment_distance() = rhs.relative_detachment_distance();
+		maximum_attachment_rate() = rhs.maximum_attachment_rate();
+		
+		extern std::unordered_map<std::string,int> cell_definition_indices_by_name; 
+		int number_of_cell_defs = cell_definition_indices_by_name.size(); 
+		
+		for (int i=0; i < number_of_cell_defs ; i++ )
+			this->cell_adhesion_affinities()[i] = rhs.cell_adhesion_affinities()[i];
+	}
+	return *this;
+}
+
 // void Mechanics::set_absolute_maximum_adhesion_distance( double new_value );
 // void 
 	
 	
-Motility::Motility()
+Motility_Data::Motility_Data()
 {
 	is_motile = false; 
 	
@@ -863,7 +1033,7 @@ Motility::Motility()
 	return; 
 }
 
-void Motility::sync_to_current_microenvironment( void )
+void Motility_Data::sync_to_current_microenvironment( void )
 {
 	Microenvironment_Interface* pMicroenvironment = get_microenvironment_i(); 
 	if( pMicroenvironment )
@@ -874,7 +1044,7 @@ void Motility::sync_to_current_microenvironment( void )
 	return; 
 }
 
-void Motility::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
+void Motility_Data::sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment )
 {
 	chemotactic_sensitivities.resize( pNew_Microenvironment->number_of_densities() , 0.0 ); 
 	return; 
@@ -883,7 +1053,145 @@ void Motility::sync_to_microenvironment( Microenvironment_Interface* pNew_Microe
 double& Motility::chemotactic_sensitivity( std::string name )
 {
 	int n = get_microenvironment_i()->find_density_index(name); 
-	return chemotactic_sensitivities[n]; 
+	return chemotactic_sensitivities()[n]; 
+}
+
+bool& Motility::is_motile( void ) const
+{
+	if( pCell )
+	{ return pCell->get_is_motile(); }
+	if( pCD )
+	{ return pCD->motility_data.is_motile; }
+	static bool dummy = false;
+	return dummy;
+}
+
+double& Motility::persistence_time( void ) const
+{
+	if( pCell )
+	{ return pCell->get_persistence_time(); }
+	if( pCD )
+	{ return pCD->motility_data.persistence_time; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double& Motility::migration_speed( void ) const
+{
+	if( pCell )
+	{ return pCell->get_migration_speed(); }
+	if( pCD )
+	{ return pCD->motility_data.migration_speed; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+double* Motility::migration_bias_direction( void ) const
+{
+	if( pCell )
+	{ return pCell->get_migration_bias_direction(); }
+	if( pCD )
+	{ return pCD->motility_data.migration_bias_direction.data(); }
+	return nullptr;
+}
+
+double& Motility::migration_bias( void ) const
+{
+	if( pCell )
+	{ return pCell->get_migration_bias(); }
+	if( pCD )
+	{ return pCD->motility_data.migration_bias; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
+bool& Motility::restrict_to_2D( void ) const
+{
+	if( pCell )
+	{ return pCell->get_restrict_to_2d(); }
+	if( pCD )
+	{ return pCD->motility_data.restrict_to_2D; }
+	static bool dummy = false;
+	return dummy;
+}
+
+double* Motility::motility_vector( void ) const
+{
+	if( pCell )
+	{ return pCell->get_motility_vector(); }
+	if( pCD )
+	{ return pCD->motility_data.motility_vector.data(); }
+	return nullptr;
+}
+
+int& Motility::chemotaxis_index( void ) const
+{
+	if( pCell )
+	{ return pCell->get_chemotaxis_index(); }
+	if( pCD )
+	{ return pCD->motility_data.chemotaxis_index; }
+	static int dummy = 0;
+	return dummy;
+}
+
+int& Motility::chemotaxis_direction( void ) const
+{
+	if( pCell )
+	{ return pCell->get_chemotaxis_direction(); }
+	if( pCD )
+	{ return pCD->motility_data.chemotaxis_direction; }
+	static int dummy = 0;
+	return dummy;
+}
+
+double* Motility::chemotactic_sensitivities( void ) const
+{
+	if( pCell )
+	{ return pCell->get_chemotactic_sensitivities(); }
+	if( pCD )
+	{ return pCD->motility_data.chemotactic_sensitivities.data(); }
+	return nullptr;
+}
+
+void Motility::sync_to_cell( Mechanics_Agent_Interface* pC )
+{
+	this->pCell = pC;
+	this->pCD = nullptr;
+
+	return; 
+}
+
+void Motility::sync_to_cell_definition( Cell_Definition* pCD )
+{
+	this->pCD = pCD;
+	this->pCell = nullptr;
+
+	return; 
+}
+
+Motility& Motility::operator=( const Motility& rhs )
+{
+	if (this != &rhs) // self-assignment check expected
+	{
+		this->is_motile() = rhs.is_motile(); 
+		this->persistence_time() = rhs.persistence_time(); 
+		this->migration_speed() = rhs.migration_speed(); 
+		this->migration_bias() = rhs.migration_bias(); 
+		this->restrict_to_2D() = rhs.restrict_to_2D(); 
+		this->chemotaxis_index() = rhs.chemotaxis_index(); 
+		this->chemotaxis_direction() = rhs.chemotaxis_direction(); 
+		
+		int dims = this->restrict_to_2D() ? 2 : 3;
+		for (int i=0; i < dims ; i++ )
+		{
+			this->migration_bias_direction()[i] = rhs.migration_bias_direction()[i];
+			this->motility_vector()[i] = rhs.motility_vector()[i];
+		}
+		
+		for (int i=0; i < get_microenvironment_i()->number_of_densities() ; i++ )
+			this->chemotactic_sensitivities()[i] = rhs.chemotactic_sensitivities()[i];
+	}
+	return *this;
 }
 
 Secretion::Secretion()

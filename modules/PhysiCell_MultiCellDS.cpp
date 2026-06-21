@@ -820,9 +820,9 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
  /* state variables to save */ 
 // state
 		// name = "velocity"; 
-		std::fwrite( pCell->get_velocity().data() , sizeof(double) , 3 , fp ); 
+		std::fwrite( pCell->get_velocity() , sizeof(double) , 3 , fp ); 
 		// name = "pressure"; 
-		std::fwrite( &( pCell->state.simple_pressure ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->get_simple_pressure() ) , sizeof(double) , 1 , fp ); 
 		// name = "number_of_nuclei"; 
 		dTemp = (double) pCell->state.number_of_nuclei; 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
@@ -882,49 +882,49 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
   // mechanics 
 	// cell_cell_adhesion_strength; // 1
 		// name = "cell_cell_adhesion_strength"; 
-		std::fwrite( &( pCell->phenotype.mechanics.cell_cell_adhesion_strength ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.cell_cell_adhesion_strength() ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_BM_adhesion_strength"; 
-		std::fwrite( &( pCell->phenotype.mechanics.cell_BM_adhesion_strength ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.cell_BM_adhesion_strength() ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_cell_repulsion_strength"; 
-		std::fwrite( &( pCell->phenotype.mechanics.cell_cell_repulsion_strength ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.cell_cell_repulsion_strength() ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_BM_repulsion_strength"; 
-		std::fwrite( &( pCell->phenotype.mechanics.cell_BM_repulsion_strength ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.cell_BM_repulsion_strength() ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_adhesion_affinities"; 
-		std::fwrite( pCell->phenotype.mechanics.cell_adhesion_affinities.data() , sizeof(double) , n , fp ); 
+		std::fwrite( pCell->phenotype.mechanics.cell_adhesion_affinities() , sizeof(double) , n , fp ); 
 		// name = "relative_maximum_adhesion_distance"; 
-		std::fwrite( &( pCell->phenotype.mechanics.relative_maximum_adhesion_distance ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.relative_maximum_adhesion_distance() ) , sizeof(double) , 1 , fp ); 
 		// name = "maximum_number_of_attachments"; 
-		dTemp = (double) pCell->phenotype.mechanics.maximum_number_of_attachments; 
+		dTemp = (double) pCell->phenotype.mechanics.maximum_number_of_attachments(); 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "attachment_elastic_constant"; 
-		std::fwrite( &( pCell->phenotype.mechanics.attachment_elastic_constant ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.attachment_elastic_constant() ) , sizeof(double) , 1 , fp ); 
 		// name = "attachment_rate"; 
-		std::fwrite( &( pCell->phenotype.mechanics.attachment_rate ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.attachment_rate() ) , sizeof(double) , 1 , fp ); 
  		// name = "detachment_rate"; 
-		std::fwrite( &( pCell->phenotype.mechanics.detachment_rate ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.mechanics.detachment_rate() ) , sizeof(double) , 1 , fp ); 
 
  // Motility
  		// name = "is_motile"; 
-		dTemp = (double) pCell->phenotype.motility.is_motile; 
+		dTemp = (double) pCell->phenotype.motility.is_motile(); 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
  		// name = "persistence_time"; 
-		std::fwrite( &( pCell->phenotype.motility.persistence_time ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.motility.persistence_time() ) , sizeof(double) , 1 , fp ); 
  		// name = "migration_speed"; 
-		std::fwrite( &( pCell->phenotype.motility.migration_speed ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.motility.migration_speed() ) , sizeof(double) , 1 , fp ); 
  		// name = "migration_bias_direction"; 
-		std::fwrite( pCell->phenotype.motility.migration_bias_direction.data() , sizeof(double) , 3 , fp ); 
+		std::fwrite( pCell->phenotype.motility.migration_bias_direction() , sizeof(double) , 3 , fp ); 
  		// name = "migration_bias"; 
-		std::fwrite( &( pCell->phenotype.motility.migration_bias ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.motility.migration_bias() ) , sizeof(double) , 1 , fp ); 
  		// name = "motility_vector"; 
-		std::fwrite( pCell->phenotype.motility.motility_vector.data() , sizeof(double) , 3 , fp ); 
+		std::fwrite( pCell->phenotype.motility.motility_vector() , sizeof(double) , 3 , fp ); 
  		// name = "chemotaxis_index"; 
-		dTemp = (double) pCell->phenotype.motility.chemotaxis_index; 
+		dTemp = (double) pCell->phenotype.motility.chemotaxis_index(); 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
  		// name = "chemotaxis_direction"; 
-		dTemp = (double) pCell->phenotype.motility.chemotaxis_direction; 
+		dTemp = (double) pCell->phenotype.motility.chemotaxis_direction(); 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
  		// name = "chemotactic_sensitivities"; 
-		std::fwrite( pCell->phenotype.motility.chemotactic_sensitivities.data() , sizeof(double) , m , fp ); 
+		std::fwrite( pCell->phenotype.motility.chemotactic_sensitivities() , sizeof(double) , m , fp ); 
 
 // secretion 
  		// name = "secretion_rates"; 
@@ -1228,10 +1228,10 @@ void write_neighbor_graph( std::string filename )
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
 		buffer << (*all_cells)[i]->get_ID() << ": " ; 
-		int size = (*all_cells)[i]->state.neighbors.size(); 
+		int size = (*all_cells)[i]->get_neighbors_count(); 
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.neighbors[j]->get_ID(); 
+			buffer << (*all_cells)[i]->get_neighbor(j)->get_ID(); 
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1281,10 +1281,10 @@ void write_spring_attached_cells_graph( std::string filename )
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
 		buffer << (*all_cells)[i]->get_ID() << ": " ; 
-		int size = (*all_cells)[i]->state.spring_attachments.size();
+		int size = (*all_cells)[i]->get_spring_attachments_count();
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.spring_attachments[j]->get_ID(); 
+			buffer << (*all_cells)[i]->get_spring_attachment(j)->get_ID(); 
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1623,7 +1623,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
         if (debug_print)
         { std::cout << "state.simple_pressure= " << dTemp  << std::endl; }
         if (create_cells)
-        { pCell->state.simple_pressure = dTemp; }
+        { pCell->get_simple_pressure() = dTemp; }
         
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
@@ -1757,41 +1757,39 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
         }
         if (create_cells)
         {
-            pCell->phenotype.mechanics.cell_cell_adhesion_strength= params[0];
-            pCell->phenotype.mechanics.cell_BM_adhesion_strength= params[1];
-            pCell->phenotype.mechanics.cell_cell_repulsion_strength = params[2];
-            pCell->phenotype.mechanics.cell_BM_repulsion_strength = params[3];
+            pCell->phenotype.mechanics.cell_cell_adhesion_strength()= params[0];
+            pCell->phenotype.mechanics.cell_BM_adhesion_strength()= params[1];
+            pCell->phenotype.mechanics.cell_cell_repulsion_strength() = params[2];
+            pCell->phenotype.mechanics.cell_BM_repulsion_strength() = params[3];
         }
 
-        // fread(pCell->phenotype.mechanics.cell_adhesion_affinities.data(), sizeof(double), n, fp);  // NOTE
-        if (create_cells)
-        { pCell->phenotype.mechanics.cell_adhesion_affinities.resize(n_cell_types); }
+        // fread(pCell->phenotype.mechanics.cell_adhesion_affinities().data(), sizeof(double), n, fp);  // NOTE
         for (int idx=0; idx < n_cell_types; idx++)
         {
             fread(&dTemp, sizeof(double), 1, fp);
             if (debug_print)
-            { std::cout << " phenotype.mechanics.cell_adhesion_affinities[" << idx << "] = " << dTemp << std::endl; }
+            { std::cout << " phenotype.mechanics.cell_adhesion_affinities()[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.mechanics.cell_adhesion_affinities[idx] = dTemp; }
+            { pCell->phenotype.mechanics.cell_adhesion_affinities()[idx] = dTemp; }
         }
 
         // continuation of mechanics params
         fread(params, sizeof(double), 5, fp);
         if (debug_print)
         {
-            std::cout << "pCell->phenotype.mechanics.attachment_elastic_constant = " << params[0] << std::endl;
-            std::cout << "pCell->phenotype.mechanics.attachment_rate = " << params[1] << std::endl;
-            std::cout << "pCell->phenotype.mechanics.detachment_rate = " << params[2] << std::endl;
+            std::cout << "pCell->phenotype.mechanics.attachment_elastic_constant() = " << params[0] << std::endl;
+            std::cout << "pCell->phenotype.mechanics.attachment_rate() = " << params[1] << std::endl;
+            std::cout << "pCell->phenotype.mechanics.detachment_rate() = " << params[2] << std::endl;
             std::cout << "pCell->phenotype.relative_maximum_adhesion_distance = " << params[3] << std::endl;
-            std::cout << "pCell->phenotype.mechanics.maximum_number_of_attachments = " << (int)params[4] << std::endl;
+            std::cout << "pCell->phenotype.mechanics.maximum_number_of_attachments() = " << (int)params[4] << std::endl;
         }
         if (create_cells)
         {
-            pCell->phenotype.mechanics.attachment_elastic_constant = params[0];
-            pCell->phenotype.mechanics.attachment_rate = params[1];
-            pCell->phenotype.mechanics.detachment_rate = params[2];
-            pCell->phenotype.mechanics.relative_maximum_adhesion_distance = params[3];
-            pCell->phenotype.mechanics.maximum_number_of_attachments = (int)params[4];
+            pCell->phenotype.mechanics.attachment_elastic_constant() = params[0];
+            pCell->phenotype.mechanics.attachment_rate() = params[1];
+            pCell->phenotype.mechanics.detachment_rate() = params[2];
+            pCell->phenotype.mechanics.relative_maximum_adhesion_distance() = params[3];
+            pCell->phenotype.mechanics.maximum_number_of_attachments() = (int)params[4];
         }
 
         
@@ -1803,68 +1801,66 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             std::cout << "pCell->phenotype.motility.is_motile = " << (bool)dTemp << std::endl;
         }
         if (create_cells)
-        { pCell->phenotype.motility.is_motile = (bool)dTemp; }
+        { pCell->phenotype.motility.is_motile() = (bool)dTemp; }
 
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
-        { std::cout << "pCell->phenotype.motility.persistence_time = " << dTemp << std::endl; }
+        { std::cout << "pCell->phenotype.motility.persistence_time() = " << dTemp << std::endl; }
         if (create_cells)
-        { pCell->phenotype.motility.persistence_time = dTemp; }
+        { pCell->phenotype.motility.persistence_time() = dTemp; }
 
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
-        { std::cout << "pCell->phenotype.motility.migration_speed = " << dTemp << std::endl; }
+        { std::cout << "pCell->phenotype.motility.migration_speed() = " << dTemp << std::endl; }
         if (create_cells)
-        { pCell->phenotype.motility.migration_speed = dTemp; }
+        { pCell->phenotype.motility.migration_speed() = dTemp; }
 
         fread(migration_bias_direction, sizeof(double), 3, fp);
         if (debug_print)
-        { std::cout << "pCell->phenotype.motility.migration_speed = " << migration_bias_direction[0]<<", " <<migration_bias_direction[1] << ", " << migration_bias_direction[2] << std::endl; }
+        { std::cout << "pCell->phenotype.motility.migration_speed() = " << migration_bias_direction[0]<<", " <<migration_bias_direction[1] << ", " << migration_bias_direction[2] << std::endl; }
         if (create_cells)
         {
-            pCell->phenotype.motility.migration_bias_direction[0] = migration_bias_direction[0];
-            pCell->phenotype.motility.migration_bias_direction[1] = migration_bias_direction[1];
-            pCell->phenotype.motility.migration_bias_direction[2] = migration_bias_direction[2];
+            pCell->phenotype.motility.migration_bias_direction()[0] = migration_bias_direction[0];
+            pCell->phenotype.motility.migration_bias_direction()[1] = migration_bias_direction[1];
+            pCell->phenotype.motility.migration_bias_direction()[2] = migration_bias_direction[2];
         }
 
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
-        { std::cout << "pCell->phenotype.motility.migration_bias = " << dTemp <<std::endl; }
+        { std::cout << "pCell->phenotype.motility.migration_bias() = " << dTemp <<std::endl; }
         if (create_cells)
-        { pCell->phenotype.motility.migration_bias = dTemp; }
+        { pCell->phenotype.motility.migration_bias() = dTemp; }
 
         fread(motility_vector, sizeof(double), 3, fp);
         if (debug_print)
         { std::cout << "pCell->phenotype.motility.motility_vector = " << motility_vector[0]<<", " <<motility_vector[1] << ", " << motility_vector[2] << std::endl; }
         if (create_cells)
         {
-            pCell->phenotype.motility.motility_vector[0] = motility_vector[0];
-            pCell->phenotype.motility.motility_vector[1] = motility_vector[1];
-            pCell->phenotype.motility.motility_vector[2] = motility_vector[2];
+            pCell->phenotype.motility.motility_vector()[0] = motility_vector[0];
+            pCell->phenotype.motility.motility_vector()[1] = motility_vector[1];
+            pCell->phenotype.motility.motility_vector()[2] = motility_vector[2];
         }
 
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
         { std::cout << "pCell->phenotype.motility.chemotaxis_index = " << (int)dTemp <<std::endl; }
         if (create_cells)
-        { pCell->phenotype.motility.chemotaxis_index = (int)dTemp; }
+        { pCell->phenotype.motility.chemotaxis_index() = (int)dTemp; }
 
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
-        { std::cout << "pCell->phenotype.motility.chemotaxis_direction = " << (int)dTemp <<std::endl; }
+        { std::cout << "pCell->phenotype.motility.chemotaxis_direction() = " << (int)dTemp <<std::endl; }
         if (create_cells)
-        { pCell->phenotype.motility.chemotaxis_direction = (int)dTemp; }
+        { pCell->phenotype.motility.chemotaxis_direction() = (int)dTemp; }
 
         // rwh - is this correct?
-        if (create_cells)
-        { pCell->phenotype.motility.chemotactic_sensitivities.resize(m_densities); }
         for (int idx=0; idx < m_densities; idx++)
         {
             fread(&dTemp, sizeof(double), 1, fp);
             if (debug_print)
             { std::cout << " phenotype.motility.chemotactic_sensitivities[" << idx << "] = " << dTemp << std::endl; }
             if (create_cells)
-            { pCell->phenotype.motility.chemotactic_sensitivities[idx] = dTemp; }
+            { pCell->phenotype.motility.chemotactic_sensitivities()[idx] = dTemp; }
         }
         
         // Secretion

@@ -79,6 +79,7 @@
 #include "./PhysiCell_standard_models.h" 
 
 #include "../BioFVM/BioFVM_basic_agent_PIMPL.h"
+#include "../mechanics/PhysiCell_mechanics_agent_PIMPL.h"
 
 using namespace BioFVM; 
 
@@ -143,6 +144,9 @@ class Cell_Definition
 	std::vector<double> fraction_released_at_death;
 	std::vector<double> fraction_transferred_when_ingested;
 
+	Mechanics_Data mechanics_data;
+	Motility_Data motility_data;
+
 	Cell_Definition();  // done 
 	Cell_Definition( Cell_Definition& cd ); // copy constructor 
 	Cell_Definition& operator=( const Cell_Definition& cd ); // copy assignment 
@@ -157,12 +161,7 @@ class Cell_State
  private:
  public:
 	std::vector<Cell*> attached_cells; 
-	std::vector<Cell*> spring_attachments; 
-
-	std::vector<Cell*> neighbors; 
 	std::vector<double> orientation;
-	
-	double simple_pressure; 
 	
 	int number_of_attached_cells( void ); 
 
@@ -175,12 +174,10 @@ class Cell_State
 	Cell_State(); 
 };
 
-class Cell : public Basic_Agent_PIMPL
+class Cell : public Basic_Agent_PIMPL, public Mechanics_Agent_PIMPL
 {
  private: 
 	Cell_Container * container;
-	int current_mechanics_voxel_index;
-	int updated_current_mechanics_voxel_index; // keeps the updated voxel index for later adjusting of current voxel index
 		
  public:
 	std::string type_name; 
@@ -192,16 +189,9 @@ class Cell : public Basic_Agent_PIMPL
 	Cell_State state; 
 	Phenotype phenotype; 
 	
-	void update_motility_vector( double dt_ );
 	void advance_bundled_phenotype_functions( double dt_ ); 
 	
-	void add_potentials(Cell*);       // Add repulsive and adhesive forces.
-	void set_previous_velocity(double xV, double yV, double zV);
-	int get_current_mechanics_voxel_index();
 	void turn_off_reactions(double); 		  // Turn off all the reactions of the cell
-	
-	bool is_out_of_domain;
-	bool is_movable;
 
 	void flag_for_division( void ); // done 
 	void flag_for_removal( void ); // done 
@@ -215,9 +205,7 @@ class Cell : public Basic_Agent_PIMPL
 	Cell();
 	
 	virtual ~Cell(); 
-	
-	bool assign_position(const std::vector<double>& new_position);
-	bool assign_position(double, double, double);
+
 	void set_total_volume(double);
 	
 	double& get_total_volume(void); // NEW
@@ -225,10 +213,6 @@ class Cell : public Basic_Agent_PIMPL
 	void set_target_volume(double); 
 	void set_target_radius(double); 
 	void set_radius(double); 
-	
-	// mechanics 
-	void update_position( double dt ); //
-	std::vector<double> displacement; // this should be moved to state, or made private  
 
 	
 	void assign_orientation();  // if set_orientaion is defined, uses it to assign the orientation
@@ -236,7 +220,6 @@ class Cell : public Basic_Agent_PIMPL
 	
 	void copy_function_pointers(Cell*);
 	
-	void update_voxel_in_container(void);
 	void copy_data(Cell *);
 	
 	void ingest_cell( Cell* pCell_to_eat ); // for use in predation, e.g., immune cells 
@@ -245,13 +228,8 @@ class Cell : public Basic_Agent_PIMPL
 
 	void attach_cell( Cell* pAddMe ); // done 
 	void detach_cell( Cell* pRemoveMe ); // done 
-
-	void remove_self_from_all_neighbors( void ); 
+	
 	void remove_all_attached_cells( void ); // done 
-
-	void attach_cell_as_spring( Cell* pAddMe ); // done 
-	void detach_cell_as_spring( Cell* pRemoveMe ); // done 
-	void remove_all_spring_attachments( void ); // done 
 
 	// I want to eventually deprecate this, by ensuring that 
 	// critical BioFVM and PhysiCell data elements are synced when they are needed 
@@ -260,11 +238,17 @@ class Cell : public Basic_Agent_PIMPL
 	void update_radius();
 	Cell_Container * get_container();
 	
-	std::vector<Cell*>& cells_in_my_container( void ); 
+	std::vector<Cell*> cells_in_my_container( void ); 
 	std::vector<Cell*> nearby_cells( void ); // new in 1.8.0 
 	std::vector<Cell*> nearby_interacting_cells( void ); // new in 1.8.0 
 	
 	void convert_to_cell_definition( Cell_Definition& cd ); 
+
+	int get_spring_attachments_count();
+	Cell* get_spring_attachment( int index );
+
+	int get_neighbors_count();
+	Cell* get_neighbor( int index );
 };
 
 Cell* create_cell( Cell* (*custom_instantiate)() = NULL );  
@@ -273,9 +257,6 @@ Cell* create_cell( Cell_Definition& cd );
 void delete_cell( int ); 
 void delete_cell( Cell* ); 
 void save_all_cells_to_matlab( std::string filename ); 
-
-//function to check if a neighbor voxel contains any cell that can interact with me
-bool is_neighbor_voxel(Cell* pCell, std::vector<double> myVoxelCenter, std::vector<double> otherVoxelCenter, int otherVoxelIndex);  
 
 
 extern std::unordered_map<std::string,Cell_Definition*> cell_definitions_by_name; 
@@ -306,13 +287,6 @@ extern std::vector<double> (*cell_division_orientation)(void);
 
 void attach_cells( Cell* pCell_1, Cell* pCell_2 );
 void detach_cells( Cell* pCell_1 , Cell* pCell_2 );
-
-void attach_cells_as_spring( Cell* pCell_1, Cell* pCell_2 );
-void detach_cells_as_spring( Cell* pCell_1 , Cell* pCell_2 );
-
-
-std::vector<Cell*> find_nearby_cells( Cell* pCell ); // new in 1.8.0
-std::vector<Cell*> find_nearby_interacting_cells( Cell* pCell ); // new in 1.8.0
 
 };
 

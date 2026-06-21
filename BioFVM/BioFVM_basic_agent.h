@@ -75,7 +75,6 @@ class Basic_Agent final : public Basic_Agent_Interface
 	std::vector<double> cell_source_sink_solver_temp2;
 	std::vector<double> cell_source_sink_solver_temp_export1; 
 	std::vector<double> cell_source_sink_solver_temp_export2; 	
-	std::vector<double> previous_velocity; 
 //	bool is_active;
 	
 	std::vector<double> total_extracellular_substrate_change; 
@@ -124,11 +123,6 @@ class Basic_Agent final : public Basic_Agent_Interface
 	const std::vector<double>& get_position() const override;
 	
 	std::vector<double> position;  
-	std::vector<double> velocity; 
-	std::vector<double>& get_velocity() override;
-	const std::vector<double>& get_velocity() const override;
-	std::vector<double>& get_previous_velocity( void ) override;
-	const std::vector<double>& get_previous_velocity( void ) const override;
 	void update_position( double dt ) override;
 	
 	// Activity status

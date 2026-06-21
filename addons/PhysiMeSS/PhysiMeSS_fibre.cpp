@@ -221,7 +221,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
                 // add the relative pressure contribution NOT SURE IF NEEDED
                 state.simple_pressure += (temp_r / simple_pressure_scale);
 
-                double effective_repulsion = sqrt(phenotype.mechanics.cell_cell_repulsion_strength *
+                double effective_repulsion = sqrt(phenotype.mechanics.cell_cell_repulsion_strength() *
                                                     (*cell).phenotype.mechanics.cell_cell_repulsion_strength);
                 temp_r *= effective_repulsion;
 

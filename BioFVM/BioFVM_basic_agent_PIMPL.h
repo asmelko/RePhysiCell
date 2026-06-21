@@ -71,6 +71,8 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	// Pointer to the actual implementation (adapter wrapping Basic_Agent)
 	Basic_Agent_Interface* pImpl;
 
+	bool owns_pImpl; // flag to indicate ownership of pImpl (for proper cleanup)
+
 	double* get_position_internal() override;
 	
  public:
@@ -82,8 +84,9 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	/**
 	 * @brief Constructor with implementation
 	 * @param impl Pointer to the implementation (takes ownership)
+	 * @param take_ownership Flag indicating whether to take ownership of the implementation
 	 */
-	explicit Basic_Agent_PIMPL(Basic_Agent_Interface* impl);
+	explicit Basic_Agent_PIMPL(Basic_Agent_Interface* impl, bool take_ownership = true);
 	
 	virtual ~Basic_Agent_PIMPL();
 	
@@ -119,12 +122,6 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	virtual bool assign_position(std::vector<double> new_position) override;
 	virtual const std::vector<double>& get_position() const override;
 	virtual void update_position( double dt ) override;
-	
-	// Velocity methods - delegate to pImpl
-	virtual std::vector<double>& get_velocity() override;
-	virtual const std::vector<double>& get_velocity() const override;
-	virtual std::vector<double>& get_previous_velocity( void ) override;
-	virtual const std::vector<double>& get_previous_velocity( void ) const override;
 	
 	// Activity status - delegate to pImpl
 	virtual bool get_is_active() const override;

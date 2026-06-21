@@ -88,6 +88,8 @@ std::vector<double> normalize( std::vector<double>& v );
 
 // this one normalizes v
 void normalize( std::vector<double>* v ); 
+// overload for raw pointer (assumes 3 components)
+void normalize( double* v, int n = 3 );
 
 double norm_squared( const std::vector<double>& v ); 
 double norm( const std::vector<double>& v ); 
@@ -108,6 +110,11 @@ void axpy( std::vector<double>* y, const double& a , const double* x );
 void axpy( std::vector<double>* y, const double& a , const std::vector<double>& x );
 // y = y + a.*x
 void axpy( std::vector<double>* y, const std::vector<double>& a , const std::vector<double>& x ); 
+
+// y = y + a*x  (y is a raw double array)
+void axpy( double* y, const double& a , const std::vector<double>& x );
+// y = y + a*x  (y and x are raw double arrays of length n)
+void axpy( double* y, const double& a , const double* x, int n = 3 );
 
 // y = y - a*x 
 void naxpy( std::vector<double>* y, const double& a , const std::vector<double>& x );
@@ -146,6 +153,7 @@ void ptr_to_list( const double* vect , int size , char*& buffer , char delim );
 void vector3_to_list( const std::vector<double>& vect , char*& buffer , char delim ); 
 
 double dot_product( const std::vector<double>& a , const std::vector<double>& b );
+double dot_product( const std::vector<double>& a , const double* b );
 std::vector<double> cross_product( const std::vector<double>& a , const std::vector<double>& b );
     
 };

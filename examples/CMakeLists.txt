@@ -4,6 +4,6 @@ foreach(example ${ALL_EXAMPLES})
   add_executable(${example})
   target_sources(${example} PRIVATE PhysiCell_test_${example}.cpp)
 
-  target_link_libraries(${example} PRIVATE BioFVM PhysiCell-core
+  target_link_libraries(${example} PRIVATE BioFVM PhysiCell-mechanics PhysiCell-core
                                            PhysiCell-modules)
 endforeach()
