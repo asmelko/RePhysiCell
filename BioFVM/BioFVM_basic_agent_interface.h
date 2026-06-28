@@ -51,21 +51,14 @@
 
 #include <vector>
 
+#include "BioFVM_position_entity.h"
+
 namespace BioFVM{
 
 class Microenvironment_Interface;
 
 class Basic_Agent_Interface
 {
-	friend class Basic_Agent_PIMPL;
-protected:
-	// Direct access to internal position array for performance
-	// Used in performance-critical sections only
-	// We are not exposing this publicly since its size can vary (2D vs 3D)
-	// and we want to maintain safety for general users
-	// The public variants of position access are always 3D
-	virtual double* get_position_internal() = 0;
- 
 public:
 	// Volume methods
 	virtual double& get_total_volume() = 0;
@@ -85,14 +78,10 @@ public:
 	virtual void set_ID(int new_ID) = 0;
 	virtual int get_index() const = 0;
 	virtual void set_index(int new_index) = 0;
-	virtual int get_type() const = 0;
-	virtual void set_type(int new_type) = 0;
 	
-	// Position methods
-	virtual bool assign_position(double x, double y, double z) = 0;
-	virtual bool assign_position(std::vector<double> new_position) = 0;
-	virtual const std::vector<double>& get_position() const = 0;
-	virtual void update_position( double dt ) = 0;
+	virtual void bind_position_entity(Position_Entity* pe) = 0;
+	virtual Position_Entity* get_position_entity() noexcept = 0;
+	const std::vector<double>& get_position() { return get_position_entity()->position; }
 	
 	// Activity status
 	virtual bool get_is_active() const = 0;

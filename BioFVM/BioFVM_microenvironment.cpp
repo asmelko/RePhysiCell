@@ -780,6 +780,16 @@ void Microenvironment::simulate_cell_sources_and_sinks( double dt )
 	simulate_cell_sources_and_sinks(all_basic_agents, dt);
 }
 
+void Microenvironment::update_container()
+{
+	auto itf_agent_list = (std::vector<Basic_Agent_Interface*>&) all_basic_agents;
+	#pragma omp parallel for
+	for( long long i = 0; i < itf_agent_list.size(); i++ )
+	{
+		itf_agent_list[i]->update_voxel_index();
+	}
+}
+
 void Microenvironment::update_rates( void )
 {
 	if( supply_target_densities_times_supply_rates.size() != number_of_voxels() )

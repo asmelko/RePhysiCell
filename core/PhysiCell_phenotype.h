@@ -360,22 +360,38 @@ class Volume
 	void multiply_by_ratio(double); // done 
 };
 
+class Radius_Data
+{
+public:
+	double radius;
+
+	Radius_Data();
+};
+
 class Geometry
 {
+ private:
+ 	Mechanics_Agent_Interface* pCell;
+	Cell_Definition* pCD;
  public:
-	double radius; 
+	double& radius() const; 
 	double nuclear_radius; 
 	double surface_area; 
 	
 	double polarity; 
 	
 	Geometry(); // done 
+
+	Geometry& operator=( const Geometry& rhs );
 	
 	void update_radius( Cell* pCell, Phenotype& phenotype, double dt ); // done 
 	void update_nuclear_radius( Cell* pCell, Phenotype& phenotype, double dt ); // done 
 	void update_surface_area( Cell* pCell, Phenotype& phenotype, double dt ); // done 
 	
 	void update( Cell* pCell, Phenotype& phenotype, double dt ); // done 
+	
+	void sync_to_cell( Mechanics_Agent_Interface* pCell ); 
+	void sync_to_cell_definition( Cell_Definition* pCD ); 
 };
 
 class Mechanics_Data

@@ -426,7 +426,7 @@ void create_cargo_cluster_6( std::vector<double>& center )
 	
 	static Cell_Definition* pCargoDef = find_cell_definition("cargo cell");
 	
-	static double spacing = 0.95 * pCargoDef->phenotype.geometry.radius * 2.0; 
+	static double spacing = 0.95 * pCargoDef->phenotype.geometry.radius() * 2.0; 
 	static double d_Theta = 1.047197551196598 ; // 2*pi / 6.0 
 	
 	double theta = 6.283185307179586 * UniformRandom(); 
@@ -468,7 +468,7 @@ void create_cargo_cluster_3( std::vector<double>& center )
 	
 	// create a small cluster at position, with random orientation 
 	
-	static double spacing = 0.95 * pCargoDef->phenotype.geometry.radius * 1.0; 
+	static double spacing = 0.95 * pCargoDef->phenotype.geometry.radius() * 1.0; 
 	static double d_Theta = 2.094395102393195 ; // 2*pi / 3.0 
 	
 	double theta = 6.283185307179586 * UniformRandom(); 

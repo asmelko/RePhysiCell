@@ -251,6 +251,7 @@ void Cell_Definition::sync_to_microenvironment( Microenvironment_Interface* pNew
 	phenotype.molecular.sync_to_cell_definition( this );
 	phenotype.mechanics.sync_to_cell_definition( this );
 	phenotype.motility.sync_to_cell_definition( this );
+	phenotype.geometry.sync_to_cell_definition( this );
 
 	return; 
 }
@@ -361,8 +362,15 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 }
 
 Cell::Cell() : Basic_Agent_PIMPL(BioFVM_implementation::get_instance()->create_basic_agent()), 
-			   Mechanics_Agent_PIMPL(Mechanics_implementation::get_instance()->create_mechanics_agent(Basic_Agent_PIMPL::pImpl, this))
+			   Mechanics_Agent_PIMPL(Mechanics_implementation::get_instance()->create_mechanics_agent(this))
 {
+	// Redirect both the Basic_Agent and the Mechanics_Agent to use this
+	// Cell's own Position_Entity subobject as the canonical position storage.
+	// Mechanics_Agent::bind_position_entity also rebinds its wrapped Basic_Agent,
+	// so one call is sufficient.
+	Basic_Agent_PIMPL::bind_position_entity(static_cast<BioFVM::Position_Entity*>(this));
+	Mechanics_Agent_PIMPL::bind_position_entity(static_cast<BioFVM::Position_Entity*>(this));
+
 	// use the cell defaults; 
 	
 	set_type(cell_defaults.type); 
@@ -376,6 +384,7 @@ Cell::Cell() : Basic_Agent_PIMPL(BioFVM_implementation::get_instance()->create_b
 	phenotype.molecular.sync_to_cell( this ); 
 	phenotype.mechanics.sync_to_cell( this );
 	phenotype.motility.sync_to_cell( this );
+	phenotype.geometry.sync_to_cell( this );
 	
 	phenotype = cell_defaults.phenotype; 
 	
@@ -399,7 +408,7 @@ Cell::~Cell()
 	if( result != std::end(*all_cells) )
 	{
 		std::cout << "Warning: Cell was never removed from data structure " << std::endl ; 
-		std::cout << "I am of type " << this->get_type() << " at " << this->get_position() << std::endl; 
+		std::cout << "I am of type " << this->get_type() << " at " << this->position << std::endl; 
 
 		int temp_index = -1; 
 		bool found = false; 
@@ -554,7 +563,7 @@ Cell* Cell::divide( )
 	double temp_angle = 6.28318530717959*UniformRandom();
 	double temp_phi = 3.1415926535897932384626433832795*UniformRandom();
 	
-	double radius= phenotype.geometry.radius;
+	double radius= phenotype.geometry.radius();
 	std::vector<double> rand_vec (3, 0.0);
 	
 	rand_vec[0]= cos( temp_angle ) * sin( temp_phi );
@@ -587,22 +596,22 @@ Cell* Cell::divide( )
 			rand_vec[1]*state.orientation[1]+rand_vec[2]*state.orientation[2])*state.orientation;	
 	}
 
-	rand_vec *= phenotype.geometry.radius;
+	rand_vec *= phenotype.geometry.radius();
 
-	child->assign_position(get_position()[0] + rand_vec[0],
-						   get_position()[1] + rand_vec[1],
-						   get_position()[2] + rand_vec[2]);
+	child->assign_position(position[0] + rand_vec[0],
+						   position[1] + rand_vec[1],
+						   position[2] + rand_vec[2]);
 						 
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
 	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 	for ( int i = 0 ; i < dims ; i++ )
-	{ get_position_internal()[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
+	{ position[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->get_underlying_mesh().is_position_valid(get_position()[0], get_position()[1], get_position()[2]))
+	if( !get_container()->get_underlying_mesh().is_position_valid(position[0], position[1], position[2]))
 	{
 		get_is_out_of_domain() = true;
 		set_is_active(false);
@@ -659,17 +668,17 @@ void Cell::set_total_volume(double volume)
 	phenotype.geometry.update( this, phenotype, 0.0 ); 
 	// phenotype.update_radius();
 	//if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
-	//	phenotype.geometry.radius * parameters.max_interaction_distance_factor )
+	//	phenotype.geometry.radius() * parameters.max_interaction_distance_factor )
 
     	
 	// Here the current mechanics voxel index may not be initialized, when position is still unknown. 
 	if (get_current_mechanics_voxel_index() >= 0)
     {
         if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
-            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance() )
+            phenotype.geometry.radius() * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
-            // get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius*parameters.max_interaction_distance_factor;
-            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
+            // get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
+            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius()
                 * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
@@ -910,9 +919,9 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	if (get_current_mechanics_voxel_index() >= 0)
     {
         if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
-            phenotype.geometry.radius * phenotype.mechanics.relative_maximum_adhesion_distance() )
+            phenotype.geometry.radius() * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
-            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius
+            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius()
                 * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
@@ -958,6 +967,7 @@ void delete_cell( int index )
 		(*all_cells)[index]->phenotype.molecular.sync_to_cell( (*all_cells)[index] );
 		(*all_cells)[index]->phenotype.mechanics.sync_to_cell( (*all_cells)[index] );
 		(*all_cells)[index]->phenotype.motility.sync_to_cell( (*all_cells)[index] );
+		(*all_cells)[index]->phenotype.geometry.sync_to_cell( (*all_cells)[index] );
 	}
 
 	return; 
@@ -1206,12 +1216,12 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// set new position at center of volume 
 			// x_new = (vol_B * x_B + vol_S * x_S ) / (vol_B + vol_S )
 		
-		std::vector<double> new_position = get_position(); // x_B
+		std::vector<double> new_position = position; // x_B
 		new_position *= phenotype.volume.total; // vol_B * x_B 
 		double total_volume = phenotype.volume.total; 
 		total_volume += pCell_to_fuse->phenotype.volume.total ;  
 
-		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->get_position() ); // vol_B*x_B + vol_S*x_S
+		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->position ); // vol_B*x_B + vol_S*x_S
 		new_position /= total_volume; // (vol_B*x_B+vol_S*x_S)/(vol_B+vol_S);
 
 		static double xL = get_microenvironment_i()->get_mesh().bounding_box[0];		 
@@ -3093,6 +3103,32 @@ int Cell::get_neighbors_count()
 Cell* Cell::get_neighbor( int index )
 {
 	return (*all_cells)[get_neighbors()[index]];
+}
+
+bool Cell::assign_position(double x, double y, double z)
+{
+	if (Mechanics_Agent_PIMPL::assign_position(x, y, z))
+	{
+		Basic_Agent_PIMPL::update_voxel_index();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Cell::assign_position(const std::vector<double>& new_position)
+{
+	if (Mechanics_Agent_PIMPL::assign_position(new_position))
+	{
+		Basic_Agent_PIMPL::update_voxel_index();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void attach_cells( Cell* pCell_1, Cell* pCell_2 )

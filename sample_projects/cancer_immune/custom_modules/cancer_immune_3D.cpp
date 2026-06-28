@@ -89,13 +89,13 @@ void create_immune_cell_type( void )
 	// figure out mechanics parameters 
 	
 	pImmuneCell->phenotype.mechanics.relative_maximum_attachment_distance() 
-		= pImmuneCell->custom_data["max_attachment_distance"] / pImmuneCell->phenotype.geometry.radius ; 
+		= pImmuneCell->custom_data["max_attachment_distance"] / pImmuneCell->phenotype.geometry.radius() ; 
 		
 	pImmuneCell->phenotype.mechanics.attachment_elastic_constant() 
 		= pImmuneCell->custom_data["elastic_coefficient"]; 		
 	
 	pImmuneCell->phenotype.mechanics.relative_detachment_distance() 
-		= pImmuneCell->custom_data["max_attachment_distance" ] / pImmuneCell->phenotype.geometry.radius ; 		
+		= pImmuneCell->custom_data["max_attachment_distance" ] / pImmuneCell->phenotype.geometry.radius() ; 		
 	
 	// set functions 
 	
@@ -142,10 +142,10 @@ void create_cell_types( void )
 	
 	// change the max cell-cell adhesion distance 
 	cell_defaults.phenotype.mechanics.relative_maximum_attachment_distance() = 
-		cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius;
+		cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius();
 		
 	cell_defaults.phenotype.mechanics.relative_detachment_distance() 
-		= cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius ; 
+		= cell_defaults.custom_data["max_attachment_distance"] / cell_defaults.phenotype.geometry.radius() ; 
 		
 	cell_defaults.phenotype.mechanics.attachment_elastic_constant() 
 		= cell_defaults.custom_data[ "elastic_coefficient" ];	
@@ -200,7 +200,7 @@ void introduce_immune_cells( void )
 	// for the loop, deal with the (faster) norm squared 
 	for( int i=0; i < (*all_cells).size() ; i++ )
 	{
-		temp_radius = norm_squared( (*all_cells)[i]->get_position() ); 
+		temp_radius = norm_squared( (*all_cells)[i]->position ); 
 		if( temp_radius > tumor_radius )
 		{ tumor_radius = temp_radius; }
 	}
@@ -275,7 +275,7 @@ void setup_tissue( void )
 {
 	// place a cluster of tumor cells at the center 
 	
-	double cell_radius = cell_defaults.phenotype.geometry.radius; 
+	double cell_radius = cell_defaults.phenotype.geometry.radius(); 
 	double cell_spacing = 0.95 * 2.0 * cell_radius; 
 	
 	double tumor_radius = 
@@ -574,7 +574,7 @@ bool immune_cell_attempt_attachment( Cell* pAttacker, Cell* pTarget , double dt 
 	
 	if( pTarget->custom_data[oncoprotein_i] > oncoprotein_threshold && pTarget->phenotype.death.dead == false )
 	{
-		std::vector<double> displacement = pTarget->get_position() - pAttacker->get_position();
+		std::vector<double> displacement = pTarget->position - pAttacker->position;
 		double distance_scale = norm( displacement ); 
 		if( distance_scale > max_attachment_distance )
 		{ return false; } 
@@ -704,9 +704,9 @@ void immune_cell_rule( Cell* pCell, Phenotype& phenotype, double dt )
 
 void adhesion_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttachedTo, Phenotype& pat , double dt )
 {
-	std::vector<double> displacement = pAttachedTo->get_position() - pActingOn->get_position();
+	std::vector<double> displacement = pAttachedTo->position - pActingOn->position;
 	
-	static double max_elastic_displacement = pao.geometry.radius * pao.mechanics.relative_detachment_distance(); 
+	static double max_elastic_displacement = pao.geometry.radius() * pao.mechanics.relative_detachment_distance(); 
 	static double max_displacement_squared = max_elastic_displacement*max_elastic_displacement; 
 	
 	// detach cells if too far apart 

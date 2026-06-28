@@ -10,7 +10,7 @@ class PhysiCell_mechanics_legacy_implementation : public PhysiCell::Mechanics_im
 public:
 	Mechanics_Environment_Interface* get_mechanics_environment() override;
 
-    Mechanics_Agent_Interface* create_mechanics_agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cell* pCell) override;
+    Mechanics_Agent_Interface* create_mechanics_agent(Cell* pCell) override;
 };
 
 }

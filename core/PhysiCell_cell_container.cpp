@@ -272,6 +272,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		
 		// Update cell indices in the container
 		get_mechanics_environment_i()->update_container();
+		get_microenvironment_i()->update_container();
 
 		last_mechanics_time=t;
 	}

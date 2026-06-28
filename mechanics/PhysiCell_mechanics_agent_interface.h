@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "../BioFVM/BioFVM_position_entity.h"
+
 namespace PhysiCell {
 
 /**
@@ -21,6 +23,9 @@ public:
 	// ========================================================================
 	// mech_agent_data — direct fields
 	// ========================================================================
+	
+	virtual int get_type() const = 0;
+	virtual void set_type(int new_type) = 0;
 
 	/** @brief Pointer to the start of this agent's velocity components. */
 	virtual double* get_velocity() = 0;
@@ -109,6 +114,14 @@ public:
 
 	virtual void update_voxel_in_container(void) = 0;
 
+	// Position entity binding — allows Cell to supply the canonical position storage.
+	virtual void bind_position_entity(BioFVM::Position_Entity* pe) = 0;
+	virtual BioFVM::Position_Entity*  get_position_entity() noexcept = 0;
+	
+	virtual bool assign_position(double x, double y, double z) = 0;
+	virtual bool assign_position(const std::vector<double>& new_position) = 0;
+	std::vector<double>& get_position() { return get_position_entity()->position; }
+	virtual void update_position( double dt ) = 0;
 };
 
 } // namespace PhysiCell

@@ -35,6 +35,13 @@ public:
 	// ========================================================================
 	// Mechanics_Agent_Interface — all delegate to pImpl
 	// ========================================================================
+	
+	int get_type() const override {
+		return pImpl->get_type();
+	}
+	void set_type(int new_type) override {
+		pImpl->set_type(new_type);
+	}
 
 	// ---- mech_agent_data — direct fields -----------------------------------
 
@@ -154,6 +161,20 @@ public:
 	void update_voxel_in_container(void) override
 	{ pImpl->update_voxel_in_container(); }
 
+	void bind_position_entity(BioFVM::Position_Entity* pe) override
+	{ pImpl->bind_position_entity(pe); }
+
+	BioFVM::Position_Entity*  get_position_entity() noexcept override
+	{ return pImpl->get_position_entity(); }
+
+	bool assign_position(double x, double y, double z) override
+	{ return pImpl->assign_position(x, y, z); }
+
+	bool assign_position(const std::vector<double>& new_position) override
+	{ return pImpl->assign_position(new_position); }
+
+	void update_position( double dt ) override
+	{ pImpl->update_position(dt); }
 };
 
 } // namespace PhysiCell

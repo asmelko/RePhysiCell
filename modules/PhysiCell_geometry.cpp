@@ -74,7 +74,7 @@ namespace PhysiCell{
 
 void fill_rectangle( std::vector<double> bounds , Cell_Definition* pCD , double compression )
 {
-	double cell_radius = pCD->phenotype.geometry.radius; 
+	double cell_radius = pCD->phenotype.geometry.radius(); 
 	double spacing = compression * cell_radius * 2.0; 
 	double half_space = 0.5*spacing; 
 	double y_offset = sqrt(3.0)*half_space; 
@@ -147,7 +147,7 @@ void fill_rectangle( std::vector<double> bounds , int cell_type )
 
 void fill_circle( std::vector<double> center , double radius , Cell_Definition* pCD , double compression )
 {
-	double cell_radius = pCD->phenotype.geometry.radius; 
+	double cell_radius = pCD->phenotype.geometry.radius(); 
 	double spacing = compression * cell_radius * 2.0; 
 	double half_space = 0.5*spacing; 
 	double y_offset = sqrt(3.0)*half_space; 
@@ -203,7 +203,7 @@ void fill_circle( std::vector<double> center , double radius , int cell_type )
 
 void fill_annulus( std::vector<double> center , double outer_radius, double inner_radius , Cell_Definition* pCD , double compression )
 {
-	double cell_radius = pCD->phenotype.geometry.radius; 
+	double cell_radius = pCD->phenotype.geometry.radius(); 
 	double spacing = compression * cell_radius * 2.0; 
 	double half_space = 0.5*spacing; 
 	double y_offset = sqrt(3.0)*half_space; 
@@ -260,7 +260,7 @@ void fill_annulus( std::vector<double> center , double outer_radius , double inn
 
 void draw_line( std::vector<double> start , std::vector<double> end , Cell_Definition* pCD , double compression )
 {
-	double cell_radius = pCD->phenotype.geometry.radius; 
+	double cell_radius = pCD->phenotype.geometry.radius(); 
 	double cr2 = cell_radius * cell_radius; 
 	double spacing = compression * cell_radius * 2.0; 
 	

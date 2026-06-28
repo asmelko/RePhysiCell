@@ -45,10 +45,10 @@ void PhysiMeSS_Cell::add_potentials_from_fibre(PhysiMeSS_Fibre* pFibre)
 
     // check distance relative repulsion and adhesion distances
     // cell should repel from a fibre if it comes within cell radius plus fibre radius (note fibre radius ~2 micron)
-    double R = phenotype.geometry.radius + pFibre->mRadius;
+    double R = phenotype.geometry.radius() + pFibre->mRadius;
     // cell should feel adhesion over
     double max_interactive_distance =
-            phenotype.mechanics.relative_maximum_adhesion_distance * phenotype.geometry.radius +
+            phenotype.mechanics.relative_maximum_adhesion_distance * phenotype.geometry.radius()+
             pFibre->phenotype.mechanics.relative_maximum_adhesion_distance *
             pFibre->mRadius;
 

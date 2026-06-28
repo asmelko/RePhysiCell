@@ -68,7 +68,12 @@ class Basic_Agent final : public Basic_Agent_Interface
 	int current_microenvironment_voxel_index;
 	double volume;
 	bool volume_is_changed;
-	int current_voxel_index;	
+	int current_voxel_index;
+
+	// Non-owning pointer to the active position storage.
+	// Points to default_position by default; rebound to an external
+	// Position_Entity (e.g. Cell) via bind_position_entity().
+	Position_Entity* pos_entity;
 	
  protected:
 	std::vector<double> cell_source_sink_solver_temp1;
@@ -79,9 +84,6 @@ class Basic_Agent final : public Basic_Agent_Interface
 	
 	std::vector<double> total_extracellular_substrate_change; 
 
-	// Interface implementation
-	double* get_position_internal() override;
-	
  public:
 	bool is_active;
 
@@ -108,22 +110,26 @@ class Basic_Agent final : public Basic_Agent_Interface
 
 	int ID; 
 	int index; 
-	int type;
 	
 	// ID and type accessors
 	int get_ID() const override;
 	void set_ID(int new_ID) override;
 	int get_index() const override;
 	void set_index(int new_index) override;
-	int get_type() const override;
-	void set_type(int new_type) override;
 	
-	bool assign_position(double x, double y, double z) override;
-	bool assign_position(std::vector<double> new_position) override;
-	const std::vector<double>& get_position() const override;
-	
-	std::vector<double> position;  
-	void update_position( double dt ) override;
+	bool assign_position(double x, double y, double z);
+	bool assign_position(std::vector<double> new_position);
+	const std::vector<double>& get_position() const;
+
+	// Position entity binding
+	void bind_position_entity(Position_Entity* pe) override;
+	Position_Entity* get_position_entity() noexcept override;
+
+	// Owned fallback used when no external Position_Entity is supplied
+	// (e.g. standalone Basic_Agent not embedded in a Cell).
+	Position_Entity default_position;
+
+	void update_position( double dt );
 	
 	// Activity status
 	bool get_is_active() const override;

@@ -164,7 +164,7 @@ std::vector<std::vector<double>> create_cell_sphere_positions(double cell_radius
 
 void setup_tissue( void )
 {
-	double cell_radius = cell_defaults.phenotype.geometry.radius;
+	double cell_radius = cell_defaults.phenotype.geometry.radius();
 	double tumor_radius = parameters.doubles( "tumor_radius" ); // 250.0; 
 	std::vector<std::vector<double>> positions = create_cell_sphere_positions(cell_radius, tumor_radius);
 	std::cout << "creating " << positions.size() << " closely-packed tumor cells ... " << std::endl;

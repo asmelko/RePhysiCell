@@ -7,7 +7,6 @@
 #include "PhysiCell_mechanics_agent_PIMPL.h"
 #include "PhysiCell_mechanics_functions.h"
 
-#include "../BioFVM/BioFVM_basic_agent_PIMPL.h"
 #include "../core/PhysiCell_phenotype.h"
 
 namespace PhysiCell {
@@ -25,7 +24,7 @@ class mechanics_environment;
  * Every Mechanics_Agent_Interface getter is implemented by returning a
  * reference or pointer into the corresponding member.
  */
-class Mechanics_Agent : public Mechanics_Agent_Interface, public BioFVM::Basic_Agent_PIMPL
+class Mechanics_Agent : public Mechanics_Agent_Interface
 {
 public:
 	// ========================================================================
@@ -33,7 +32,6 @@ public:
 	// ========================================================================
 
 	std::vector<double> velocity;
-	double              radius                = 0.0;
 	bool                is_movable            = true;
 	std::vector<Mechanics_Agent*>    neighbors;
 
@@ -52,6 +50,8 @@ public:
 
 	Motility_Data motility_data;
 
+	Radius_Data radius_data;
+
 	// ========================================================================
 	// Remaining direct fields not captured by Mechanics_Data / Motility_Data
 	// ========================================================================
@@ -64,6 +64,10 @@ public:
 	// ========================================================================
 	// Mechanics_Agent_Interface implementations
 	// ========================================================================
+	
+	int type;
+	int get_type() const override;
+	void set_type(int new_type) override;
 
 	// ---- mech_agent_data — direct fields -----------------------------------
 
@@ -71,7 +75,7 @@ public:
 	{ return velocity.data(); }
 
 	double& get_radius() override
-	{ return radius; }
+	{ return radius_data.radius; }
 
 	bool& get_is_movable() override
 	{ return is_movable; }
@@ -170,7 +174,19 @@ public:
 
 	Mechanics_Agent(Cell* pCell);
 
-	Mechanics_Agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cell* pCell);
+	// Non-owning pointer to the canonical position storage.
+	// Initialised from the wrapped Basic_Agent; rebound by Cell to point at
+	// the Cell's own Position_Entity subobject.
+	BioFVM::Position_Entity* pos_entity = nullptr;
+
+	void bind_position_entity(BioFVM::Position_Entity* pe) override;
+
+	Position_Entity*  get_position_entity() noexcept override;
+
+	// Owned fallback used when no external Position_Entity is supplied
+	// (e.g. standalone Basic_Agent not embedded in a Cell).
+	Position_Entity default_position;
+
 
 	Mechanics_Agent_PIMPL* pOwner = nullptr;
 
@@ -187,7 +203,7 @@ public:
 	void add_potentials(Mechanics_Agent*);       // Add repulsive and adhesive forces.
 	void set_previous_velocity(double xV, double yV, double zV);
 	int get_current_mechanics_voxel_index() override;
-		bool assign_position(const std::vector<double>& new_position);
+	bool assign_position(const std::vector<double>& new_position) override;
 	bool assign_position(double, double, double) override;
 
 		// mechanics 
@@ -210,7 +226,7 @@ public:
 	bool& get_is_out_of_domain() override
 	{ return is_out_of_domain; }
 
-
+	
 	int number_of_attached_cells( void ); 
 };
 

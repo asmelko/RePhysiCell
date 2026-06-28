@@ -72,8 +72,6 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	Basic_Agent_Interface* pImpl;
 
 	bool owns_pImpl; // flag to indicate ownership of pImpl (for proper cleanup)
-
-	double* get_position_internal() override;
 	
  public:
 	/**
@@ -114,14 +112,9 @@ class Basic_Agent_PIMPL : public Basic_Agent_Interface
 	virtual void set_ID(int new_ID) override;
 	virtual int get_index() const override;
 	virtual void set_index(int new_index) override;
-	virtual int get_type() const override;
-	virtual void set_type(int new_type) override;
-	
-	// Position methods - delegate to pImpl
-	virtual bool assign_position(double x, double y, double z) override;
-	virtual bool assign_position(std::vector<double> new_position) override;
-	virtual const std::vector<double>& get_position() const override;
-	virtual void update_position( double dt ) override;
+
+	virtual void bind_position_entity(Position_Entity* pe) override;
+	virtual Position_Entity* get_position_entity() noexcept override;
 	
 	// Activity status - delegate to pImpl
 	virtual bool get_is_active() const override;

@@ -128,40 +128,14 @@ void Basic_Agent_PIMPL::set_index(int new_index)
 	pImpl->set_index(new_index);
 }
 
-int Basic_Agent_PIMPL::get_type() const
+void Basic_Agent_PIMPL::bind_position_entity(Position_Entity* pe)
 {
-	return pImpl->get_type();
+	pImpl->bind_position_entity(pe);
 }
 
-void Basic_Agent_PIMPL::set_type(int new_type)
+Position_Entity* Basic_Agent_PIMPL::get_position_entity() noexcept
 {
-	pImpl->set_type(new_type);
-}
-
-// Position methods
-bool Basic_Agent_PIMPL::assign_position(double x, double y, double z)
-{
-	return pImpl->assign_position(x, y, z);
-}
-
-bool Basic_Agent_PIMPL::assign_position(std::vector<double> new_position)
-{
-	return pImpl->assign_position(new_position);
-}
-
-double* Basic_Agent_PIMPL::get_position_internal()
-{
-	return pImpl->get_position_internal();
-}
-
-const std::vector<double>& Basic_Agent_PIMPL::get_position() const
-{
-	return pImpl->get_position();
-}
-
-void Basic_Agent_PIMPL::update_position( double dt )
-{
-	pImpl->update_position(dt);
+	return pImpl->get_position_entity();
 }
 
 // Activity status

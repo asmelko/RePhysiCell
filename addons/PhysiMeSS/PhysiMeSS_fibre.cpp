@@ -200,7 +200,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
     }
     distance = std::max(sqrt(distance), 0.00001);
     // fibre should only interact with cell if it comes within cell radius plus fibre radius (note fibre radius ~2 micron)
-    double R = phenotype.geometry.radius + mRadius;
+    double R = phenotype.geometry.radius() + mRadius;
     if (distance <= R) {
         std::vector<double> point_of_impact(3, 0.0);
         for (int index = 0; index < 3; index++) {

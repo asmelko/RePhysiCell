@@ -9,8 +9,8 @@ Mechanics_Environment_Interface* PhysiCell_mechanics_legacy_implementation::get_
     return &mech_environment;
 }
 
-Mechanics_Agent_Interface* PhysiCell_mechanics_legacy_implementation::create_mechanics_agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cell* pCell) {
-    return new Mechanics_Agent(pBasicAgent, pCell);
+Mechanics_Agent_Interface* PhysiCell_mechanics_legacy_implementation::create_mechanics_agent(Cell* pCell) {
+    return new Mechanics_Agent(pCell);
 }
 
 } // namespace PhysiCell

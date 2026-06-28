@@ -243,7 +243,7 @@ bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent_PIMPL* pCellI, std
 
 bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index)
 {
-	double max_interactive_distance = pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius 
+	double max_interactive_distance = pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius 
 		+ max_cell_interactive_distance_in_voxel[other_voxel_index];
 	
 	int comparing_dimension = -1, comparing_dimension2 = -1;
@@ -448,8 +448,8 @@ std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_interacting_ag
 	{
 		std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position();
 		double distance = norm( displacement );
-		if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius
-			+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius
+		if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
+			+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius
 			&& (*neighbor) != pCell )
 		{ result.push_back((*neighbor)->pOwner); }
 	}
@@ -470,8 +470,8 @@ std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_interacting_ag
 		{
 			std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position();
 			double distance = norm( displacement );
-			if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius
-				+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius
+			if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
+				+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius
 				&& (*neighbor) != pCell )
 			{ result.push_back((*neighbor)->pOwner); }
 		}

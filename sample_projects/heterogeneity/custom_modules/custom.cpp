@@ -196,7 +196,7 @@ void setup_tissue( void )
 	// custom placement 
 
 	Cell_Definition* pCD = find_cell_definition( "cancer cell"); 
-	double cell_radius = pCD->phenotype.geometry.radius; 
+	double cell_radius = pCD->phenotype.geometry.radius(); 
 	double cell_spacing = 0.95 * 2.0 * cell_radius; 
 	
 	double tumor_radius = parameters.doubles( "tumor_radius" ); // 250.0; 

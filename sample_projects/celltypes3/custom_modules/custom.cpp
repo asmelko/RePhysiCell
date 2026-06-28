@@ -979,11 +979,11 @@ void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice ,
 		Cell* pC = (*all_cells)[i]; // global_cell_list[i]; 
   
 		static std::vector<std::string> Colors; 
-		if( fabs( (pC->get_position())[2] - z_slice ) < pC->phenotype.geometry.radius )
+		if( fabs( (pC->position)[2] - z_slice ) < pC->phenotype.geometry.radius() )
 		{
-			double r = pC->phenotype.geometry.radius ; 
+			double r = pC->phenotype.geometry.radius() ; 
 			double rn = pC->phenotype.geometry.nuclear_radius ; 
-			double z = fabs( (pC->get_position())[2] - z_slice) ; 
+			double z = fabs( (pC->position)[2] - z_slice) ; 
    
 			Colors = cell_coloring_function( pC ); 
 
@@ -993,14 +993,14 @@ void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice ,
    
 			double plot_radius = sqrt( r*r - z*z ); 
 
-			Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower, 
+			Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower, 
 				plot_radius , 0.5, Colors[1], Colors[0] ); 
 
 			// plot the nucleus if it, too intersects z = 0;
 			if( fabs(z) < rn && PhysiCell_SVG_options.plot_nuclei == true )
 			{   
 				plot_radius = sqrt( rn*rn - z*z ); 
-			 	Write_SVG_circle( os, (pC->get_position())[0]-X_lower, (pC->get_position())[1]-Y_lower, 
+			 	Write_SVG_circle( os, (pC->position)[0]-X_lower, (pC->position)[1]-Y_lower, 
 					plot_radius, 0.5, Colors[3],Colors[2]); 
 			}					  
 			os << "   </g>" << std::endl;

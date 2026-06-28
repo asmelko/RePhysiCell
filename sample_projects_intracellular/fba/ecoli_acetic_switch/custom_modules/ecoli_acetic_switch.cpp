@@ -188,7 +188,7 @@ void setup_microenvironment( void )
 void setup_tissue( void )
 {
 	// place a bacterial colony at the center 
-	double cell_radius = cell_defaults.phenotype.geometry.radius; 
+	double cell_radius = cell_defaults.phenotype.geometry.radius(); 
 	double cell_spacing = 0.95 * 2.0 * cell_radius; 
 	double colony_radius = parameters.doubles("colony_radius");
 	

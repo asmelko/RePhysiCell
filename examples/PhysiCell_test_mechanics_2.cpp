@@ -200,7 +200,7 @@ int main( int argc, char* argv[] )
 		pCell->set_total_volume(volume);	
 	}
 	
-	std::cout << (*all_cells)[0]->phenotype.geometry.radius<<std::endl;	
+	std::cout << (*all_cells)[0]->phenotype.geometry.radius()<<std::endl;	
 	std::cout << (*all_cells).size() <<" agents created successfully." <<std::endl;
 	
 	BioFVM::RUNTIME_TIC();

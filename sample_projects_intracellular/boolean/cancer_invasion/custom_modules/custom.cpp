@@ -69,6 +69,7 @@
 #include <sstream>
 #include "./custom.h"
 #include "../BioFVM/BioFVM.h"  
+#include "../mechanics/PhysiCell_mechanics_implementation.h"
 
 void create_cell_types( void )
 {
@@ -274,12 +275,12 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt )
 { 
 
-	std::vector<double> displacement = pOther->get_position();
-	displacement -= pMe->get_position();
+	std::vector<double> displacement = pOther->position;
+	displacement -= pMe->position;
 	double distance = norm( displacement ); 
 			
-	double max_distance = pMe->phenotype.geometry.radius + 
-				pOther->phenotype.geometry.radius; 
+	double max_distance = pMe->phenotype.geometry.radius() + 
+				pOther->phenotype.geometry.radius(); 
 	max_distance *=  pMe->phenotype.mechanics.relative_maximum_adhesion_distance();  //parameters.doubles("max_interaction_factor"); 
 
 			//std::cout << max_distance << " - " << distance << "\n";
@@ -288,11 +289,11 @@ void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& 
 
 	if (interaction_distance > 0){
 
-		double perc_distance = distance / pMe->phenotype.geometry.radius ;
+		double perc_distance = distance / pMe->phenotype.geometry.radius();
 		pMe->custom_data["cell_contact"] += perc_distance;
 			}
 	else {
-		detach_cells_as_spring(pMe, pOther);
+		get_mechanics_environment_i()->detach_cells_as_spring(pMe, pOther);
 	}
 
 	return; 
@@ -318,12 +319,12 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 	if ( dens > EPSILON )
 	{
 		// Distance between agent center and ECM voxel center
-		pC->displacement = pC->get_position() - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
-		double distance = norm(pC->displacement);
+		std::vector<double> displacement = pC->position - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
+		double distance = norm(displacement);
 		// Make sure that the distance is not zero
 		distance = std::max(distance, EPSILON);
 		
-		double dd = pC->phenotype.geometry.radius + ecmrad;  
+		double dd = pC->phenotype.geometry.radius() + ecmrad;  
 		double dnuc = pC->phenotype.geometry.nuclear_radius + ecmrad;  
 
 		double tmp_r = 0;
@@ -349,7 +350,7 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 		}
 
 		// Cell adherence to ECM through integrins
-		double max_interactive_distance = (PhysiCell::parameters.doubles("max_interaction_factor")*pC->phenotype.geometry.radius) + ecmrad;
+		double max_interactive_distance = (PhysiCell::parameters.doubles("max_interaction_factor")*pC->phenotype.geometry.radius()) + ecmrad;
 		if ( distance < max_interactive_distance ) 
 		{	
 			double temp_a = 1 - distance/max_interactive_distance; 
@@ -371,7 +372,7 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 			return;
 		tmp_r/=distance;
 
-		axpy( &pC->get_velocity() , tmp_r , pC->displacement ); 
+		axpy( pC->get_velocity() , tmp_r , displacement ); 
 	}
 
 }

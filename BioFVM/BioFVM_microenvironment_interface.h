@@ -349,6 +349,9 @@ public:
 	/** @brief Update supply and uptake rates based on current state */
 	virtual void update_rates() = 0;
 
+	/** @brief Update voxel indices for all agents in parallel */
+	virtual void update_container() = 0;
+
 	// ========================================================================
 	// Configuration query methods
 	// ========================================================================

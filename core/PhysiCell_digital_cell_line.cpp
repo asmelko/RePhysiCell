@@ -103,13 +103,13 @@ void set_cancer_cell_line( Cell_Line& DCL )
 	DCL.microenvironment_samples[i].densities.resize( 1 ) ; 
 	DCL.microenvironment_samples[i].densities[0] = 7.2; 
 	
-	DCL.phenotypes[i].geometry.radius = 8.413;  
+	DCL.phenotypes[i].geometry.radius() = 8.413;  
 	DCL.phenotypes[i].geometry.nuclear_radius = 5.215;
-	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius();
 	DCL.phenotypes[i].geometry.polarization.resize( 3 , 0.0 );  
 	DCL.phenotypes[i].geometry.polarized = false; 	
 	
-	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius(); 
 	DCL.phenotypes[i].volume.fluid_fraction = 0.75;
 	DCL.phenotypes[i].volume.fluid = DCL.phenotypes[i].volume.fluid_fraction * DCL.phenotypes[i].volume.total; 
 	DCL.phenotypes[i].volume.solid = DCL.phenotypes[i].volume.total - DCL.phenotypes[i].volume.fluid;
@@ -274,13 +274,13 @@ void set_cancer_cell_line_MCF7( Cell_Line& DCL )
 	DCL.microenvironment_samples[i].densities.resize( 1 ) ; 
 	DCL.microenvironment_samples[i].densities[0] = 7.2; 
 	
-	DCL.phenotypes[i].geometry.radius = 8.413;  
+	DCL.phenotypes[i].geometry.radius() = 8.413;  
 	DCL.phenotypes[i].geometry.nuclear_radius = 5.052;
-	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius();
 	DCL.phenotypes[i].geometry.polarization.resize( 3 , 0.0 );  
 	DCL.phenotypes[i].geometry.polarized = false; 	
 	
-	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius(); 
 	DCL.phenotypes[i].volume.fluid_fraction = 0.75;
 	DCL.phenotypes[i].volume.fluid = DCL.phenotypes[i].volume.fluid_fraction * DCL.phenotypes[i].volume.total; 
 	DCL.phenotypes[i].volume.solid = DCL.phenotypes[i].volume.total - DCL.phenotypes[i].volume.fluid;
@@ -497,9 +497,9 @@ void Full_Phenotype::update_volume_change_rates()
 
 void Full_Phenotype::update_radius()
 {
-	geometry.radius = pow( 0.238732414638*volume.total , 0.33333333333333333333333333333333 ); 
+	geometry.radius() = pow( 0.238732414638*volume.total , 0.33333333333333333333333333333333 ); 
 	geometry.nuclear_radius = pow( 0.238732414638*volume.nuclear , 0.33333333333333333333333333333333 );   
-	geometry.surface_area = 4* PhysiCell_constants::pi * geometry.radius * geometry.radius;
+	geometry.surface_area = 4* PhysiCell_constants::pi * geometry.radius() * geometry.radius();
 }
 
 void Volume::divide()
@@ -569,13 +569,13 @@ void set_endothelial_cell_line( Cell_Line& DCL )
 	DCL.microenvironment_samples[i].densities[0] = 160.0; 
 	
 	
-	DCL.phenotypes[i].geometry.radius = 10.0; 
+	DCL.phenotypes[i].geometry.radius() = 10.0; 
 	DCL.phenotypes[i].geometry.nuclear_radius = 8.0; 
-	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].geometry.surface_area = 4.0*_pi_*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius(); 
 	DCL.phenotypes[i].geometry.polarization.resize( 3 , 0.0 );  
 	DCL.phenotypes[i].geometry.polarized = false; 	
 	
-	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius*DCL.phenotypes[i].geometry.radius; 
+	DCL.phenotypes[i].volume.total = 4.0*_pi_/3.0*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius()*DCL.phenotypes[i].geometry.radius(); 
 	DCL.phenotypes[i].volume.fluid_fraction = 0.7; 
 	DCL.phenotypes[i].volume.fluid = DCL.phenotypes[i].volume.fluid_fraction * DCL.phenotypes[i].volume.total; 
 	DCL.phenotypes[i].volume.solid = DCL.phenotypes[i].volume.total - DCL.phenotypes[i].volume.fluid;

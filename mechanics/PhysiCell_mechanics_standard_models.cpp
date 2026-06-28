@@ -17,7 +17,7 @@ void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( Mec
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 	
-	double max_interactive_distance = pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius;
+	double max_interactive_distance = pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius;
 	double distance = pCell->functions.calculate_distance_to_membrane(dt); 
 	//Note that the distance_to_membrane function must set displacement values (as a normal vector)
 		
@@ -31,9 +31,9 @@ void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( Mec
 	}
 	// Repulsion from basement membrane
 	double temp_r = 0;
-	if(distance < pCell->radius)
+	if(distance < pCell->radius_data.radius)
 	{
-		temp_r = (1- distance/pCell->radius);
+		temp_r = (1- distance/pCell->radius_data.radius);
 		temp_r *= temp_r;
 		temp_r *= pCell->mechanics_data.cell_BM_repulsion_strength;
 	}
@@ -55,9 +55,9 @@ void Mechanics_Standard_Models::standard_domain_edge_avoidance_interactions( Mec
 		
 	// Repulsion from basement membrane
 	double temp_r = 0;
-	if(distance < pCell->radius)
+	if(distance < pCell->radius_data.radius)
 	{
-		temp_r = (1- distance/pCell->radius);
+		temp_r = (1- distance/pCell->radius_data.radius);
 		temp_r *= temp_r;
 		temp_r *= pCell->mechanics_data.cell_BM_repulsion_strength;
 	}
@@ -216,7 +216,7 @@ void Mechanics_Standard_Models::chemotaxis_function( Mechanics_Agent_PIMPL* pCel
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 
 	// bias direction is gradient for the indicated substrate 
-	pCell->motility_data.migration_bias_direction = pCell->nearest_gradient(pCell->motility_data.chemotaxis_index);
+	pCell->motility_data.migration_bias_direction = get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[pCell->motility_data.chemotaxis_index];
 	// move up or down gradient based on this direction 
 	pCell->motility_data.migration_bias_direction *= pCell->motility_data.chemotaxis_direction; 
 
@@ -242,7 +242,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function_normalized( Mechani
 	for( int i=0; i < pCell->motility_data.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		temp = pCell->nearest_gradient(i); 
+		temp = get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[i]; 
 		normalize( &temp ); 
 		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , temp ); 
 	}
@@ -265,7 +265,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function( Mechanics_Agent_PI
 	for( int i=0; i < pCell->motility_data.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , pCell->nearest_gradient(i) ); 
+		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[i] ); 
 	}
 	// normalize that 
 	normalize( pVec );
@@ -337,7 +337,7 @@ void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest
 	// have the adhesion strength taper away at this rest lenght
 	// set the rest length = confluent cell-cell spacing 
 	// 
-	double rest_length = ( pC1->radius + pC2->radius ) * 0.9523809523809523;  
+	double rest_length = ( pC1->radius_data.radius + pC2->radius_data.radius ) * 0.9523809523809523;  
 
 	double strength = ( norm(displacement) - rest_length )*effective_attachment_elastic_constant;
 	normalize( &displacement );

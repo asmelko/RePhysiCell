@@ -178,7 +178,7 @@ int main( int argc, char* argv[] )
 	//pCell2->functions.volume_update_function=do_nothing;
 	pCell2->set_total_volume(volume);
 	
-	std::cout << pCell1->phenotype.geometry.radius<<std::endl;
+	std::cout << pCell1->phenotype.geometry.radius()<<std::endl;
 	
 	std::cout << (*all_cells).size() <<" agents created successfully." <<std::endl;
 	
@@ -203,8 +203,8 @@ int main( int argc, char* argv[] )
 	
 	for(int i=0;i<10;i++)
 	{
-		{ const auto& p = pCell1->get_position(); double* v = pCell1->get_velocity(); pCell1->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
-		{ const auto& p = pCell2->get_position(); double* v = pCell2->get_velocity(); pCell2->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
+		{ const auto& p = pCell1->position; double* v = pCell1->get_velocity(); pCell1->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
+		{ const auto& p = pCell2->position; double* v = pCell2->get_velocity(); pCell2->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
 		t+=dt/10.0;
 	}
 	std::cout<<"time: "<< t<<std::endl;
@@ -217,7 +217,7 @@ int main( int argc, char* argv[] )
 			
 			if( t > t_next_output_time - 0.5 * dt )
 			{
-				report_file<<t<<"\t"<<dist(pCell1->get_position(),pCell2->get_position())<<"\n";
+				report_file<<t<<"\t"<<dist(pCell1->position,pCell2->position)<<"\n";
 				t_next_output_time += t_output_interval; 
 			}
 			
@@ -225,7 +225,7 @@ int main( int argc, char* argv[] )
 			t += dt; 
 		}
 		report_file.close();
-		std::cout<<pCell1->get_position()<<"  "<< pCell2->get_position()<< ", distance: " <<dist(pCell1->get_position(),pCell2->get_position())<<  std::endl;
+		std::cout<<pCell1->position<<"  "<< pCell2->position<< ", distance: " <<dist(pCell1->position,pCell2->position)<<  std::endl;
 		
 		std::cout<<pCell1->get_total_volume()<<std::endl;
 		std::cout << "total number of agents: " << (*all_cells).size()<<std::endl << std::endl;

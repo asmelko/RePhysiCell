@@ -790,7 +790,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		dTemp = (double) pCell->get_ID();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "position";    NOTE very different syntax for writing vectors!
-        std::fwrite( pCell->get_position().data() , sizeof(double) , 3 , fp );
+        std::fwrite( pCell->position.data() , sizeof(double) , 3 , fp );
 		// name = "total_volume"; 
 		std::fwrite( &( pCell->phenotype.volume.total ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_type"; 
@@ -873,7 +873,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
   // geometry 
      // radius //1 
 		// name = "radius"; 
-		std::fwrite( &( pCell->phenotype.geometry.radius ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->phenotype.geometry.radius()) , sizeof(double) , 1 , fp ); 
 		// name = "nuclear_radius"; 
 		std::fwrite( &( pCell->phenotype.geometry.nuclear_radius ) , sizeof(double) , 1 , fp ); 
 		// name = "surface_area"; 
@@ -1740,7 +1740,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
         }
         if (create_cells)
         {
-            pCell->phenotype.geometry.radius= params[0];
+            pCell->phenotype.geometry.radius()= params[0];
             pCell->phenotype.geometry.nuclear_radius= params[1];
             pCell->phenotype.geometry.surface_area = params[2];
         }

@@ -620,12 +620,20 @@ void Volume::divide( void )
 	return; 
 }
 
-Geometry::Geometry()
+Radius_Data::Radius_Data()
 {
 	// reference values for MCF-7, based on 
 	// volume = 2494 cubic microns
 	// nuclear volume = 540 cubic microns 
 	radius = 8.412710547954228; 
+	return; 
+}
+
+Geometry::Geometry()
+{
+	// reference values for MCF-7, based on 
+	// volume = 2494 cubic microns
+	// nuclear volume = 540 cubic microns 
 	nuclear_radius = 5.051670902881889; 
 	surface_area = 889.3685284131693; 
 	
@@ -633,12 +641,35 @@ Geometry::Geometry()
 	return; 
 }
 
+Geometry& Geometry::operator=( const Geometry& rhs )
+{
+	if ( this == &rhs )
+	{ return *this; }
+
+	this->radius() = rhs.radius();
+	this->nuclear_radius = rhs.nuclear_radius; 
+	this->surface_area = rhs.surface_area; 
+	this->polarity = rhs.polarity; 
+	
+	return *this; 
+}
+
+double& Geometry::radius() const
+{
+	if ( pCell )
+	{ return pCell->get_radius(); }
+	else if ( pCD )
+	{ return pCD->radius_data.radius; }
+	static double dummy = 0.0;
+	return dummy;
+}
+
 void Geometry::update_radius( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	static double four_thirds_pi =  4.188790204786391;
-	radius = phenotype.volume.total; 
-	radius /= four_thirds_pi; 
-	radius = pow( radius , 0.333333333333333333333333333333333333333 ); 
+	radius() = phenotype.volume.total; 
+	radius() /= four_thirds_pi; 
+	radius() = pow( radius() , 0.333333333333333333333333333333333333333 ); 
 	return; 
 }
 
@@ -668,9 +699,21 @@ void Geometry::update( Cell* pCell, Phenotype& phenotype, double dt )
 	
 	// surface area = 4*pi*r^2 = (4/3)*pi*r^3 / (r/3)	
 	surface_area = phenotype.volume.total; 
-	surface_area /= radius; 
+	surface_area /= radius(); 
 	surface_area *= 3.0; 
 	return; 
+}
+
+void Geometry::sync_to_cell( Mechanics_Agent_Interface* pCell )
+{
+	this->pCell = pCell;
+	this->pCD = nullptr;
+}
+
+void Geometry::sync_to_cell_definition( Cell_Definition* pCD )
+{
+	this->pCD = pCD;
+	this->pCell = nullptr;
 }
 	
 Mechanics_Data::Mechanics_Data()
@@ -834,7 +877,7 @@ void Mechanics::set_relative_equilibrium_distance( double new_value )
 
 void Mechanics::set_absolute_equilibrium_distance( Phenotype& phenotype, double new_value )
 {
-	return set_relative_equilibrium_distance( new_value / phenotype.geometry.radius ); 
+	return set_relative_equilibrium_distance( new_value / phenotype.geometry.radius() ); 
 }
 
 double& Mechanics::cell_cell_adhesion_strength( void ) const

@@ -309,15 +309,15 @@ void avoid_boundaries( Cell* pCell )
 	
 	// near edge: 
 	bool near_edge = false; 
-	if( pCell->get_position()[0] < Xmin + avoid_zone || pCell->get_position()[0] > Xmax - avoid_zone )
+	if( pCell->position[0] < Xmin + avoid_zone || pCell->position[0] > Xmax - avoid_zone )
 	{ near_edge = true; } 
 	
-	if( pCell->get_position()[1] < Ymin + avoid_zone || pCell->get_position()[1] > Ymax - avoid_zone )
+	if( pCell->position[1] < Ymin + avoid_zone || pCell->position[1] > Ymax - avoid_zone )
 	{ near_edge = true; } 
 	
 	if( get_microenvironment_i()->simulate_2D() == false )
 	{
-		if( pCell->get_position()[2] < Zmin + avoid_zone || pCell->get_position()[2] > Zmax - avoid_zone )
+		if( pCell->position[2] < Zmin + avoid_zone || pCell->position[2] > Zmax - avoid_zone )
 		{ near_edge = true; } 
 	}
 	
@@ -326,7 +326,7 @@ void avoid_boundaries( Cell* pCell )
 		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 		for (int i=0; i < dims; i++ )
 		{
-			pCell->get_velocity()[i] = pCell->get_position()[i]; // move towards origin
+			pCell->get_velocity()[i] = pCell->position[i]; // move towards origin
 			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
 		}
 	}
@@ -363,7 +363,7 @@ void wrap_boundaries( Cell* pCell )
 	
 	bool wrapped = false; 
 	
-	std::vector<double> p = pCell->get_position();
+	std::vector<double> p = pCell->position;
 	double Delta;
 
 
@@ -479,10 +479,10 @@ void predator_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 		{
 			bool eat_it = true; 
 			// in range? 
-			std::vector<double> displacement = pC->get_position(); 
-			displacement -= pCell->get_position(); 
+			std::vector<double> displacement = pC->position; 
+			displacement -= pCell->position; 
 			double distance = norm( displacement ); 
-			if( distance > pCell->phenotype.geometry.radius + pC->phenotype.geometry.radius 
+			if( distance > pCell->phenotype.geometry.radius() + pC->phenotype.geometry.radius()
 				+ max_detection_distance )
 			{ eat_it = false; } 
 			

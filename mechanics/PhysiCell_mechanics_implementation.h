@@ -31,7 +31,7 @@ public:
 	virtual Mechanics_Environment_Interface* get_mechanics_environment() = 0;
 
 	/** @brief Create and register a new mechanics agent. */
-	virtual Mechanics_Agent_Interface* create_mechanics_agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cell* pCell) = 0;
+	virtual Mechanics_Agent_Interface* create_mechanics_agent(Cell* pCell) = 0;
 
 	/** @brief Return the list of all tracked mechanics agents. */
 	// virtual std::vector<Mechanics_Agent_Interface*>* get_all_mechanics_agents() = 0;

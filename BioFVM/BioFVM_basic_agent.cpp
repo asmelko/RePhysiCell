@@ -70,8 +70,11 @@ Basic_Agent::Basic_Agent()
 	is_active=true;
 	
 	volume = 1.0; 
-	
-	position.assign( 3 , 0.0 ); 
+
+	// default_position is initialized by Position_Entity default ctor (3 zeros).
+	// pos_entity starts pointing at the owned fallback.
+	pos_entity = &default_position;
+
 	// link into the microenvironment, if one is defined 
 	secretion_rates= std::vector<double>(0);
 	uptake_rates= std::vector<double>(0);
@@ -106,9 +109,9 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 		// std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
 		return false;
 	}
-	position[0]=x;
-	position[1]=y;
-	position[2]=z;
+	pos_entity->position[0]=x;
+	pos_entity->position[1]=y;
+	pos_entity->position[2]=z;
 	update_voxel_index();
 	
 	// make sure the agent is not already registered
@@ -118,13 +121,13 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 
 void Basic_Agent::update_voxel_index()
 {
-	if( !get_microenvironment()->mesh.is_position_valid(position[0],position[1],position[2]))
+	if( !get_microenvironment()->mesh.is_position_valid(pos_entity->position[0],pos_entity->position[1],pos_entity->position[2]))
 	{	
 		current_voxel_index=-1;
 		is_active=false;
 		return;
 	}
-	current_voxel_index= microenvironment->nearest_voxel_index( position );
+	current_voxel_index= microenvironment->nearest_voxel_index( pos_entity->position );
 }
 
 int mycount = 0; 
@@ -316,14 +319,19 @@ double& Basic_Agent::get_total_volume()
 
 // Implementation of interface methods
 
-double* Basic_Agent::get_position_internal()
-{
-	return position.data();
-}
-
 const std::vector<double>& Basic_Agent::get_position() const
 {
-	return position;
+	return pos_entity->position;
+}
+
+void Basic_Agent::bind_position_entity(Position_Entity* pe)
+{
+	pos_entity = pe;
+}
+
+Position_Entity* Basic_Agent::get_position_entity() noexcept
+{
+	return pos_entity;
 }
 
 int Basic_Agent::get_ID() const
@@ -344,16 +352,6 @@ int Basic_Agent::get_index() const
 void Basic_Agent::set_index(int new_index)
 {
 	index = new_index;
-}
-
-int Basic_Agent::get_type() const
-{
-	return type;
-}
-
-void Basic_Agent::set_type(int new_type)
-{
-	type = new_type;
 }
 
 bool Basic_Agent::get_is_active() const

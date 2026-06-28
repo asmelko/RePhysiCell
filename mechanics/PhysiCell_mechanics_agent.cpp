@@ -2,21 +2,17 @@
 
 #include "../BioFVM/BioFVM_vector.h"
 #include "../core/PhysiCell_utilities.h"
-#include "PhysiCell_mechanics_agent_interface.h"
 #include "PhysiCell_mechanics_environment.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 #include "../core/PhysiCell_cell.h"
 
-#include "../BioFVM/BioFVM_implementation.h"
 #include "PhysiCell_mechanics_functions.h"
 
 using namespace BioFVM;
 
 namespace PhysiCell {
 
-Mechanics_Agent::Mechanics_Agent(Cell* pCell) : Mechanics_Agent::Mechanics_Agent(BioFVM::BioFVM_implementation::get_instance()->create_basic_agent(), pCell) {}
-
-Mechanics_Agent::Mechanics_Agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cell* pCell) : Basic_Agent_PIMPL(pBasicAgent, false), functions(pCell) 
+Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell) 
 {
 	pOwner = static_cast<Mechanics_Agent_PIMPL*>(pCell);
 	velocity.resize(3, 0.0);
@@ -25,8 +21,22 @@ Mechanics_Agent::Mechanics_Agent(BioFVM::Basic_Agent_Interface* pBasicAgent, Cel
 	neighbors.clear();
 	neighbors2.clear();
 
+	// default_position is initialized by Position_Entity default ctor (3 zeros).
+	// pos_entity starts pointing at the owned fallback.
+	pos_entity = &default_position;
+
 	mechanics_data.sync_to_cell_definitions();
 	motility_data.sync_to_current_microenvironment();
+}
+
+int Mechanics_Agent::get_type() const
+{
+	return type;
+}
+
+void Mechanics_Agent::set_type(int new_type)
+{
+	type = new_type;
 }
 
 void Mechanics_Agent::update_motility_vector( double dt_ )
@@ -88,6 +98,16 @@ bool Mechanics_Agent::assign_position(const std::vector<double>& new_position)
 	return assign_position(new_position[0], new_position[1], new_position[2]);
 }
 
+void Mechanics_Agent::bind_position_entity(BioFVM::Position_Entity* pe)
+{
+	pos_entity = pe;
+}
+
+BioFVM::Position_Entity* Mechanics_Agent::get_position_entity() noexcept
+{
+	return pos_entity;
+}
+
 void Mechanics_Agent::set_previous_velocity(double xV, double yV, double zV)
 {
 	get_previous_velocity()[0] = xV;
@@ -99,23 +119,21 @@ void Mechanics_Agent::set_previous_velocity(double xV, double yV, double zV)
 
 bool Mechanics_Agent::assign_position(double x, double y, double z)
 {
-	get_position_internal()[0] = x;
-	get_position_internal()[1] = y;
+	pos_entity->position[0] = x;
+	pos_entity->position[1] = y;
 	if ( !get_microenvironment_i()->simulate_2D() )
-	{ get_position_internal()[2] = z; }
+	{ pos_entity->position[2] = z; }
 	
-	// update microenvironment current voxel index
-	update_voxel_index();
 	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index= mech_environment.mechanics_mesh.nearest_voxel_index( get_position() );
+	current_mechanics_voxel_index= mech_environment.mechanics_mesh.nearest_voxel_index( pos_entity->position );
 
     // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
 	// which was not initialized at cell creation
 	if( mech_environment.max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
-		radius * mechanics_data.relative_maximum_adhesion_distance )
+		radius_data.radius * mechanics_data.relative_maximum_adhesion_distance )
 	{
-		// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius*parameters.max_interaction_distance_factor;
-		mech_environment.max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = radius
+		// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
+		mech_environment.max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = radius_data.radius
 			* mechanics_data.relative_maximum_adhesion_distance;
 	}
 
@@ -124,7 +142,6 @@ bool Mechanics_Agent::assign_position(double x, double y, double z)
 	if( !mech_environment.mechanics_mesh.is_position_valid(x,y,z) )
 	{	
 		is_out_of_domain = true; 
-		set_is_active(false); 
 		is_movable = false; 
 		
 		return false;
@@ -162,27 +179,26 @@ void Mechanics_Agent::update_position( double dt )
 	// std::vector<double> old_position = position;
 	for ( int i = 0 ; i < dims ; i++ )
 	{
-		get_position_internal()[i] += 
+		pos_entity->position[i] +=
 			( d1 * get_velocity()[i] + d2 * get_previous_velocity()[i] );
 	}
 	// overwrite previous_velocity for future use 
-	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
+	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius())
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
 	
 		
 	previous_velocity = velocity; 
 	
 	velocity[0]=0; velocity[1]=0; velocity[2]=0;
-	if(mech_environment.mechanics_mesh.is_position_valid(get_position()[0],get_position()[1],get_position()[2]))
+	if(mech_environment.mechanics_mesh.is_position_valid(pos_entity->position[0],pos_entity->position[1],pos_entity->position[2]))
 	{
-		updated_current_mechanics_voxel_index=mech_environment.mechanics_mesh.nearest_voxel_index( get_position() );
+		updated_current_mechanics_voxel_index=mech_environment.mechanics_mesh.nearest_voxel_index( pos_entity->position );
 	}
 	else
 	{
 		updated_current_mechanics_voxel_index=-1;
 		
 		is_out_of_domain = true; 
-		set_is_active(false); 
 		is_movable = false; 
 	}
 	return; 
@@ -195,8 +211,6 @@ int Mechanics_Agent::get_current_mechanics_voxel_index()
 
 void Mechanics_Agent::update_voxel_in_container()
 {
-	// call the method from BioFVM_basic_agent to update microenvironment's voxel index
-	update_voxel_index();
 	// int temp_current_voxel_index;
 	// Check to see if we need to remove agents that are pushed out of boundary
 	// if(!get_container()->underlying_mesh.is_position_valid(position[0],position[1],position[2]))	
@@ -212,7 +226,6 @@ void Mechanics_Agent::update_voxel_in_container()
 		// std::cout<<"cell out of boundary..."<< __LINE__<<" "<<ID<<std::endl;
 		current_mechanics_voxel_index=-1;
 		is_out_of_domain=true;
-		set_is_active(false);
 		return;
 	}
 	
@@ -250,7 +263,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 	double distance = 0; 
 	for( int i = 0 ; i < 3 ; i++ ) 
 	{ 
-		displacement[i] = get_position()[i] - (*other_agent).get_position()[i]; 
+		displacement[i] = pos_entity->position[i] - (*other_agent).pos_entity->position[i]; 
 		distance += displacement[i] * displacement[i]; 
 	}
 	// Make sure that the distance is not zero
@@ -258,7 +271,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 	distance = std::max(sqrt(distance), 0.00001); 
 	
 	//Repulsive
-	double R = radius+ (*other_agent).radius; 
+	double R = radius_data.radius+ (*other_agent).radius_data.radius; 
 	
 	// double RN = phenotype.geometry.nuclear_radius + (*other_agent).phenotype.geometry.nuclear_radius;	
 	double temp_r, c;
@@ -295,11 +308,11 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 	//////////////////////////////////////////////////////////////////
 	
 	// Adhesive
-	//double max_interactive_distance = parameters.max_interaction_distance_factor * phenotype.geometry.radius + 
-	//	(*other_agent).parameters.max_interaction_distance_factor * (*other_agent).phenotype.geometry.radius;
+	//double max_interactive_distance = parameters.max_interaction_distance_factor * phenotype.geometry.radius() + 
+	//	(*other_agent).parameters.max_interaction_distance_factor * (*other_agent).phenotype.geometry.radius();
 		
-	double max_interactive_distance = mechanics_data.relative_maximum_adhesion_distance * radius + 
-		(*other_agent).mechanics_data.relative_maximum_adhesion_distance * (*other_agent).radius;
+	double max_interactive_distance = mechanics_data.relative_maximum_adhesion_distance * radius_data.radius + 
+		(*other_agent).mechanics_data.relative_maximum_adhesion_distance * (*other_agent).radius_data.radius;
 		
 	if(distance < max_interactive_distance ) 
 	{	

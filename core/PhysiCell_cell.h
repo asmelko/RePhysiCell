@@ -80,6 +80,7 @@
 
 #include "../BioFVM/BioFVM_basic_agent_PIMPL.h"
 #include "../mechanics/PhysiCell_mechanics_agent_PIMPL.h"
+#include "../BioFVM/BioFVM_position_entity.h"
 
 using namespace BioFVM; 
 
@@ -146,6 +147,7 @@ class Cell_Definition
 
 	Mechanics_Data mechanics_data;
 	Motility_Data motility_data;
+	Radius_Data radius_data;
 
 	Cell_Definition();  // done 
 	Cell_Definition( Cell_Definition& cd ); // copy constructor 
@@ -174,7 +176,7 @@ class Cell_State
 	Cell_State(); 
 };
 
-class Cell : public Basic_Agent_PIMPL, public Mechanics_Agent_PIMPL
+class Cell : public BioFVM::Position_Entity, public Basic_Agent_PIMPL, public Mechanics_Agent_PIMPL
 {
  private: 
 	Cell_Container * container;
@@ -249,6 +251,10 @@ class Cell : public Basic_Agent_PIMPL, public Mechanics_Agent_PIMPL
 
 	int get_neighbors_count();
 	Cell* get_neighbor( int index );
+	
+	bool assign_position(double x, double y, double z);
+	bool assign_position(const std::vector<double>& new_position);
+	// std::vector<double>& get_position();
 };
 
 Cell* create_cell( Cell* (*custom_instantiate)() = NULL );  
