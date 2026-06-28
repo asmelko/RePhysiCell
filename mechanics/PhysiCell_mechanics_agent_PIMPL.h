@@ -54,7 +54,7 @@ public:
 	bool& get_is_movable() override
 	{ return pImpl->get_is_movable(); }
 
-	std::vector<int>& get_neighbors() override
+	std::vector<Mechanics_Agent_PIMPL*>& get_neighbors() override
 	{ return pImpl->get_neighbors(); }
 
 	// ---- base_membrane_data ------------------------------------------------
@@ -129,7 +129,7 @@ public:
 	double* get_previous_velocity() override
 	{ return pImpl->get_previous_velocity(); }
 
-	std::vector<int>& get_springs() override
+	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>>& get_springs() override
 	{ return pImpl->get_springs(); }
 	
 	

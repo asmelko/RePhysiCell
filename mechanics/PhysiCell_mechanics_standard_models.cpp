@@ -360,8 +360,8 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
 	// detach_cells_as_spring swaps the detached cell with the last cell in the vector, so we need to iterate backwards
     for( int j=pCell->spring_attachments.size()-1; j >= 0; j-- )
     {
-        std::pair<Mechanics_Agent*, bool> spring_pair = pCell->spring_attachments[j];
-		Mechanics_Agent* pTest = spring_pair.first;
+        std::pair<Mechanics_Agent_PIMPL*, bool> spring_pair = pCell->spring_attachments[j];
+		Mechanics_Agent* pTest = dynamic_cast<Mechanics_Agent*>(spring_pair.first->get_mechanics_implementation());
 		bool atacking_cell = spring_pair.second;
 		if (atacking_cell == true) // do not let attackers detach randomly
 		{ continue; }
@@ -379,7 +379,7 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
     int j = 0; 
     while( done == false && j < pCell->neighbors.size() )
     {
-        Mechanics_Agent* pTest = pCell->neighbors[j]; 
+        Mechanics_Agent* pTest = dynamic_cast<Mechanics_Agent*>(pCell->neighbors[j]->get_mechanics_implementation());
 		if( pTest->spring_attachments.size() < pTest->mechanics_data.maximum_number_of_attachments )
 		{
 			// std::string search_string = "adhesive affinity to " + pTest->type_name; 

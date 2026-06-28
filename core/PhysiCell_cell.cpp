@@ -3092,7 +3092,7 @@ int Cell::get_spring_attachments_count()
 
 Cell* Cell::get_spring_attachment( int index )
 {
-	return (*all_cells)[get_springs()[index]];
+	return static_cast<Cell*>(get_springs()[index].first);
 }
 
 int Cell::get_neighbors_count()
@@ -3102,7 +3102,7 @@ int Cell::get_neighbors_count()
 
 Cell* Cell::get_neighbor( int index )
 {
-	return (*all_cells)[get_neighbors()[index]];
+	return static_cast<Cell*>(get_neighbors()[index]);
 }
 
 bool Cell::assign_position(double x, double y, double z)

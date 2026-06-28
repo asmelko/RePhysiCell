@@ -17,9 +17,7 @@ Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell)
 	pOwner = static_cast<Mechanics_Agent_PIMPL*>(pCell);
 	velocity.resize(3, 0.0);
 	previous_velocity.resize(3, 0.0);
-	springs.clear();
 	neighbors.clear();
-	neighbors2.clear();
 
 	// default_position is initialized by Position_Entity default ctor (3 zeros).
 	// pos_entity starts pointing at the owned fallback.
@@ -337,7 +335,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 		
 		temp_r -= temp_a;
 
-		neighbors.push_back(other_agent); // move here in 1.10.2 so non-adhesive cells also added. 
+		neighbors.push_back(other_agent->pOwner); // move here in 1.10.2 so non-adhesive cells also added. 
 	}
 	/////////////////////////////////////////////////////////////////
 	if( fabs(temp_r) < 1e-16 )
@@ -366,11 +364,11 @@ void Mechanics_Agent::attach_cell( Mechanics_Agent* pAddMe )
 		bool already_attached = false; 
 		for( int i=0 ; i < attached_cells.size() ; i++ )
 		{
-			if( attached_cells[i] == pAddMe )
+			if( attached_cells[i] == pAddMe->pOwner )
 			{ already_attached = true; }
 		}
 		if( already_attached == false )
-		{ attached_cells.push_back( pAddMe ); }
+		{ attached_cells.push_back( pAddMe->pOwner ); }
 	}
 	// pAddMe->attach_cell( this ); 
 	return; 
@@ -383,11 +381,11 @@ void Mechanics_Agent::attach_cell_as_spring( Mechanics_Agent* pAddMe, bool attac
 		bool already_attached = false; 
 		for( int i=0 ; i < spring_attachments.size() ; i++ )
 		{
-			if( spring_attachments[i].first == pAddMe )
+			if( spring_attachments[i].first == pAddMe->pOwner )
 			{ already_attached = true; }
 		}
 		if( already_attached == false )
-		{ spring_attachments.emplace_back( pAddMe, attacking_spring ); }
+		{ spring_attachments.emplace_back( pAddMe->pOwner, attacking_spring ); }
 	}
 	// pAddMe->attach_cell( this ); 
 	return; 
@@ -402,7 +400,7 @@ void Mechanics_Agent::detach_cell( Mechanics_Agent* pRemoveMe )
 		while( !found && i < attached_cells.size() )
 		{
 			// if pRemoveMe is in the cell's list, remove it
-			if( attached_cells[i] == pRemoveMe )
+			if( attached_cells[i] == pRemoveMe->pOwner )
 			{
 				int n = attached_cells.size(); 
 				// copy last entry to current position 
@@ -426,7 +424,7 @@ void Mechanics_Agent::detach_cell_as_spring( Mechanics_Agent* pRemoveMe )
 		while( !found && i < spring_attachments.size() )
 		{
 			// if pRemoveMe is in the cell's list, remove it
-			if( spring_attachments[i].first == pRemoveMe )
+			if( spring_attachments[i].first == pRemoveMe->pOwner )
 			{
 				int n = spring_attachments.size(); 
 				// copy last entry to current position 
@@ -448,14 +446,14 @@ void Mechanics_Agent::remove_self_from_all_neighbors( void )
 
 	for( int j = 0 ; j < pCell->neighbors.size(); j++ )
 	{
-	 	Mechanics_Agent* pN = pCell->neighbors[j]; 
+	 	Mechanics_Agent* pN = dynamic_cast<Mechanics_Agent*>(pCell->neighbors[j]->get_mechanics_implementation()); 
 
 		// for each pN, remove pC from list of neighbors 
 			// find pC in neighbors 
 
 
 			auto SearchResult = std::find( 
-				pN->neighbors.begin(),pN->neighbors.end(),pCell );  		
+				pN->neighbors.begin(),pN->neighbors.end(),pCell->pOwner );  		
 
 			// if pC is indeed found, remove it  
 			// erase pC from neighbors 
@@ -477,7 +475,7 @@ void Mechanics_Agent::remove_all_attached_cells( void )
 		// remove self from any attached cell's list. 
 		for( int i = 0; i < attached_cells.size() ; i++ )
 		{
-			attached_cells[i]->detach_cell( this ); 
+			dynamic_cast<Mechanics_Agent*>(attached_cells[i]->get_mechanics_implementation())->detach_cell( this ); 
 		}
 		// clear my list 
 		attached_cells.clear(); 
@@ -491,7 +489,7 @@ void Mechanics_Agent::remove_all_spring_attachments( void )
 		// remove self from any attached cell's list. 
 		for( int i = 0; i < spring_attachments.size() ; i++ )
 		{
-			spring_attachments[i].first->detach_cell_as_spring( this ); 
+			dynamic_cast<Mechanics_Agent*>(spring_attachments[i].first->get_mechanics_implementation())->detach_cell_as_spring( this ); 
 		}
 		// clear my list 
 		spring_attachments.clear(); 

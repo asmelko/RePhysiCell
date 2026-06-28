@@ -106,7 +106,7 @@ void mechanics_environment::compute_spring_attachments(double dt)
 			{
 				for( int j=0; j < pC->spring_attachments.size(); j++ )
 				{
-					Mechanics_Agent* pC1 = pC->spring_attachments[j].first; 
+					Mechanics_Agent* pC1 = dynamic_cast<Mechanics_Agent*>(pC->spring_attachments[j].first->get_mechanics_implementation()); 
 					// standard_elastic_contact_function_confluent_rest_length(pC,pC->phenotype,pC1,pC1->phenotype,time_since_last_mechanics);  
 					Mechanics_Standard_Models().standard_elastic_contact_function(pC,pC1,dt);  
 				}

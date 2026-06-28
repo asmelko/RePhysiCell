@@ -7,6 +7,8 @@
 
 namespace PhysiCell {
 
+class Mechanics_Agent_PIMPL; // forward declaration
+
 /**
  * @brief Abstract interface for agents that participate in mechanical interactions.
  *
@@ -37,7 +39,7 @@ public:
 	virtual bool& get_is_out_of_domain() = 0;
 
 	/** @brief Neighbor agent indices (mechanics voxel adjacency list). */
-	virtual std::vector<int>& get_neighbors() = 0;
+	virtual std::vector<Mechanics_Agent_PIMPL*>& get_neighbors() = 0;
 
 	// ========================================================================
 	// base_membrane_data
@@ -95,7 +97,7 @@ public:
 	virtual double* get_previous_velocity() = 0;
 
 	/** @brief Spring-attachment partner indices for this agent. */
-	virtual std::vector<int>& get_springs() = 0;
+	virtual std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>>& get_springs() = 0;
 	
 	virtual double& get_relative_maximum_attachment_distance() = 0; 
 	virtual double& get_relative_detachment_distance() = 0; 

@@ -33,10 +33,10 @@ public:
 
 	std::vector<double> velocity;
 	bool                is_movable            = true;
-	std::vector<Mechanics_Agent*>    neighbors;
+	std::vector<Mechanics_Agent_PIMPL*>    neighbors;
+	std::vector<Mechanics_Agent_PIMPL*> attached_cells; 
+	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>> spring_attachments; 
 
-
-	std::vector<int>    neighbors2, springs;
 
 	// ========================================================================
 	// mechanics_data (membrane + potential data)
@@ -80,8 +80,8 @@ public:
 	bool& get_is_movable() override
 	{ return is_movable; }
 
-	std::vector<int>& get_neighbors() override
-	{ return neighbors2; }
+	std::vector<Mechanics_Agent_PIMPL*>& get_neighbors() override
+	{ return neighbors; }
 
 	// ---- base_membrane_data ------------------------------------------------
 
@@ -158,8 +158,8 @@ public:
 	double* get_previous_velocity() override
 	{ return previous_velocity.data(); }
 
-	std::vector<int>& get_springs() override
-	{ return springs; }
+	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>>& get_springs() override
+	{ return spring_attachments; }
 	
 	
 	
@@ -193,8 +193,6 @@ public:
 	Mechanics_Functions functions;
 
 
-	std::vector<Mechanics_Agent*> attached_cells; 
-	std::vector<std::pair<Mechanics_Agent*, bool>> spring_attachments; 
 	bool is_out_of_domain = false;
 	int current_mechanics_voxel_index = -1;
 	int updated_current_mechanics_voxel_index = 0; // keeps the updated voxel index for later adjusting of current voxel index
