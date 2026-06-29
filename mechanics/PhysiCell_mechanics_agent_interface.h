@@ -122,7 +122,6 @@ public:
 	virtual bool assign_position(double x, double y, double z) = 0;
 	virtual bool assign_position(const std::vector<double>& new_position) = 0;
 	std::vector<double>& get_position() { return get_position_entity()->position; }
-	virtual void update_position( double dt ) = 0;
 };
 
 } // namespace PhysiCell

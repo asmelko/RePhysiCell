@@ -169,9 +169,6 @@ public:
 
 	bool assign_position(const std::vector<double>& new_position) override
 	{ return pImpl->assign_position(new_position); }
-
-	void update_position( double dt ) override
-	{ pImpl->update_position(dt); }
 };
 
 } // namespace PhysiCell

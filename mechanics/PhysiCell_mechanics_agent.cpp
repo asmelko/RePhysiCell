@@ -14,7 +14,7 @@ namespace PhysiCell {
 
 Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell) 
 {
-	pOwner = static_cast<Mechanics_Agent_PIMPL*>(pCell);
+	pOwner = pCell;
 	velocity.resize(3, 0.0);
 	previous_velocity.resize(3, 0.0);
 	neighbors.clear();

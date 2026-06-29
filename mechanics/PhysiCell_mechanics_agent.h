@@ -203,7 +203,7 @@ public:
 	bool assign_position(double, double, double) override;
 
 		// mechanics 
-	void update_position( double dt ) override; //
+	void update_position( double dt ); //
 	std::vector<double> displacement = {0.0, 0.0, 0.0}; // this should be moved to state, or made private  
 
 	void update_voxel_in_container(void) override;
