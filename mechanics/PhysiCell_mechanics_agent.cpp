@@ -106,15 +106,6 @@ BioFVM::Position_Entity* Mechanics_Agent::get_position_entity() noexcept
 	return pos_entity;
 }
 
-void Mechanics_Agent::set_previous_velocity(double xV, double yV, double zV)
-{
-	get_previous_velocity()[0] = xV;
-	get_previous_velocity()[1] = yV;
-	get_previous_velocity()[2] = zV;
-
-	return; 
-}
-
 bool Mechanics_Agent::assign_position(double x, double y, double z)
 {
 	pos_entity->position[0] = x;
@@ -354,26 +345,6 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 }
 
 
-int Mechanics_Agent::number_of_attached_cells( void )
-{ return attached_cells.size(); } 
-
-void Mechanics_Agent::attach_cell( Mechanics_Agent* pAddMe )
-{
-	#pragma omp critical
-	{
-		bool already_attached = false; 
-		for( int i=0 ; i < attached_cells.size() ; i++ )
-		{
-			if( attached_cells[i] == pAddMe->pOwner )
-			{ already_attached = true; }
-		}
-		if( already_attached == false )
-		{ attached_cells.push_back( pAddMe->pOwner ); }
-	}
-	// pAddMe->attach_cell( this ); 
-	return; 
-}
-
 void Mechanics_Agent::attach_cell_as_spring( Mechanics_Agent* pAddMe, bool attacking_spring )
 {
 	#pragma omp critical
@@ -388,30 +359,6 @@ void Mechanics_Agent::attach_cell_as_spring( Mechanics_Agent* pAddMe, bool attac
 		{ spring_attachments.emplace_back( pAddMe->pOwner, attacking_spring ); }
 	}
 	// pAddMe->attach_cell( this ); 
-	return; 
-}
-
-void Mechanics_Agent::detach_cell( Mechanics_Agent* pRemoveMe )
-{
-	#pragma omp critical
-	{
-		bool found = false; 
-		int i = 0; 
-		while( !found && i < attached_cells.size() )
-		{
-			// if pRemoveMe is in the cell's list, remove it
-			if( attached_cells[i] == pRemoveMe->pOwner )
-			{
-				int n = attached_cells.size(); 
-				// copy last entry to current position 
-				attached_cells[i] = attached_cells[n-1]; 
-				// shrink by one 
-				attached_cells.pop_back(); 
-				found = true; 
-			}
-			i++; 
-		}
-	}
 	return; 
 }
 
@@ -466,20 +413,6 @@ void Mechanics_Agent::remove_self_from_all_neighbors( void )
 			{ /* future error message */  }
 	}
 
-	return; 
-}
-
-void Mechanics_Agent::remove_all_attached_cells( void )
-{
-	{
-		// remove self from any attached cell's list. 
-		for( int i = 0; i < attached_cells.size() ; i++ )
-		{
-			dynamic_cast<Mechanics_Agent*>(attached_cells[i]->get_mechanics_implementation())->detach_cell( this ); 
-		}
-		// clear my list 
-		attached_cells.clear(); 
-	}
 	return; 
 }
 

@@ -32,9 +32,8 @@ public:
 	// ========================================================================
 
 	std::vector<double> velocity;
-	bool                is_movable            = true;
-	std::vector<Mechanics_Agent_PIMPL*>    neighbors;
-	std::vector<Mechanics_Agent_PIMPL*> attached_cells; 
+	bool is_movable = true;
+	std::vector<Mechanics_Agent_PIMPL*> neighbors;
 	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>> spring_attachments; 
 
 
@@ -58,7 +57,7 @@ public:
 
 	// std::function<void(double*)> update_migration_bias_direction;
 
-	double           simple_pressure          = 0.0;
+	double simple_pressure = 0.0;
 	std::vector<double> previous_velocity;
 
 	// ========================================================================
@@ -199,7 +198,6 @@ public:
 
 	void update_motility_vector( double dt_ );
 	void add_potentials(Mechanics_Agent*);       // Add repulsive and adhesive forces.
-	void set_previous_velocity(double xV, double yV, double zV);
 	int get_current_mechanics_voxel_index() override;
 	bool assign_position(const std::vector<double>& new_position) override;
 	bool assign_position(double, double, double) override;
@@ -210,11 +208,7 @@ public:
 
 	void update_voxel_in_container(void) override;
 
-	void attach_cell( Mechanics_Agent* pAddMe ); // done 
-	void detach_cell( Mechanics_Agent* pRemoveMe ); // done 
-
 	void remove_self_from_all_neighbors( void ) override; 
-	void remove_all_attached_cells( void ) override; // done 
 
 	void attach_cell_as_spring( Mechanics_Agent* pAddMe, bool attacking_spring ); // done 
 	void detach_cell_as_spring( Mechanics_Agent* pRemoveMe ); // done 
@@ -223,9 +217,6 @@ public:
 	
 	bool& get_is_out_of_domain() override
 	{ return is_out_of_domain; }
-
-	
-	int number_of_attached_cells( void ); 
 };
 
 

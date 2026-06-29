@@ -111,7 +111,6 @@ public:
 
 
 	virtual void remove_self_from_all_neighbors( void ) = 0; 
-	virtual void remove_all_attached_cells( void ) = 0; // done 
 	virtual void remove_all_spring_attachments( void ) = 0; // done 
 
 	virtual void update_voxel_in_container(void) = 0;

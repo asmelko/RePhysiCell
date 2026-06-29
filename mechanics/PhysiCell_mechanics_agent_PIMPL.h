@@ -149,9 +149,6 @@ public:
 	void remove_self_from_all_neighbors( void ) override
 	{ pImpl->remove_self_from_all_neighbors(); }
 
-	void remove_all_attached_cells( void ) override
-	{ pImpl->remove_all_attached_cells(); }
-
 	void remove_all_spring_attachments( void ) override
 	{ pImpl->remove_all_spring_attachments(); }
 
