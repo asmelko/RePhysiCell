@@ -114,21 +114,21 @@ bool Mechanics_Agent::assign_position(double x, double y, double z)
 	{ pos_entity->position[2] = z; }
 	
 	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index= mech_environment.mechanics_mesh.nearest_voxel_index( pos_entity->position );
+	current_mechanics_voxel_index= get_mechanics_environment().mechanics_mesh.nearest_voxel_index( pos_entity->position );
 
     // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
 	// which was not initialized at cell creation
-	if( mech_environment.max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
+	if( get_mechanics_environment().max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
 		radius_data.radius * mechanics_data.relative_maximum_adhesion_distance )
 	{
 		// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
-		mech_environment.max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = radius_data.radius
+		get_mechanics_environment().max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = radius_data.radius
 			* mechanics_data.relative_maximum_adhesion_distance;
 	}
 
-	mech_environment.register_agent(this);
+	get_mechanics_environment().register_agent(this);
 	
-	if( !mech_environment.mechanics_mesh.is_position_valid(x,y,z) )
+	if( !get_mechanics_environment().mechanics_mesh.is_position_valid(x,y,z) )
 	{	
 		is_out_of_domain = true; 
 		is_movable = false; 
@@ -179,9 +179,9 @@ void Mechanics_Agent::update_position( double dt )
 	previous_velocity = velocity; 
 	
 	velocity[0]=0; velocity[1]=0; velocity[2]=0;
-	if(mech_environment.mechanics_mesh.is_position_valid(pos_entity->position[0],pos_entity->position[1],pos_entity->position[2]))
+	if(get_mechanics_environment().mechanics_mesh.is_position_valid(pos_entity->position[0],pos_entity->position[1],pos_entity->position[2]))
 	{
-		updated_current_mechanics_voxel_index=mech_environment.mechanics_mesh.nearest_voxel_index( pos_entity->position );
+		updated_current_mechanics_voxel_index=get_mechanics_environment().mechanics_mesh.nearest_voxel_index( pos_entity->position );
 	}
 	else
 	{
@@ -209,9 +209,9 @@ void Mechanics_Agent::update_voxel_in_container()
 		// check if this agent has a valid voxel index, if so, remove it from previous voxel
 		if( get_current_mechanics_voxel_index() >= 0)
 		{
-			{mech_environment.remove_agent_from_voxel(this, get_current_mechanics_voxel_index());}
+			{get_mechanics_environment().remove_agent_from_voxel(this, get_current_mechanics_voxel_index());}
 		}
-		{mech_environment.add_agent_to_outer_voxel(this);}
+		{get_mechanics_environment().add_agent_to_outer_voxel(this);}
 		// std::cout<<"cell out of boundary..."<< __LINE__<<" "<<ID<<std::endl;
 		current_mechanics_voxel_index=-1;
 		is_out_of_domain=true;
@@ -225,8 +225,8 @@ void Mechanics_Agent::update_voxel_in_container()
 	if(updated_current_mechanics_voxel_index!= get_current_mechanics_voxel_index())
 	{
 		{
-			mech_environment.remove_agent_from_voxel(this, get_current_mechanics_voxel_index());
-			mech_environment.add_agent_to_voxel(this, updated_current_mechanics_voxel_index);
+			get_mechanics_environment().remove_agent_from_voxel(this, get_current_mechanics_voxel_index());
+			get_mechanics_environment().add_agent_to_voxel(this, updated_current_mechanics_voxel_index);
 		}
 		current_mechanics_voxel_index=updated_current_mechanics_voxel_index;
 	}

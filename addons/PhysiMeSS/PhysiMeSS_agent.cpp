@@ -1,12 +1,21 @@
 #include "PhysiMeSS_agent.h"
+#include "PhysiMeSS_environment.h"
 
 #include <algorithm>
-// #include "PhysiMeSS_fibre.h"
+#include "../../core/PhysiCell_cell.h"
 
-PhysiMeSS_Agent::PhysiMeSS_Agent()
+using namespace PhysiCell;
+
+PhysiMeSS_Agent::PhysiMeSS_Agent(Cell* pCell)
+    : Mechanics_Agent(pCell)
 {
     physimess_neighbors.clear();
     physimess_voxels.clear();
+}
+
+Cell* PhysiMeSS_Agent::get_cell() const
+{
+    return static_cast<Cell*>(pOwner);
 }
 
 std::list<int> PhysiMeSS_Agent::find_agent_voxels() {
@@ -19,7 +28,7 @@ std::list<int> PhysiMeSS_Agent::find_agent_voxels() {
     {    
         all_agent_voxels_to_test.push_back(voxel);
         
-        for (auto side_voxel : this->get_container()->underlying_mesh.moore_connected_voxel_indices[voxel]) 
+        for (auto side_voxel : physimess_environment.mechanics_mesh.moore_connected_voxel_indices[voxel])
         {
             all_agent_voxels_to_test.push_back(side_voxel);
         }
@@ -42,9 +51,10 @@ void PhysiMeSS_Agent::find_agent_neighbors() {
     for (int voxel: voxels_to_test) 
     {
         //std::cout << voxel << " " ;
-        for (auto* neighbor : this->get_container()->agent_grid[voxel])
+        for (auto* neighbor_impl : physimess_environment.agent_grid[voxel])
         {
             // do not include the neighbor if it is the agent itself or if it is in the list already
+            PhysiMeSS_Agent* neighbor = dynamic_cast<PhysiMeSS_Agent*>(neighbor_impl);
             if (this != neighbor){
                 if (std::find(physimess_neighbors.begin(), physimess_neighbors.end(), neighbor) == physimess_neighbors.end()) {
                     physimess_neighbors.push_back(neighbor);

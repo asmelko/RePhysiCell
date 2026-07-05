@@ -97,8 +97,20 @@ Cell* instantiate_physimess_cell();
 Cell* instantiate_physimess_fibre();
 Cell* instantiate_physimess_cell_custom_degrade();
 
-class PhysiMeSS_Cell_Custom_Degrade : public PhysiMeSS_Cell
+class PhysiMeSS_CellAgent_Custom_Degrade : public PhysiMeSS_CellAgent
 {
   public:  
-  void degrade_fibre(PhysiMeSS_Fibre* pFibre);
+  explicit PhysiMeSS_CellAgent_Custom_Degrade(PhysiCell::Cell* pCell);
+  virtual ~PhysiMeSS_CellAgent_Custom_Degrade() = default;
+  void degrade_fibre(PhysiMeSS_FibreAgent* pFibre);
+};
+
+class PhysiMeSS_Cell_Custom_Degrade : public PhysiCell::Cell
+{
+public:
+    explicit PhysiMeSS_Cell_Custom_Degrade();
+    virtual ~PhysiMeSS_Cell_Custom_Degrade() = default;
+
+    /// Returns the PhysiMeSS-specific mechanics implementation.
+    PhysiMeSS_CellAgent_Custom_Degrade* get_physimess_agent() const;
 };

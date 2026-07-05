@@ -125,6 +125,7 @@ public:
 };
 
 extern mechanics_environment mech_environment; // global instance of the mechanics environment
+mechanics_environment& get_mechanics_environment(); // global accessor for the mechanics environment
 
 
 } // namespace PhysiCell
