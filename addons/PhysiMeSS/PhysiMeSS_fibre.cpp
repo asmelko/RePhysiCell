@@ -1,8 +1,15 @@
 #include "PhysiMeSS_fibre.h"
 #include "PhysiMeSS_cell.h"
-#include <algorithm>
+#include "PhysiMeSS_environment.h"
 
+#include <algorithm>
 #include "../../BioFVM/BioFVM_vector.h"
+#include "../../BioFVM/BioFVM_microenvironment_interface.h"
+#include "../../core/PhysiCell_cell.h"
+#include "../../core/PhysiCell_utilities.h"
+
+using namespace PhysiCell;
+using namespace BioFVM;
 
 bool isFibre(PhysiCell::Cell* pCell) 
 {
@@ -14,9 +21,9 @@ bool isFibre(PhysiCell::Cell* pCell)
     const auto rod = std::string("rod");
 
     return (agentname.find(ecm) != std::string::npos ||
-        agentname.find(matrix) != std::string::npos ||
-        agentname.find(fiber) != std::string::npos ||
-        agentname.find(fibre) != std::string::npos ||
+            agentname.find(matrix) != std::string::npos ||
+            agentname.find(fiber) != std::string::npos ||
+            agentname.find(fibre) != std::string::npos ||
         agentname.find(rod) != std::string::npos
     );
 }
@@ -31,10 +38,10 @@ bool isFibre(PhysiCell::Cell_Definition * cellDef)
     const auto rod = std::string("rod");
 
     return (agentname.find(ecm) != std::string::npos ||
-        agentname.find(matrix) != std::string::npos ||
-        agentname.find(fiber) != std::string::npos ||
-        agentname.find(fibre) != std::string::npos ||
-        agentname.find(rod) != std::string::npos
+            agentname.find(matrix) != std::string::npos ||
+            agentname.find(fiber) != std::string::npos ||
+            agentname.find(fibre) != std::string::npos ||
+            agentname.find(rod) != std::string::npos
     );
 }
 
@@ -52,7 +59,8 @@ std::vector<PhysiCell::Cell_Definition*>* getFibreCellDefinitions() {
     return result;
 }
 
-PhysiMeSS_Fibre::PhysiMeSS_Fibre() 
+PhysiMeSS_FibreAgent::PhysiMeSS_FibreAgent(Cell* pCell)
+    : PhysiMeSS_Agent(pCell)
 {
     // std::cout << "PhysiMeSS_Fibre constructor,";
     fibres_crosslinkers.clear();
@@ -65,42 +73,43 @@ PhysiMeSS_Fibre::PhysiMeSS_Fibre()
     fail_count = 0;
 }
 
-void PhysiMeSS_Fibre::assign_fibre_orientation() 
-{ 
-    mLength = PhysiCell::NormalRandom(this->custom_data["fibre_length"], this->custom_data["length_normdist_sd"]) / 2.0;
-    mRadius = this->custom_data["fibre_radius"];
-    this->assign_orientation();
-    if (BioFVM::get_microenvironment_i()->simulate_2D()) {
-        if (this->custom_data["anisotropic_fibres"] > 0.5){
-            double theta = PhysiCell::NormalRandom(this->custom_data["fibre_angle"], this->custom_data["angle_normdist_sd"]);
-            this->state.orientation[0] = cos(theta);
-            this->state.orientation[1] = sin(theta);
+void PhysiMeSS_FibreAgent::assign_fibre_orientation()
+{
+    Cell* pCell = get_cell();
+    mLength = PhysiCell::NormalRandom(pCell->custom_data["fibre_length"], pCell->custom_data["length_normdist_sd"]) / 2.0;
+    mRadius = pCell->custom_data["fibre_radius"];
+    pCell->assign_orientation();
+    if (get_microenvironment_i()->simulate_2D()) {
+        if (pCell->custom_data["anisotropic_fibres"] > 0.5){
+            double theta = PhysiCell::NormalRandom(pCell->custom_data["fibre_angle"], pCell->custom_data["angle_normdist_sd"]);
+            pCell->state.orientation[0] = cos(theta);
+            pCell->state.orientation[1] = sin(theta);
         }
         else{
-            this->state.orientation = PhysiCell::UniformOnUnitCircle();
+            pCell->state.orientation = UniformOnUnitCircle();
         }
-        this->state.orientation[2] = 0.0;
+        pCell->state.orientation[2] = 0.0;
     }
     else {
-        this->state.orientation = PhysiCell::UniformOnUnitSphere();
+        pCell->state.orientation = PhysiCell::UniformOnUnitSphere();
     }
     //###########################################//
     //   this bit a hack for PacMan and maze	 //
     //###########################################//
-    if (this->type_name == "fibre_vertical") {
-        this->state.orientation[0] = 0.0;
-        this->state.orientation[1] = 1.0;
-        this->state.orientation[2] = 0.0;
+    if (pCell->type_name == "fibre_vertical") {
+        pCell->state.orientation[0] = 0.0;
+        pCell->state.orientation[1] = 1.0;
+        pCell->state.orientation[2] = 0.0;
     }
-    if (this->type_name == "fibre_horizontal") {
-        this->state.orientation[0] = 1.0;
-        this->state.orientation[1] = 0.0;
-        this->state.orientation[2] = 0.0;
+    if (pCell->type_name == "fibre_horizontal") {
+        pCell->state.orientation[0] = 1.0;
+        pCell->state.orientation[1] = 0.0;
+        pCell->state.orientation[2] = 0.0;
     }
     //###########################################// 
 }
 
-void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
+void PhysiMeSS_FibreAgent::check_out_of_bounds(std::vector<double>& position)
 {
     double Xmin = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[0]; 
 	double Ymin = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[1]; 
@@ -111,16 +120,17 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
 	double Zmax = BioFVM::get_microenvironment_i()->get_mesh().bounding_box[5]; 
 	
 	if( BioFVM::get_microenvironment_i()->simulate_2D() == true )
-	{
-		Zmin = 0.0; 
-		Zmax = 0.0; 
-	}
-    
+    {
+        Zmin = 0.0;
+        Zmax = 0.0;
+    }
+
     // start and end points of a fibre are calculated from fibre center
-    double xs = position[0] - this->mLength * this->state.orientation[0];
-    double xe = position[0] + this->mLength * this->state.orientation[0];
-    double ys = position[1] - this->mLength * this->state.orientation[1];
-    double ye = position[1] + this->mLength * this->state.orientation[1];
+    Cell* pCell = get_cell();
+    double xs = position[0] - mLength * pCell->state.orientation[0];
+    double xe = position[0] + mLength * pCell->state.orientation[0];
+    double ys = position[1] - mLength * pCell->state.orientation[1];
+    double ye = position[1] + mLength * pCell->state.orientation[1];
     double zs = 0.0;
     double ze = 0.0;
     if (BioFVM::get_microenvironment_i()->simulate_2D()) {
@@ -128,8 +138,8 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
                         " and " << xe << " " << ye << std::endl; */
     }
     else if (!BioFVM::get_microenvironment_i()->simulate_2D()) {
-        zs = position[2] - this->mLength * this->state.orientation[2];
-        ze = position[2] + this->mLength * this->state.orientation[2];
+        zs = position[2] - mLength * pCell->state.orientation[2];
+        ze = position[2] + mLength * pCell->state.orientation[2];
         /*std::cout << " fibre endpoints in 3D are " << xs << " " << ys << " " << zs <<
                         " and " << xe << " " << ye << " " << ze << std::endl; */
     }
@@ -139,7 +149,7 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
                 break after 10 failures
                 It needs re-writing at some stage to handle the 3D case properly */
 
-    if (this->custom_data["anisotropic_fibres"]) {
+    if (pCell->custom_data["anisotropic_fibres"]) {
         if (xs < Xmin || xe > Xmax || xe < Xmin || xs > Xmax ||
             ys < Ymin || ye > Ymax || ye < Ymin || ys > Ymax) {
             fail_count = 10;
@@ -151,11 +161,11 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
                 if (xs < Xmin || xe > Xmax || xe < Xmin || xs > Xmax ||
                     ys < Ymin || ye > Ymax || ye < Ymin || ys > Ymax) {
                     fail_count++;
-                    this->state.orientation = PhysiCell::UniformOnUnitCircle();
-                    xs = position[0] - mLength * this->state.orientation[0];
-                    xe = position[0] + mLength * this->state.orientation[0];
-                    ys = position[1] - mLength * this->state.orientation[1];
-                    ye = position[1] + mLength * this->state.orientation[1];
+                    pCell->state.orientation = PhysiCell::UniformOnUnitCircle();
+                    xs = position[0] - mLength * pCell->state.orientation[0];
+                    xe = position[0] + mLength * pCell->state.orientation[0];
+                    ys = position[1] - mLength * pCell->state.orientation[1];
+                    ye = position[1] + mLength * pCell->state.orientation[1];
                 }
                 else {
                     break;
@@ -167,15 +177,15 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
             while (fail_count < 10) {
                 if (xs < Xmin || xe > Xmax || xe < Xmin || xs > Xmax ||
                     ys < Ymin || ye > Ymax || ye < Ymin || ys > Ymax ||
-                    zs < Zmin || ze > Zmax || ze < Xmin || zs > Xmax) {
+                    zs < Zmin || ze > Zmax || ze < Zmin || zs > Zmax) {
                     fail_count++;
-                    this->state.orientation = PhysiCell::UniformOnUnitSphere();
-                    xs = position[0] - mLength * this->state.orientation[0];
-                    xe = position[0] + mLength * this->state.orientation[0];
-                    ys = position[1] - mLength * this->state.orientation[1];
-                    ye = position[1] + mLength * this->state.orientation[1];
-                    zs = position[2] - mLength * this->state.orientation[2];
-                    ze = position[2] + mLength * this->state.orientation[2];
+                    pCell->state.orientation = PhysiCell::UniformOnUnitSphere();
+                    xs = position[0] - mLength * pCell->state.orientation[0];
+                    xe = position[0] + mLength * pCell->state.orientation[0];
+                    ys = position[1] - mLength * pCell->state.orientation[1];
+                    ye = position[1] + mLength * pCell->state.orientation[1];
+                    zs = position[2] - mLength * pCell->state.orientation[2];
+                    ze = position[2] + mLength * pCell->state.orientation[2];
                 }
                 else {
                     break;
@@ -186,30 +196,33 @@ void PhysiMeSS_Fibre::check_out_of_bounds(std::vector<double>& position)
 }
 
 
-void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell) 
+void PhysiMeSS_FibreAgent::add_potentials_from_cell(PhysiMeSS_CellAgent* agent)
 {
-    // fibres only get pushed or rotated by motile cells
-    if (!cell->phenotype.motility.is_motile || X_crosslink_count >= 2) {
+    Cell* this_cell = get_cell();
+    Cell* agent_cell = agent->get_cell();
+
+    // Fibres only get pushed or rotated by motile cells
+    if (!agent->motility_data.is_motile || X_crosslink_count >= 2) {
         return;
     }
 
     double distance = 0.0;
-    nearest_point_on_fibre(cell->get_position(), displacement);
+    nearest_point_on_fibre(agent->get_position(), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
     distance = std::max(sqrt(distance), 0.00001);
     // fibre should only interact with cell if it comes within cell radius plus fibre radius (note fibre radius ~2 micron)
-    double R = phenotype.geometry.radius() + mRadius;
+    double R = radius_data.radius + mRadius;
     if (distance <= R) {
         std::vector<double> point_of_impact(3, 0.0);
         for (int index = 0; index < 3; index++) {
-            point_of_impact[index] = (*cell).get_position()[index] - displacement[index];
+            point_of_impact[index] = agent->get_position()[index] - displacement[index];
         }
         // cell-fibre pushing only if fibre no crosslinks
         if (X_crosslink_count == 0) {
             //fibre pushing turned on
-            if (cell->custom_data["fibre_pushing"] > 0.5) {
+            if (agent_cell->custom_data["fibre_pushing"] > 0.5) {
                 // as per PhysiCell
                 static double simple_pressure_scale = 0.027288820670331;
                 // temp_r = 1 - distance/R;
@@ -219,38 +232,38 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
                 temp_r += 1.0;
                 temp_r *= temp_r;
                 // add the relative pressure contribution NOT SURE IF NEEDED
-                state.simple_pressure += (temp_r / simple_pressure_scale);
+                simple_pressure += (temp_r / simple_pressure_scale);
 
-                double effective_repulsion = sqrt(phenotype.mechanics.cell_cell_repulsion_strength() *
-                                                    (*cell).phenotype.mechanics.cell_cell_repulsion_strength);
+                double effective_repulsion = sqrt(mechanics_data.cell_cell_repulsion_strength *
+                                                      agent->mechanics_data.cell_cell_repulsion_strength);
                 temp_r *= effective_repulsion;
 
                 if (fabs(temp_r) < 1e-16) { return; }
                 temp_r /= distance;
-                naxpy(&get_velocity(), temp_r, displacement);
+                naxpy(&velocity, temp_r, displacement);
             }
 
             // fibre rotation turned on (2D)
-            if (cell->custom_data["fibre_rotation"] > 0.5) {
+            if (agent_cell->custom_data["fibre_rotation"] > 0.5) {
                 std::vector<double> old_orientation(3, 0.0);
                 for (int i = 0; i < 2; i++) {
-                    old_orientation[i] = state.orientation[i];
+                    old_orientation[i] = this_cell->state.orientation[i];
                 }
 
                 double moment_arm_magnitude = sqrt(
-                        point_of_impact[0] * point_of_impact[0] + point_of_impact[1] * point_of_impact[1]);
-                double impulse = cell->custom_data["fibre_sticky"]*(*cell).phenotype.motility.migration_speed * moment_arm_magnitude;
+                    point_of_impact[0] * point_of_impact[0] + point_of_impact[1] * point_of_impact[1]);
+                double impulse = agent_cell->custom_data["fibre_sticky"] * agent->motility_data.migration_speed * moment_arm_magnitude;
                 double fibre_length = 2 * mLength;
                 double angular_velocity = impulse / (0.5 * fibre_length * fibre_length);
                 double angle = angular_velocity;
-                state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
-                state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
-                normalize(&state.orientation);
+                this_cell->state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
+                this_cell->state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
+                normalize(&this_cell->state.orientation);
             }
         }
 
         // fibre rotation around other fibre (2D only and fibres intersect at a single point)
-        if (cell->custom_data["fibre_rotation"] > 0.5 && X_crosslink_count == 1) {
+        if (agent_cell->custom_data["fibre_rotation"] > 0.5 && X_crosslink_count == 1) {
             double distance_fibre_centre_to_crosslink = 0.0;
             std::vector<double> fibre_centre_to_crosslink(3, 0.0);
             for (int i = 0; i < 2; i++) {
@@ -261,19 +274,19 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
 
             std::vector<double> old_orientation(3, 0.0);
             for (int i = 0; i < 2; i++) {
-                old_orientation[i] = state.orientation[i];
+                old_orientation[i] = this_cell->state.orientation[i];
             }
             double moment_arm_magnitude = sqrt(
-                    point_of_impact[0] * point_of_impact[0] + point_of_impact[1] * point_of_impact[1]);
-            double impulse = cell->custom_data["fibre_sticky"]*(*cell).phenotype.motility.migration_speed * moment_arm_magnitude;
+                point_of_impact[0] * point_of_impact[0] + point_of_impact[1] * point_of_impact[1]);
+            double impulse = agent_cell->custom_data["fibre_sticky"] * agent->motility_data.migration_speed * moment_arm_magnitude;
             double fibre_length = 2 * mLength;
             double angular_velocity = impulse / (0.5 * fibre_length * fibre_length);
             double angle = angular_velocity;
-            state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
-            state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
-            normalize(&state.orientation);
-            get_position_internal()[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*state.orientation[0];
-            get_position_internal()[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*state.orientation[1];
+            this_cell->state.orientation[0] = old_orientation[0] * cos(angle) - old_orientation[1] * sin(angle);
+            this_cell->state.orientation[1] = old_orientation[0] * sin(angle) + old_orientation[1] * cos(angle);
+            normalize(&this_cell->state.orientation);
+            get_position()[0] = fibres_crosslink_point[0]-distance_fibre_centre_to_crosslink*this_cell->state.orientation[0];
+            get_position()[1] = fibres_crosslink_point[1]-distance_fibre_centre_to_crosslink*this_cell->state.orientation[1];
         }
     }
 
@@ -281,7 +294,7 @@ void PhysiMeSS_Fibre::add_potentials_from_cell(PhysiMeSS_Cell* cell)
 }
 
 
-void PhysiMeSS_Fibre::add_potentials_from_fibre(PhysiMeSS_Fibre* other_fibre) 
+void PhysiMeSS_FibreAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* other_fibre)
 {
     /* probably want something here to model tension along fibres
         * this will be strong tension along the fibre for those fibres with a crosslink
@@ -289,40 +302,39 @@ void PhysiMeSS_Fibre::add_potentials_from_fibre(PhysiMeSS_Fibre* other_fibre)
     return;
 }
 
-void PhysiMeSS_Fibre::register_fibre_voxels() {
-
+void PhysiMeSS_FibreAgent::register_fibre_voxels() {
+    Cell* pCell = get_cell();
     int voxel;
-    int voxel_size = this->get_container()->underlying_mesh.dx; // note this must be the same as the mechanics_voxel_size
-    int test = 2.0 * this->mLength / voxel_size; //allows us to sample along the fibre
+    int voxel_size = physimess_environment.mechanics_mesh.dx; // note this must be the same as the mechanics_voxel_size
+    int test = 2.0 * mLength / voxel_size; //allows us to sample along the fibre
 
     std::vector<double> fibre_start(3, 0.0);
     std::vector<double> fibre_end(3, 0.0);
     for (unsigned int i = 0; i < 3; i++) {
-        fibre_start[i] = this->get_position()[i] - this->mLength * this->state.orientation[i];
-        fibre_end[i] = this->get_position()[i] + this->mLength * this->state.orientation[i];
+        fibre_start[i] = get_position()[i] - mLength * pCell->state.orientation[i];
+        fibre_end[i] = get_position()[i] + mLength * pCell->state.orientation[i];
     }
     // first add the voxel of the fibre end point
-    voxel = this->get_container()->underlying_mesh.nearest_voxel_index(fibre_end);
-    //std::cout << voxel << " " ;
+    voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(fibre_end);
     physimess_voxels.push_back(voxel);
-    if (std::find(this->get_container()->agent_grid[voxel].begin(),
-                    this->get_container()->agent_grid[voxel].end(),
-                    this) == this->get_container()->agent_grid[voxel].end()) {
-        this->get_container()->agent_grid[voxel].push_back(this);
+    if (std::find(physimess_environment.agent_grid[voxel].begin(),
+                  physimess_environment.agent_grid[voxel].end(),
+                  this) == physimess_environment.agent_grid[voxel].end()) {
+        physimess_environment.agent_grid[voxel].push_back(this);
     }
     // then walk along the fibre from fibre start point sampling and adding voxels as we go
     std::vector<double> point_on_fibre(3, 0.0);
     for (unsigned int j = 0; j < test + 1; j++) {
         for (unsigned int i = 0; i < 3; i++) {
-            point_on_fibre[i] = fibre_start[i] + j * voxel_size * this->state.orientation[i];
+            point_on_fibre[i] = fibre_start[i] + j * voxel_size * pCell->state.orientation[i];
         }
-        voxel = this->get_container()->underlying_mesh.nearest_voxel_index(point_on_fibre);
+        voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(point_on_fibre);
         //std::cout << voxel << " " ;
         physimess_voxels.push_back(voxel);
-        if (std::find(this->get_container()->agent_grid[voxel].begin(),
-                        this->get_container()->agent_grid[voxel].end(),
-                        this) == this->get_container()->agent_grid[voxel].end()) {
-            this->get_container()->agent_grid[voxel].push_back(this);
+        if (std::find(physimess_environment.agent_grid[voxel].begin(),
+                      physimess_environment.agent_grid[voxel].end(),
+                      this) == physimess_environment.agent_grid[voxel].end()) {
+            physimess_environment.agent_grid[voxel].push_back(this);
         }
     }
     //std::cout << std::endl;
@@ -331,24 +343,24 @@ void PhysiMeSS_Fibre::register_fibre_voxels() {
     physimess_voxels.unique();
 }
 
-void PhysiMeSS_Fibre::deregister_fibre_voxels() 
+void PhysiMeSS_FibreAgent::deregister_fibre_voxels()
 {
-    int centre_voxel = this->get_container()->underlying_mesh.nearest_voxel_index(this->get_position());
+    int centre_voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(get_position());
     for (int voxel: physimess_voxels) {
         if (voxel != centre_voxel) {
-            this->get_container()->remove_agent_from_voxel(this, voxel);
+            physimess_environment.remove_agent_from_voxel(this, voxel);
         }
     }
 }
 
 
-std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> point, std::vector<double> &displacement) 
+std::vector<double> PhysiMeSS_FibreAgent::nearest_point_on_fibre(std::vector<double> point, std::vector<double>& displacement)
 {
+    Cell* pCell = get_cell();
 
     // don't bother if the "fibre_agent" is not a fibre
-    if (!isFibre(this)) { return displacement; }
-
-    double fibre_length = 2 * this->mLength;
+    if (!isFibre(pCell)) { return displacement; }
+    double fibre_length = 2 * mLength;
     // vector pointing from one endpoint of "fibre_agent" to "point"
     std::vector<double> fibre_to_agent(3, 0.0);
     // |fibre_to_agent| squared
@@ -358,10 +370,10 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
 
     double distance = 0;
     for (unsigned int i = 0; i < 3; i++) {
-        fibre_to_agent[i] = point[i] - (this->get_position()[i]
-                                        - this->mLength * this->state.orientation[i]);
+        fibre_to_agent[i] = point[i] - (get_position()[i]
+                                        - mLength * pCell->state.orientation[i]);
         fibre_to_agent_length_squared += fibre_to_agent[i] * fibre_to_agent[i];
-        fibre_to_agent_dot_fibre_vector += fibre_to_agent[i] * fibre_length * this->state.orientation[i];
+        fibre_to_agent_dot_fibre_vector += fibre_to_agent[i] * fibre_length * pCell->state.orientation[i];
     }
 
     // "point" is closest to the selected endpoint of "fibre_agent"
@@ -375,8 +387,8 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
         // “point” is closest to the other endpoint of “fibre_agent”
     else if (fibre_to_agent_dot_fibre_vector > fibre_length * fibre_length) {
         for (unsigned int i = 0; i < 3; i++) {
-            displacement[i] = point[i] - (this->get_position()[i]
-                                            + this->mLength * this->state.orientation[i]);
+            displacement[i] = point[i] - (get_position()[i] 
+                                            + mLength * pCell->state.orientation[i]);
         }
         //std::cout << "The point is closest to the end of the fibre" << std::endl;
         //std::cout << " Displacement: " << displacement << std::endl;
@@ -384,11 +396,11 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
         // “point” is closest to a point along “fibre_agent”
     else {
         double fibre_to_agent_length_cos_alpha_squared =
-                fibre_to_agent_dot_fibre_vector * fibre_to_agent_dot_fibre_vector /
-                (fibre_length * fibre_length);
+            fibre_to_agent_dot_fibre_vector * fibre_to_agent_dot_fibre_vector /
+            (fibre_length * fibre_length);
         double l = sqrt(fibre_to_agent_length_cos_alpha_squared);
         for (unsigned int i = 0; i < 3; i++) {
-            displacement[i] = fibre_to_agent[i] - l * this->state.orientation[i];
+            displacement[i] = fibre_to_agent[i] - l * pCell->state.orientation[i];
         }
         //std::cout << "The point is closest to a point along the fibre" << std::endl;
         //std::cout << " Displacement: " << displacement << std::endl;
@@ -400,11 +412,13 @@ std::vector<double> PhysiMeSS_Fibre::nearest_point_on_fibre(std::vector<double> 
 
 
 
-void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
-
+void PhysiMeSS_FibreAgent::check_fibre_crosslinks(PhysiMeSS_FibreAgent* fibre_neighbor) {
     if (this == fibre_neighbor) { return; }
 
-    if (isFibre(this) && isFibre(fibre_neighbor)) {
+    Cell* this_cell = get_cell();
+    Cell* neighbor_cell = fibre_neighbor->get_cell();
+
+    if (isFibre(this_cell) && isFibre(neighbor_cell)) {
 
         // fibre endpoints
         std::vector<double> point1(3, 0.0);
@@ -413,11 +427,11 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
         std::vector<double> point4(3, 0.0);
         for (int i = 0; i < 3; i++) {
             // endpoints of "this" fibre
-            point1[i] = this->get_position()[i] - mLength * this->state.orientation[i];
-            point2[i] = this->get_position()[i] + mLength * this->state.orientation[i];
+            point1[i] = this->get_position()[i] - mLength * this_cell->state.orientation[i];
+            point2[i] = this->get_position()[i] + mLength * this_cell->state.orientation[i];
             // endpoints of "neighbor" fibre
-            point3[i] = fibre_neighbor->get_position()[i] - fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
-            point4[i] = fibre_neighbor->get_position()[i] + fibre_neighbor->mLength * fibre_neighbor->state.orientation[i];
+            point3[i] = fibre_neighbor->get_position()[i] - fibre_neighbor->mLength * neighbor_cell->state.orientation[i];
+            point4[i] = fibre_neighbor->get_position()[i] + fibre_neighbor->mLength * neighbor_cell->state.orientation[i];
         }
 
         //vectors between fibre endpoints
@@ -452,8 +466,8 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
             antiparallel to the centre_to_centre vector and
             distance between fibre centres is less than their co_length */
         if (dot_product(FCP,FCP) == 0 &&
-            (centre_to_centre == this->state.orientation ||
-            centre_to_centre == -1.0 * this->state.orientation) &&
+            (centre_to_centre == this_cell->state.orientation ||
+            centre_to_centre == -1.0 * this_cell->state.orientation) &&
             distance <= co_length) {
             //std::cout << "fibre " << fibre->ID << " crosslinks with parallel colinear fibre " <<  (*fibre_neighbor).ID << std::endl;
             if (std::find(this->fibres_crosslinkers.begin(), this->fibres_crosslinkers.end(), (fibre_neighbor)) ==
@@ -478,8 +492,8 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
             std::abs(test_point2) <= co_radius ||
             std::abs(test_point3) <= co_radius ||
             std::abs(test_point4) <= co_radius &&
-            centre_to_centre != this->state.orientation &&
-            centre_to_centre != -1.0 * this->state.orientation) {
+            centre_to_centre != this_cell->state.orientation &&
+            centre_to_centre != -1.0 * this_cell->state.orientation) {
             //std::cout << "fibre " << fibre->ID << " crosslinks in parallel plane with fibre " <<  (*fibre_neighbor).ID << std::endl;
             if (std::find(this->fibres_crosslinkers.begin(), this->fibres_crosslinkers.end(), (fibre_neighbor)) ==
                 this->fibres_crosslinkers.end()) {
@@ -527,12 +541,28 @@ void PhysiMeSS_Fibre::check_fibre_crosslinks(PhysiMeSS_Fibre *fibre_neighbor) {
 }
 
 
-void PhysiMeSS_Fibre::add_crosslinks() 
+void PhysiMeSS_FibreAgent::add_crosslinks()
 {
     for (auto* neighbor : physimess_neighbors)
     {
-        if (isFibre(neighbor)) {
-            this->check_fibre_crosslinks(static_cast<PhysiMeSS_Fibre*>(neighbor));
+        if (isFibre(neighbor->get_cell()))
+        {
+            check_fibre_crosslinks(dynamic_cast<PhysiMeSS_FibreAgent*>(neighbor));
         }
     }
+}
+
+PhysiMeSS_Fibre::PhysiMeSS_Fibre()
+    : Cell()
+{
+    // Swap pImpl from default Mechanics_Agent to PhysiMeSS_FibreAgent
+    delete Mechanics_Agent_PIMPL::pImpl;
+    Mechanics_Agent_PIMPL::pImpl = new PhysiMeSS_FibreAgent(this);
+    Mechanics_Agent_PIMPL::pImpl->bind_position_entity(this);
+}
+
+PhysiMeSS_FibreAgent* PhysiMeSS_Fibre::get_physimess_agent() const
+{
+    return const_cast<PhysiMeSS_FibreAgent*>(
+        static_cast<const PhysiMeSS_FibreAgent*>(get_mechanics_implementation()));
 }

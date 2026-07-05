@@ -366,7 +366,7 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
 		if (atacking_cell == true) // do not let attackers detach randomly
 		{ continue; }
         if( UniformRandom() <= detachment_probability )
-        { mech_environment.detach_cells_as_spring( pCell , pTest ); }
+        { get_mechanics_environment().detach_cells_as_spring( pCell , pTest ); }
     }
 
     // check if I have max number of attachments 
@@ -390,7 +390,7 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
             if( UniformRandom() <= prob )
             {
                 // attempt the attachment. testing for prior connection is already automated 
-                mech_environment.attach_cells_as_spring( pCell, pTest, false ); 
+                get_mechanics_environment().attach_cells_as_spring( pCell, pTest, false ); 
                 if( pCell->spring_attachments.size() >= pCell->mechanics_data.maximum_number_of_attachments )
                 { done = true; }
             }

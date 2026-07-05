@@ -67,6 +67,27 @@
 
 #include "./custom.h"
 
+PhysiMeSS_CellAgent_Custom_Degrade::PhysiMeSS_CellAgent_Custom_Degrade(Cell* pCell)
+	: PhysiMeSS_CellAgent(pCell)
+{
+	// Custom constructor code here
+}
+
+PhysiMeSS_Cell_Custom_Degrade::PhysiMeSS_Cell_Custom_Degrade()
+    : Cell()
+{
+    // Swap pImpl from default Mechanics_Agent to PhysiMeSS_CellAgent_Custom_Degrade
+    delete Mechanics_Agent_PIMPL::pImpl;
+    Mechanics_Agent_PIMPL::pImpl = new PhysiMeSS_CellAgent_Custom_Degrade(this);
+    Mechanics_Agent_PIMPL::pImpl->bind_position_entity(this);
+}
+
+PhysiMeSS_CellAgent_Custom_Degrade* PhysiMeSS_Cell_Custom_Degrade::get_physimess_agent() const
+{
+    return const_cast<PhysiMeSS_CellAgent_Custom_Degrade*>(
+        static_cast<const PhysiMeSS_CellAgent_Custom_Degrade*>(get_mechanics_implementation()));
+}
+
 
 
 void create_cell_types( void )
@@ -90,7 +111,7 @@ void create_cell_types( void )
 	cell_defaults.functions.instantiate_cell = instantiate_physimess_cell;	
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	cell_defaults.functions.update_velocity = physimess_update_cell_velocity;
+	// Velocity is now computed by the PhysiMeSS environment's compute_velocities() override
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 
@@ -199,7 +220,7 @@ void setup_tissue( void )
             /* fibre positions are given by csv
                assign fibre orientation and test whether out of bounds */
             isFibreFromFile = true;
-			static_cast<PhysiMeSS_Fibre*>((*all_cells)[i])->assign_fibre_orientation();
+			static_cast<PhysiMeSS_Fibre*>((*all_cells)[i])->get_physimess_agent()->assign_fibre_orientation();
 			
         } 
     }
@@ -240,8 +261,8 @@ void setup_tissue( void )
 
                     pC = create_cell(*pCD);
 
-                    static_cast<PhysiMeSS_Fibre*>(pC)->assign_fibre_orientation();
-                    static_cast<PhysiMeSS_Fibre*>(pC)->check_out_of_bounds(position);
+                    static_cast<PhysiMeSS_Fibre*>(pC)->get_physimess_agent()->assign_fibre_orientation();
+                    static_cast<PhysiMeSS_Fibre*>(pC)->get_physimess_agent()->check_out_of_bounds(position);
 
                     pC->assign_position(position);
                 }
@@ -305,12 +326,13 @@ Cell* instantiate_physimess_fibre() { return new PhysiMeSS_Fibre; }
 Cell* instantiate_physimess_cell_custom_degrade() { return new PhysiMeSS_Cell_Custom_Degrade; }
 
 
-void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
+void PhysiMeSS_CellAgent_Custom_Degrade::degrade_fibre(PhysiMeSS_FibreAgent* pFibre)
 {
+    Cell* pCell = get_cell();
 	// Here this version of the degrade function takes cell pressure into account in the degradation rate
     double distance = 0.0;
     std::vector<double> displacement(3, 0.0);
-    pFibre->nearest_point_on_fibre(position, displacement);
+    pFibre->nearest_point_on_fibre(get_position(), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -318,9 +340,9 @@ void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
     
     
         // Fibre degradation by cell - switched on by flag fibre_degradation
-        double stuck_threshold = this->custom_data["fibre_stuck_time"];
-        double pressure_threshold = this->custom_data["fibre_pressure_threshold"];
-        if (this->custom_data["fibre_degradation"] > 0.5 && (stuck_counter >= stuck_threshold
+        double stuck_threshold = pCell->custom_data["fibre_stuck_time"];
+        double pressure_threshold = pCell->custom_data["fibre_pressure_threshold"];
+        if (pCell->custom_data["fibre_degradation"] > 0.5 && (stuck_counter >= stuck_threshold
                                                         || get_simple_pressure() > pressure_threshold)) {
             // if (stuck_counter >= stuck_threshold){
             //     std::cout << "Cell " << ID << " is stuck at time " << PhysiCell::PhysiCell_globals.current_time
@@ -331,17 +353,17 @@ void PhysiMeSS_Cell_Custom_Degrade::degrade_fibre(PhysiMeSS_Fibre* pFibre)
             //                 << PhysiCell::PhysiCell_globals.current_time << " near fibre " << pFibre->ID  << std::endl;;
             // }
             displacement *= -1.0/distance;
-            double dotproduct = dot_product(displacement, phenotype.motility.motility_vector());
+            double dotproduct = dot_product(displacement, motility_data.motility_vector);
             if (dotproduct >= 0) {
                 double rand_degradation = PhysiCell::UniformRandom();
-                double prob_degradation = this->custom_data["fibre_degradation_rate"];
+                double prob_degradation = pCell->custom_data["fibre_degradation_rate"];
                 if (get_simple_pressure() > pressure_threshold){
                     prob_degradation *= get_simple_pressure();
                 }
                 if (rand_degradation <= prob_degradation) {
                     //std::cout << " --------> fibre " << (*other_agent).ID << " is flagged for degradation " << std::endl;
                     // (*other_agent).parameters.degradation_flag = true;
-                    pFibre->flag_for_removal();
+                    pFibre->get_cell()->flag_for_removal();
                     // std::cout << "Degrading fibre agent " << pFibre->ID << " using flag for removal !!" << std::endl;
                     stuck_counter = 0;
                 }

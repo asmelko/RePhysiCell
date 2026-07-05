@@ -2,6 +2,7 @@
 #include "../BioFVM/BioFVM_vector.h"
 #include "PhysiCell_mechanics_agent.h"
 #include "PhysiCell_mechanics_agent_interface.h"
+#include "PhysiCell_mechanics_implementation.h"
 #include "../core/PhysiCell_constants.h"
 #include "../core/PhysiCell_cell.h"
 
@@ -20,6 +21,11 @@ namespace PhysiCell {
 // ============================================================================
 
 mechanics_environment mech_environment; // global instance of the mechanics environment
+
+mechanics_environment& get_mechanics_environment()
+{
+	return static_cast<mechanics_environment&>(*Mechanics_implementation::get_instance()->get_mechanics_environment());
+}
 
 void mechanics_environment::initialize(
     double x_start, double x_end,
