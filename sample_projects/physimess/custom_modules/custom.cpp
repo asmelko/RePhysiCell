@@ -111,7 +111,7 @@ void create_cell_types( void )
 	cell_defaults.functions.instantiate_cell = instantiate_physimess_cell;	
 	
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
-	// Velocity is now computed by the PhysiMeSS environment's compute_velocities() override
+	cell_defaults.functions.update_velocity = physimess_update_cell_velocity;
 
 	cell_defaults.functions.update_migration_bias = NULL; 
 	cell_defaults.functions.update_phenotype = NULL; // update_cell_and_death_parameters_O2_based; 

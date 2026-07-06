@@ -2,6 +2,7 @@
 #include "PhysiMeSS_agent.h"
 #include "PhysiMeSS_fibre.h"
 #include "PhysiMeSS_cell.h"
+#include "PhysiMeSS.h"
 
 #include "../../BioFVM/BioFVM_vector.h"
 
@@ -12,9 +13,13 @@ PhysiMeSS_Environment physimess_environment;
 
 void PhysiMeSS_Environment::compute_velocities(double dt)
 {
+	#pragma omp parallel for 
     for (auto* pCell : *all_cells)
     {
 		PhysiMeSS_Agent* agent = dynamic_cast<PhysiMeSS_Agent*>(pCell->get_mechanics_implementation()); 
+
+        if (pCell->functions.update_velocity != physimess_update_cell_velocity || agent->is_out_of_domain || !agent->is_movable)
+			continue;
             
         double movement_threshold = pCell->custom_data["fibre_stuck_threshold"];
         if (!isFibre(pCell) && agent->motility_data.is_motile) {
@@ -76,7 +81,7 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
                     dynamic_cast<PhysiMeSS_FibreAgent*>(agent)->add_potentials_from_fibre(dynamic_cast<PhysiMeSS_FibreAgent*>(neighbor));
                 } else {
                     // std::cout << " WARNING: interaction between errant cell-types has been called : " << pCell->type_name << ", " << neighbor->type_name << std::endl;
-                    return;
+                    break;
                 }
             }
         }

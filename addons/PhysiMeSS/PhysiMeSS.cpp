@@ -22,6 +22,12 @@ void remove_physimess_out_of_bounds_fibres()
     }
 }
 
+void physimess_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt)
+{
+    // This function is a placeholder for the standard update of cell velocity.
+    // The implementation of this function is in PhysiMeSS, and is called by the main PhysiCell update_velocity() function.
+}
+
 void physimess_mechanics( double dt ) 
 {    
     if ( PhysiCell_globals.current_time >= last_update_time + dt - 0.5 * diffusion_dt)
