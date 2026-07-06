@@ -605,9 +605,7 @@ Cell* Cell::divide( )
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
-	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
-	for ( int i = 0 ; i < dims ; i++ )
-	{ position[i] += negative_one_half * rand_vec[i]; }// position = position - 0.5*rand_vec; 
+	axpy( &position, negative_one_half , rand_vec ); // position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
@@ -793,13 +791,6 @@ void Cell::copy_data(Cell* copy_me)
 	
 	for ( int i = 0 ; i < dims ; i++ )
 	{ get_velocity()[i] = copy_me->get_velocity()[i]; }
-	
-	// expected_phenotype = copy_me-> expected_phenotype; //it is taken care in set_phenotype
-	for ( int i = 0 ; i < copy_me->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
-	{
-		phenotype.molecular.internalized_total_substrates()[i] = 
-			copy_me->phenotype.molecular.internalized_total_substrates()[i];
-	}
 	
 	return; 
 }
