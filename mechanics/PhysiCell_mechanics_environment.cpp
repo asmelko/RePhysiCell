@@ -58,6 +58,9 @@ void mechanics_environment::compute_velocities(double dt)
 	{
 		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
 
+		if ((*all_agents)[i]->functions.update_velocity != standard_update_cell_velocity || pCell->is_out_of_domain || !pCell->is_movable)
+			continue;
+
 		pCell->functions.add_cell_basement_membrane_interactions(dt);
 
 		pCell->simple_pressure = 0.0; 
