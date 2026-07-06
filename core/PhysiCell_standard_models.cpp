@@ -562,6 +562,12 @@ void standard_volume_update_function( Cell* pCell, Phenotype& phenotype, double 
 	return; 
 }
 
+void standard_update_cell_velocity( Cell* pCell, Phenotype& phenotype, double dt)
+{
+	// This function is a placeholder for the standard update of cell velocity.
+	// The implementation of this function is in the mechanics module, and is called by the main PhysiCell update_velocity() function.
+}
+
 void basic_volume_model( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	// This model does not simulate a nucleus, and sets all nuclear volumes to zero. 
