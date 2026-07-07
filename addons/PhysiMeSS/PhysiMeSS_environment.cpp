@@ -14,8 +14,9 @@ PhysiMeSS_Environment physimess_environment;
 void PhysiMeSS_Environment::compute_velocities(double dt)
 {
 	#pragma omp parallel for 
-    for (auto* pCell : *all_cells)
+    for( int i=0; i < (*all_agents).size(); i++ )
     {
+        Cell* pCell = (*all_agents)[i];
 		PhysiMeSS_Agent* agent = dynamic_cast<PhysiMeSS_Agent*>(pCell->get_mechanics_implementation()); 
 
         if (pCell->functions.update_velocity != physimess_update_cell_velocity || agent->is_out_of_domain || !agent->is_movable)
