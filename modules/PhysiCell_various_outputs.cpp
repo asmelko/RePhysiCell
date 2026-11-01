@@ -65,7 +65,7 @@
 ###############################################################################
 */
 
-#include "../BioFVM/BioFVM_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 #include "../core/PhysiCell.h"
 #include "./PhysiCell_various_outputs.h"
 
@@ -110,7 +110,7 @@ int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 			_nameCore="ENDO";
 		else
 			_nameCore="MISC";
-		std::string center= "<" + std::to_string(all_cells[i]->position[0]/scale) + "," + std::to_string(all_cells[i]->position[1]/scale) +","+ std::to_string(all_cells[i]->position[2]/scale) +">";
+		std::string center= "<" + std::to_string(all_cells[i]->position()[0]/scale) + "," + std::to_string(all_cells[i]->position()[1]/scale) +","+ std::to_string(all_cells[i]->position()[2]/scale) +">";
 		std::string core = "sphere {\n\t" + center + "\n\t " + std::to_string( all_cells[i]->phenotype.geometry.radius()/scale) + "\n\t FinishMacro ( " + center +","+ _nameCore+ "Finish,"+ _nameCore + "*1)\n}\n";
 		povFile<< core;		
 	}
@@ -133,7 +133,7 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 	{
 		phenotype_code = all_cells[i]->phenotype.cycle.current_phase().code;
 		// phenotype_code = phases.size()>0?all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].code:-1;
-		povFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->position[0]<<"\t" << all_cells[i]->position[1] <<"\t"<< all_cells[i]->position[2]<<"\t";
+		povFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->position()[0]<<"\t" << all_cells[i]->position()[1] <<"\t"<< all_cells[i]->position()[2]<<"\t";
 		povFile<<all_cells[i]->phenotype.geometry.radius()<<"\t"<<all_cells[i]->phenotype.volume.total<<"\t"<<all_cells[i]->phenotype.volume.nuclear_fluid
 		<<"\t"<<all_cells[i]->phenotype.volume.nuclear_solid<<"\t"<<all_cells[i]->phenotype.volume.cytoplasmic_fluid<<"\t"<<
 		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<< 
@@ -183,7 +183,7 @@ void log_output(double t, int output_index, Microenvironment_Interface& M, std::
 //	std::cout << std::endl;
 	
 	std::cout << "time: "<<t<<std::endl;
-	num_new_cells=t==0?BioFVM_implementation::get_instance()->get_all_basic_agents()->size():((Cell_Container *)M.get_agent_container())->num_divisions_in_current_step;
+	num_new_cells=t==0?PhysiCell::CoreImplementation::get_instance()->get_all_cells()->size():((Cell_Container *)M.get_agent_container())->num_divisions_in_current_step;
 	num_deaths=((Cell_Container *)M.get_agent_container())->num_deaths_in_current_step;
 	std::cout<<"total number of agents (newly born, deaths): " << (*all_cells).size()<<"("<<num_new_cells<<", "<<num_deaths<<")" << std::endl; 
 	report_file<<t<<"\t"<<(*all_cells).size()<<"\t"<<num_new_cells<<"\t"<<num_deaths<<"\t"<<BioFVM::stopwatch_value()<< std::endl; 

@@ -13,7 +13,7 @@ using namespace BioFVM;
 
 namespace PhysiCell {
 
-void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( Mechanics_Agent_PIMPL* pCellI, double dt )
+void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( CoreEntityPIMPL* pCellI, double dt )
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 	
@@ -45,7 +45,7 @@ void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( Mec
 	return;	
 }
 
-void Mechanics_Standard_Models::standard_domain_edge_avoidance_interactions( Mechanics_Agent_PIMPL* pCellI, double dt )
+void Mechanics_Standard_Models::standard_domain_edge_avoidance_interactions( CoreEntityPIMPL* pCellI, double dt )
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 	pCell->mechanics_data.cell_BM_repulsion_strength = 100;  
@@ -68,7 +68,7 @@ void Mechanics_Standard_Models::standard_domain_edge_avoidance_interactions( Mec
 	return;
 }
 
-double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL* pCellI)
+double Mechanics_Standard_Models::distance_to_domain_edge(CoreEntityPIMPL* pCellI)
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 	
@@ -81,13 +81,13 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 	int nearest_boundary = -1; 
 	
 	// check against xL and xU
-	double temp_distance = pCell->get_position()[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
+	double temp_distance = pCell->position()[0] - get_microenvironment_i()->get_mesh().bounding_box[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 0; 
 	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - pCell->get_position()[0]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[3] - pCell->position()[0]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
@@ -95,13 +95,13 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 	}
 	
 	// check against yL and yU
-	temp_distance = pCell->get_position()[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
+	temp_distance = pCell->position()[1] - get_microenvironment_i()->get_mesh().bounding_box[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
 		nearest_boundary = 2; 
 	}
-	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - pCell->get_position()[1]; 
+	temp_distance = get_microenvironment_i()->get_mesh().bounding_box[4] - pCell->position()[1]; 
 	if( temp_distance < min_distance )
 	{
 		min_distance = temp_distance; 
@@ -111,13 +111,13 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 	if( get_microenvironment_i()->simulate_2D() == false )
 	{
 		// if in 3D, check against zL and zU
-		temp_distance = pCell->get_position()[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
+		temp_distance = pCell->position()[2] - get_microenvironment_i()->get_mesh().bounding_box[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 
 			nearest_boundary = 4; 
 		}
-		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - pCell->get_position()[2]; 
+		temp_distance = get_microenvironment_i()->get_mesh().bounding_box[5] - pCell->position()[2]; 
 		if( temp_distance < min_distance )
 		{
 			min_distance = temp_distance; 
@@ -127,32 +127,32 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 		// check for 3D exceptions 
 		
 		// lines 
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance && 
-			fabs( (pCell->get_position()[1]) - (pCell->get_position()[2]) ) < tolerance && 
-			fabs( (pCell->get_position()[0]) - (pCell->get_position()[2]) ) < tolerance )
+		if( fabs( (pCell->position()[0]) - (pCell->position()[1]) ) < tolerance && 
+			fabs( (pCell->position()[1]) - (pCell->position()[2]) ) < tolerance && 
+			fabs( (pCell->position()[0]) - (pCell->position()[2]) ) < tolerance )
 		{
-			if( pCell->get_position()[0] > 0 )
+			if( pCell->position()[0] > 0 )
 			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+				if( pCell->position()[0] > 0 && pCell->position()[1] > 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+				if( pCell->position()[0] < 0 && pCell->position()[1] > 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , -one_over_sqrt_3 }; }
 				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+				if( pCell->position()[0] > 0 && pCell->position()[1] < 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+				if( pCell->position()[0] < 0 && pCell->position()[1] < 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , -one_over_sqrt_3 }; }
 			} 
 			else
 			{
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+				if( pCell->position()[0] > 0 && pCell->position()[1] > 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+				if( pCell->position()[0] < 0 && pCell->position()[1] > 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , -one_over_sqrt_3 , one_over_sqrt_3 }; }
 				
-				if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+				if( pCell->position()[0] > 0 && pCell->position()[1] < 0 )
 				{ pCell->displacement = { -one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }
-				if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+				if( pCell->position()[0] < 0 && pCell->position()[1] < 0 )
 				{ pCell->displacement = { one_over_sqrt_3 , one_over_sqrt_3 , one_over_sqrt_3 }; }				
 			}
 			return min_distance; 
@@ -165,16 +165,16 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 	{
 		// check for 2D  exceptions 
 		
-		if( fabs( (pCell->get_position()[0]) - (pCell->get_position()[1]) ) < tolerance )
+		if( fabs( (pCell->position()[0]) - (pCell->position()[1]) ) < tolerance )
 		{
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] > 0 )
+			if( pCell->position()[0] > 0 && pCell->position()[1] > 0 )
 			{ pCell->displacement = { -one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] > 0 )
+			if( pCell->position()[0] < 0 && pCell->position()[1] > 0 )
 			{ pCell->displacement = { one_over_sqrt_2 , -one_over_sqrt_2 , 0 }; }
 			
-			if( pCell->get_position()[0] > 0 && pCell->get_position()[1] < 0 )
+			if( pCell->position()[0] > 0 && pCell->position()[1] < 0 )
 			{ pCell->displacement = { -one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
-			if( pCell->get_position()[0] < 0 && pCell->get_position()[1] < 0 )
+			if( pCell->position()[0] < 0 && pCell->position()[1] < 0 )
 			{ pCell->displacement = { one_over_sqrt_2 , one_over_sqrt_2 , 0 }; }
 			return min_distance; 
 		}
@@ -211,12 +211,12 @@ double Mechanics_Standard_Models::distance_to_domain_edge(Mechanics_Agent_PIMPL*
 }	
 
 
-void Mechanics_Standard_Models::chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt )
+void Mechanics_Standard_Models::chemotaxis_function( CoreEntityPIMPL* pCellI, double dt )
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 
 	// bias direction is gradient for the indicated substrate 
-	pCell->motility_data.migration_bias_direction = get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[pCell->motility_data.chemotaxis_index];
+	pCell->motility_data.migration_bias_direction = get_microenvironment_i()->nearest_gradient_vector(pCell->position())[pCell->motility_data.chemotaxis_index];
 	// move up or down gradient based on this direction 
 	pCell->motility_data.migration_bias_direction *= pCell->motility_data.chemotaxis_direction; 
 
@@ -226,7 +226,7 @@ void Mechanics_Standard_Models::chemotaxis_function( Mechanics_Agent_PIMPL* pCel
 	return;
 }
 
-void Mechanics_Standard_Models::advanced_chemotaxis_function_normalized( Mechanics_Agent_PIMPL* pCellI, double dt )
+void Mechanics_Standard_Models::advanced_chemotaxis_function_normalized( CoreEntityPIMPL* pCellI, double dt )
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 
@@ -242,7 +242,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function_normalized( Mechani
 	for( int i=0; i < pCell->motility_data.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		temp = get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[i]; 
+		temp = get_microenvironment_i()->nearest_gradient_vector(pCell->position())[i]; 
 		normalize( &temp ); 
 		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , temp ); 
 	}
@@ -252,7 +252,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function_normalized( Mechani
 	return;
 }
 
-void Mechanics_Standard_Models::advanced_chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt )
+void Mechanics_Standard_Models::advanced_chemotaxis_function( CoreEntityPIMPL* pCellI, double dt )
 {
 	Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation());
 
@@ -265,7 +265,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function( Mechanics_Agent_PI
 	for( int i=0; i < pCell->motility_data.chemotactic_sensitivities.size(); i++ )
 	{
 		// get and normalize ith gradient 
-		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , get_microenvironment_i()->nearest_gradient_vector(pCell->pos_entity->position)[i] ); 
+		axpy( pVec , pCell->motility_data.chemotactic_sensitivities[i] , get_microenvironment_i()->nearest_gradient_vector(pCell->position())[i] ); 
 	}
 	// normalize that 
 	normalize( pVec );
@@ -282,7 +282,7 @@ void Mechanics_Standard_Models::advanced_chemotaxis_function( Mechanics_Agent_PI
 	return;
 }
 
-void Mechanics_Standard_Models::standard_elastic_contact_function( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt )
+void Mechanics_Standard_Models::standard_elastic_contact_function( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt )
 {
 	standard_elastic_contact_function(
 		dynamic_cast<Mechanics_Agent*>(pC1I->get_mechanics_implementation()),
@@ -293,11 +293,8 @@ void Mechanics_Standard_Models::standard_elastic_contact_function( Mechanics_Age
 
 void Mechanics_Standard_Models::standard_elastic_contact_function( Mechanics_Agent* pC1, Mechanics_Agent* pC2, double dt )
 {
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
-	{ return; }
-	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
+	std::vector<double> displacement = to_vector3( pC2->position() );
+	displacement -= to_vector3( pC1->position() ); 
 
 	// update May 2022 - effective adhesion 
 	int ii = find_cell_definition_index( pC1->get_type() ); 
@@ -313,16 +310,13 @@ void Mechanics_Standard_Models::standard_elastic_contact_function( Mechanics_Age
 	return; 
 }
 
-void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest_length( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt )
+void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest_length( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt )
 {
 	Mechanics_Agent* pC1 = dynamic_cast<Mechanics_Agent*>(pC1I->get_mechanics_implementation());
 	Mechanics_Agent* pC2 = dynamic_cast<Mechanics_Agent*>(pC2I->get_mechanics_implementation());
 
-	if( pC1->get_position().size() != 3 || pC2->get_position().size() != 3 )
-	{ return; }
-	
-	std::vector<double> displacement = pC2->get_position();
-	displacement -= pC1->get_position(); 
+	std::vector<double> displacement = to_vector3( pC2->position() );
+	displacement -= to_vector3( pC1->position() ); 
 
 	// update May 2022 - effective adhesion 
 	int ii = find_cell_definition_index( pC1->get_type() ); 
@@ -346,7 +340,7 @@ void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest
 	return; 
 }
 
-void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent_PIMPL* pCellI , double dt )
+void Mechanics_Standard_Models::dynamic_spring_attachments( CoreEntityPIMPL* pCellI , double dt )
 {
 	dynamic_spring_attachments(dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation()), dt);
 }
@@ -360,7 +354,7 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
 	// detach_cells_as_spring swaps the detached cell with the last cell in the vector, so we need to iterate backwards
     for( int j=pCell->spring_attachments.size()-1; j >= 0; j-- )
     {
-        std::pair<Mechanics_Agent_PIMPL*, bool> spring_pair = pCell->spring_attachments[j];
+        std::pair<CoreEntityPIMPL*, bool> spring_pair = pCell->spring_attachments[j];
 		Mechanics_Agent* pTest = dynamic_cast<Mechanics_Agent*>(spring_pair.first->get_mechanics_implementation());
 		bool atacking_cell = spring_pair.second;
 		if (atacking_cell == true) // do not let attackers detach randomly

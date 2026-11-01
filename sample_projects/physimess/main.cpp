@@ -81,7 +81,7 @@
 
 #include "./custom_modules/custom.h" 
 #include "addons/PhysiMeSS/PhysiMeSS_implementation.h"
-#include "mechanics/PhysiCell_mechanics_implementation.h"
+#include "core_interface/PhysiCell_core_implementation.h"
 	
 using namespace BioFVM;
 using namespace PhysiCell;
@@ -90,7 +90,7 @@ int main( int argc, char* argv[] )
 {
 	// load and parse settings file(s)
 
-	PhysiCell::Mechanics_implementation::set_instance(PhysiMeSS_mechanics_implementation::get_instance());
+	PhysiCell::CoreImplementation::set_instance(PhysiMeSS_core_implementation::get_instance());
 	
 	bool XML_status = false; 
 	char copy_command [1024]; 

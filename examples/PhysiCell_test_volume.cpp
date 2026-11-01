@@ -210,8 +210,8 @@ int main( int argc, char* argv[] )
 	
 	
 	
-	for(int i=0;i<all_basic_agents.size();i++){
-		all_basic_agents[i]->set_internal_uptake_constants(dt); 
+	for(int i=0;i<(*all_cells).size();i++){
+		(*all_cells)[i]->set_internal_uptake_constants(dt); 
 	}
 		
 	std::cout << (*all_cells).size() <<" agent(s) created successfully." <<std::endl;
@@ -230,7 +230,7 @@ int main( int argc, char* argv[] )
 			}
 			if((*all_cells).size()>1)
 			{
-				delete_cell((Cell*)all_basic_agents[1]);
+				delete_cell((*all_cells)[1]);
 				std::cout << "cell deleted " << std::endl;
 			}
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells(t, dt, dt, dt);

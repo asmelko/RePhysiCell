@@ -27,7 +27,7 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
         
             // Here I changed this, because here we don't have access to the old position, and I didn't want to track the old position
             // So I'm using the previous velocity, which is not exactly the same (because of Adams-Bashforth), but is a good proxy
-            // if (dist(pCell->old_position, pCell->position) < movement_threshold) {
+            // if (dist(pCell->old_position, pCell->position()) < movement_threshold) {
             if (norm(agent->previous_velocity)*mechanics_dt < movement_threshold) {
                 static_cast<PhysiMeSS_Cell*>(pCell)->get_physimess_agent()->stuck_counter++;
             } else {

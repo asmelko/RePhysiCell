@@ -17,7 +17,10 @@ target_sources(
           PhysiCell_rules.cpp
           PhysiCell_signal_behavior.cpp
           PhysiCell_standard_models.cpp
-          PhysiCell_utilities.cpp)
+          PhysiCell_utilities.cpp
+          ../core_interface/PhysiCell_core_implementation.cpp
+          ../core_interface/PhysiCell_core_entity_PIMPL.cpp
+          ../core_interface/PhysiCell_legacy_core_entity.cpp)
 
 target_sources(
   PhysiCell-core-no-addon
@@ -29,7 +32,10 @@ target_sources(
           PhysiCell_rules.cpp
           PhysiCell_signal_behavior.cpp
           PhysiCell_standard_models.cpp
-          PhysiCell_utilities.cpp)
+          PhysiCell_utilities.cpp
+          ../core_interface/PhysiCell_core_implementation.cpp
+          ../core_interface/PhysiCell_core_entity_PIMPL.cpp
+          ../core_interface/PhysiCell_legacy_core_entity.cpp)
 
 find_package(OpenMP REQUIRED)
 target_link_libraries(PhysiCell-core PUBLIC OpenMP::OpenMP_CXX)

@@ -91,6 +91,10 @@ void normalize( std::vector<double>* v );
 // overload for raw pointer (assumes 3 components)
 void normalize( double* v, int n = 3 );
 
+// copy 3 consecutive coordinates (e.g. a position) into a vector
+inline std::vector<double> to_vector3( const double* p )
+{ return { p[0] , p[1] , p[2] }; }
+
 double norm_squared( const std::vector<double>& v ); 
 double norm( const std::vector<double>& v ); 
 

@@ -137,9 +137,11 @@ public:
 
 	/** @brief Find the nearest voxel index to a position */
 	virtual int nearest_voxel_index(const std::vector<double>& position) const = 0;
+	virtual int nearest_voxel_index(const double* position) const = 0;
 
 	/** @brief Get the nearest Cartesian indices to a position */
 	virtual std::vector<unsigned int> nearest_cartesian_indices(const std::vector<double>& position) const = 0;
+	virtual std::vector<unsigned int> nearest_cartesian_indices(const double* position) const = 0;
 
 	/** @brief Get a reference to a voxel by index */
 	virtual Voxel& voxels(int voxel_index) = 0;
@@ -149,6 +151,7 @@ public:
 
 	/** @brief Get a reference to the nearest voxel to a position */
 	virtual Voxel& nearest_voxel(const std::vector<double>& position) = 0;
+	virtual Voxel& nearest_voxel(const double* position) = 0;
 
 	// ========================================================================
 	// Density vector access
@@ -165,6 +168,7 @@ public:
 
 	/** @brief Get the nearest density vector to a position */
 	virtual double* nearest_density_vector(const std::vector<double>& position) = 0;
+	virtual double* nearest_density_vector(const double* position) = 0;
 
 	/** @brief Get the nearest density vector by voxel index */
 	virtual double* nearest_density_vector(int voxel_index) = 0;
@@ -193,6 +197,7 @@ public:
 
 	/** @brief Get the nearest gradient vector to a position */
 	virtual std::vector<std::vector<double>>& nearest_gradient_vector(const std::vector<double>& position) = 0;
+	virtual std::vector<std::vector<double>>& nearest_gradient_vector(const double* position) = 0;
 
 	// ========================================================================
 	// Simulation methods
@@ -370,7 +375,7 @@ public:
 };
 
 // Global accessors for the microenvironment interface
-// Implemented in BioFVM_implementation.cpp
+// Implemented in PhysiCell_core_implementation.cpp
 Microenvironment_Interface* get_microenvironment_i();
 
 } // namespace BioFVM

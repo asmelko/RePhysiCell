@@ -790,7 +790,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		dTemp = (double) pCell->get_ID();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "position";    NOTE very different syntax for writing vectors!
-        std::fwrite( pCell->position.data() , sizeof(double) , 3 , fp );
+        std::fwrite( pCell->position() , sizeof(double) , 3 , fp );
 		// name = "total_volume"; 
 		std::fwrite( &( pCell->phenotype.volume.total ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_type"; 

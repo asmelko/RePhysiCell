@@ -199,9 +199,12 @@ class Cartesian_Mesh : public General_Mesh
 	void resize_uniform( double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx ); 
 	
 	int nearest_voxel_index( const std::vector<double>& position ) const;   
+	int nearest_voxel_index( const double* position ) const;   
 	int nearest_voxel_face_index( const std::vector<double>& position ) const;  
 	std::vector<unsigned int> nearest_cartesian_indices( const std::vector<double>& position ) const; 
+	std::vector<unsigned int> nearest_cartesian_indices( const double* position ) const; 
 	Voxel& nearest_voxel( const std::vector<double>& position ); 
+	Voxel& nearest_voxel( const double* position ); 
 	
 	void display_information( std::ostream& os ) const; 
 	

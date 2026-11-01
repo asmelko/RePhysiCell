@@ -47,7 +47,8 @@
 */
 
 #include "BioFVM_basic_agent_interface.h"
-#include "BioFVM_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
+#include "../core/PhysiCell_cell.h"
 #include "BioFVM_microenvironment_interface.h"
 #include "BioFVM_utilities.h"
 #include "BioFVM_matlab.h"
@@ -910,10 +911,10 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		
 		// next, create a matlab structure and save it!
 
-		auto& all_basic_agents = *BioFVM_implementation::get_instance()->get_all_basic_agents();
+		auto* cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 		
 		// order: ID,x,y,z,volume,radius, 
-		int number_of_data_entries = all_basic_agents.size(); 
+		int number_of_data_entries = cells->size();
 		int size_of_each_datum = 1 + 3 + 1 + 3*M.number_of_densities(); // ID, x,y,z, volume,  src,sink,saturation (multiple) 
 
 		FILE* fp = write_matlab_header( size_of_each_datum, number_of_data_entries,  filename, "basic_agents" );  
@@ -921,23 +922,24 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		// storing data as cols 
 		for( int i=0; i < number_of_data_entries ; i++ )
 		{
-			double ID_temp = (double) all_basic_agents[i]->get_ID();
+			auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
+			double ID_temp = (double) agent->get_ID();
 			fwrite( (char*) &( ID_temp ) , sizeof(double) , 1 , fp ); 
 
-			fwrite( (char*) &( all_basic_agents[i]->get_position()[0] ) , sizeof(double) , 1 , fp ); 
-			fwrite( (char*) &( all_basic_agents[i]->get_position()[1] ) , sizeof(double) , 1 , fp ); 
-			fwrite( (char*) &( all_basic_agents[i]->get_position()[2] ) , sizeof(double) , 1 , fp ); 
-			double volTemp=all_basic_agents[i]->get_total_volume();
+			fwrite( (char*) &( agent->position()[0] ) , sizeof(double) , 1 , fp );
+			fwrite( (char*) &( agent->position()[1] ) , sizeof(double) , 1 , fp );
+			fwrite( (char*) &( agent->position()[2] ) , sizeof(double) , 1 , fp );
+			double volTemp=agent->get_total_volume();
 			fwrite( (char*) &( volTemp ) , sizeof(double) , 1 , fp ); 
 			
 			// add variables and their source/sink/saturation values (per-cell basis)
 			for( unsigned int j=0; j < M.number_of_densities() ; j++ ) 
 			{
-				double dTemp = all_basic_agents[i]->get_total_volume() * (all_basic_agents[i]->get_secretion_rates())[j]; 
+				double dTemp = agent->get_total_volume() * agent->get_secretion_rates()[j];
 				fwrite( (char*) &( dTemp ) , sizeof(double) , 1 , fp ); 
-				dTemp = all_basic_agents[i]->get_total_volume() * (all_basic_agents[i]->get_uptake_rates())[j]; 
+				dTemp = agent->get_total_volume() * agent->get_uptake_rates()[j];
 				fwrite( (char*) &( dTemp ) , sizeof(double) , 1 , fp ); 
-				dTemp = (all_basic_agents[i]->get_saturation_densities())[j]; 
+				dTemp = agent->get_saturation_densities()[j];
 				fwrite( (char*) &( dTemp ) , sizeof(double) , 1 , fp ); 
 			}
 			
@@ -961,14 +963,15 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 
 	// now go through all cells 
 
-	auto& all_basic_agents = *BioFVM_implementation::get_instance()->get_all_basic_agents();
+	auto* cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 
 	root = node; 
-	for( unsigned int i=0; i < all_basic_agents.size(); i++ )
+	for( unsigned int i=0; i < cells->size(); i++ )
 	{
+		auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
 		node = node.append_child( "cell" ); 
 		attrib = node.append_attribute( "ID" ); 
-		attrib.set_value(  all_basic_agents[i]->get_ID() ); 
+		attrib.set_value( agent->get_ID() );
 		
 		node = node.append_child( "phenotype_dataset" ); 
 		node = node.append_child( "phenotype" ); // add a type? 
@@ -989,21 +992,21 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 			node = node.append_child( "export_rate" ); 
 			attrib = node.append_attribute( "units" ); 
 			attrib.set_value( rate_chars ); 
-			sprintf( temp , "%f" , all_basic_agents[i]->get_total_volume() * (all_basic_agents[i]->get_secretion_rates())[j] ); 
+			sprintf( temp , "%f" , agent->get_total_volume() * agent->get_secretion_rates()[j] );
 			node.append_child( pugi::node_pcdata ).set_value( temp ); 
 			node = node.parent( ); 
 			
 			node = node.append_child( "import_rate" ); 
 			attrib = node.append_attribute( "units" ); 
 			attrib.set_value( rate_chars ); 
-			sprintf( temp,  "%f" , all_basic_agents[i]->get_total_volume() * (all_basic_agents[i]->get_uptake_rates())[j] ); 
+			sprintf( temp,  "%f" , agent->get_total_volume() * agent->get_uptake_rates()[j] );
 			node.append_child( pugi::node_pcdata ).set_value( temp ); 
 			node = node.parent(); 
 			
 			node = node.append_child( "saturation_density" ); 
 			attrib = node.append_attribute( "units" ); 
 			attrib.set_value( M.get_density_units()[j].c_str() ); 
-			sprintf( temp, "%f" , (all_basic_agents[i]->get_saturation_densities())[j] ); 
+			sprintf( temp, "%f" , agent->get_saturation_densities()[j] );
 			node.append_child( pugi::node_pcdata ).set_value( temp ); 
 			node = node.parent(); 
 			
@@ -1018,7 +1021,7 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		node = node.append_child("total_volume"); 
 		attrib = node.append_attribute("units"); 
 		attrib.set_value( volume_chars ); 
-		sprintf( temp,  "%f" , all_basic_agents[i]->get_total_volume()  ); 
+		sprintf( temp,  "%f" , agent->get_total_volume()  );
 		node.append_child( pugi::node_pcdata ).set_value( temp ); 		
 		node = node.parent(); 
 		node = node.parent(); 
@@ -1035,8 +1038,8 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		attrib = node.append_attribute( "units" ); 
 		attrib.set_value( M.get_spatial_units().c_str() ); 
 		
-		// vector3_to_list( all_basic_agents[i]->position , temp , ' ');
-		sprintf( temp , "%.7e %.7e %.7e" , all_basic_agents[i]->get_position()[0], all_basic_agents[i]->get_position()[1], all_basic_agents[i]->get_position()[2] ); 
+		// vector3_to_list( agent->position() , temp , ' ');
+		sprintf( temp , "%.7e %.7e %.7e" , agent->position()[0], agent->position()[1], agent->position()[2] );
 		node.append_child( pugi::node_pcdata ).set_value( temp ); 		
 		
 		node = root; 

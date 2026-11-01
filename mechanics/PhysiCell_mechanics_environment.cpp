@@ -2,13 +2,13 @@
 #include "../BioFVM/BioFVM_vector.h"
 #include "PhysiCell_mechanics_agent.h"
 #include "PhysiCell_mechanics_agent_interface.h"
-#include "PhysiCell_mechanics_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 #include "../core/PhysiCell_constants.h"
 #include "../core/PhysiCell_cell.h"
 
 #include "PhysiCell_mechanics_standard_models.h"
 
-#include "../BioFVM/BioFVM_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 
 #include <cmath>
 
@@ -24,7 +24,7 @@ mechanics_environment mech_environment; // global instance of the mechanics envi
 
 mechanics_environment& get_mechanics_environment()
 {
-	return static_cast<mechanics_environment&>(*Mechanics_implementation::get_instance()->get_mechanics_environment());
+	return static_cast<mechanics_environment&>(*CoreImplementation::get_instance()->get_mechanics_environment());
 }
 
 void mechanics_environment::initialize(
@@ -43,7 +43,7 @@ void mechanics_environment::initialize(
     double z_start, double z_end,
     double dx, double dy, double dz)
 {
-	all_agents = (std::vector<Cell*> *) BioFVM_implementation::get_instance()->get_all_basic_agents();
+	all_agents = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 
 	mechanics_mesh.resize(x_start, x_end, y_start, y_end, z_start, z_end, dx, dy, dz);
 	agent_grid.resize(mechanics_mesh.voxels.size());
@@ -56,7 +56,7 @@ void mechanics_environment::compute_velocities(double dt)
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_agents).size(); i++ )
 	{
-		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
+		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 
 		if ((*all_agents)[i]->functions.update_velocity != standard_update_cell_velocity || pCell->is_out_of_domain || !pCell->is_movable)
 			continue;
@@ -104,13 +104,13 @@ void mechanics_environment::compute_spring_attachments(double dt)
 		#pragma omp parallel for 
 		for( int i=0; i < (*all_agents).size(); i++ )
 		{
-			Mechanics_Agent* pC = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
+			Mechanics_Agent* pC = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 			Mechanics_Standard_Models().dynamic_spring_attachments(pC, dt); 
 		}		
 		#pragma omp parallel for 
 		for( int i=0; i < (*all_agents).size(); i++ )
 		{
-			Mechanics_Agent* pC = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
+			Mechanics_Agent* pC = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 			if( pC->get_is_movable() )
 			{
 				for( int j=0; j < pC->spring_attachments.size(); j++ )
@@ -129,7 +129,7 @@ void mechanics_environment::update_positions(double dt)
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_agents).size(); i++ )
 	{
-		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
+		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 		if( pCell->get_is_out_of_domain() == false && pCell->get_is_movable() )
 		{ pCell->update_position(dt); }
 	}
@@ -139,7 +139,7 @@ void mechanics_environment::update_container()
 {
 	for( int i=0; i < (*all_agents).size(); i++ )
 	{
-		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>(static_cast<Mechanics_Agent_PIMPL*>((*all_agents)[i])->get_mechanics_implementation()); 
+		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 		if(!pCell->get_is_out_of_domain() && pCell->get_is_movable())
 			pCell->update_voxel_in_container();
 	}
@@ -150,7 +150,7 @@ void mechanics_environment::update_container()
 // ============================================================================
 
 void mechanics_environment::add_agent_to_voxel(
-    Mechanics_Agent_PIMPL* agent, int voxel_index)
+    CoreEntityPIMPL* agent, int voxel_index)
 {
 	add_agent_to_voxel(dynamic_cast<Mechanics_Agent*>(agent->get_mechanics_implementation()), voxel_index);
 }
@@ -162,7 +162,7 @@ void mechanics_environment::add_agent_to_voxel(
 }
 
 void mechanics_environment::remove_agent_from_voxel(
-    Mechanics_Agent_PIMPL* agent, int voxel_index)
+    CoreEntityPIMPL* agent, int voxel_index)
 {
 	remove_agent_from_voxel(dynamic_cast<Mechanics_Agent*>(agent->get_mechanics_implementation()), voxel_index);
 }
@@ -188,22 +188,22 @@ void mechanics_environment::remove_agent_from_voxel(
 
 int mechanics_environment::find_escaping_face_index(Mechanics_Agent* agent)
 {
-	if(agent->get_position()[0] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
+	if(agent->position()[0] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
 	{ return PhysiCell_constants::mesh_lx_face_index; }
-	if(agent->get_position()[0] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
+	if(agent->position()[0] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
 	{ return PhysiCell_constants::mesh_ux_face_index; }
-	if(agent->get_position()[1] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
+	if(agent->position()[1] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
 	{ return PhysiCell_constants::mesh_ly_face_index; }
-	if(agent->get_position()[1] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
+	if(agent->position()[1] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
 	{ return PhysiCell_constants::mesh_uy_face_index; }
-	if(agent->get_position()[2] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
+	if(agent->position()[2] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
 	{ return PhysiCell_constants::mesh_lz_face_index; }
-	if(agent->get_position()[2] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
+	if(agent->position()[2] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
 	{ return PhysiCell_constants::mesh_uz_face_index; }
 	return -1; 
 }
 
-void mechanics_environment::add_agent_to_outer_voxel(Mechanics_Agent_PIMPL* agent)
+void mechanics_environment::add_agent_to_outer_voxel(CoreEntityPIMPL* agent)
 {
 	add_agent_to_outer_voxel(dynamic_cast<Mechanics_Agent*>(agent->get_mechanics_implementation()));
 }
@@ -217,7 +217,7 @@ void mechanics_environment::add_agent_to_outer_voxel(Mechanics_Agent* agent)
 }
 
 
-void mechanics_environment::register_agent( Mechanics_Agent_PIMPL* agent )
+void mechanics_environment::register_agent( CoreEntityPIMPL* agent )
 {
 	register_agent(dynamic_cast<Mechanics_Agent*>(agent->get_mechanics_implementation()));
 }
@@ -228,7 +228,7 @@ void mechanics_environment::register_agent( Mechanics_Agent* agent )
 	return; 
 }
 
-void mechanics_environment::remove_agent(Mechanics_Agent_PIMPL* agent )
+void mechanics_environment::remove_agent(CoreEntityPIMPL* agent )
 {
 	remove_agent(dynamic_cast<Mechanics_Agent*>(agent->get_mechanics_implementation()));
 }
@@ -245,7 +245,7 @@ bool mechanics_environment::contain_any_cell(int voxel_index)
 	return agent_grid[voxel_index].size() > 0;
 }
 
-bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent_PIMPL* pCellI, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index)
+bool mechanics_environment::is_neighbor_voxel(CoreEntityPIMPL* pCellI, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index)
 {
 	return is_neighbor_voxel(dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation()), my_voxel_center, other_voxel_center, other_voxel_index);
 }
@@ -272,7 +272,7 @@ bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent* pCell, std::vecto
 	if(comparing_dimension != -1) 
 	{ //then it is an immediate neighbor (through side faces)
 		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->get_position()[comparing_dimension] - surface_coord) > max_interactive_distance)
+		if(std::fabs(pCell->position()[comparing_dimension] - surface_coord) > max_interactive_distance)
 		{ return false; }
 		return true;
 	}
@@ -294,22 +294,22 @@ bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent* pCell, std::vecto
 	{
 		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
 		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->get_position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->get_position()[comparing_dimension2] - line_coord2,2);
+		double distance_squared= std::pow( pCell->position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->position()[comparing_dimension2] - line_coord2,2);
 		if(distance_squared > max_interactive_distance * max_interactive_distance)
 		{ return false; }
 		return true;
 	}
 	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->get_position()[0])*(corner_point[0]-pCell->get_position()[0])
-		+(corner_point[1]-pCell->get_position()[1])*(corner_point[1]-pCell->get_position()[1]) 
-		+(corner_point[2]-pCell->get_position()[2]) * (corner_point[2]-pCell->get_position()[2]);
+	double distance_squared= (corner_point[0]-pCell->position()[0])*(corner_point[0]-pCell->position()[0])
+		+(corner_point[1]-pCell->position()[1])*(corner_point[1]-pCell->position()[1]) 
+		+(corner_point[2]-pCell->position()[2]) * (corner_point[2]-pCell->position()[2]);
 	if(distance_squared > max_interactive_distance * max_interactive_distance)
 	{ return false; }
 	return true;
 }
 
 
-void mechanics_environment::attach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1I, Mechanics_Agent_PIMPL* pCell_2I, bool attacking_spring )
+void mechanics_environment::attach_cells_as_spring( CoreEntityPIMPL* pCell_1I, CoreEntityPIMPL* pCell_2I, bool attacking_spring )
 {
 	attach_cells_as_spring(
 		dynamic_cast<Mechanics_Agent*>(pCell_1I->get_mechanics_implementation()),
@@ -325,7 +325,7 @@ void mechanics_environment::attach_cells_as_spring( Mechanics_Agent* pCell_1, Me
 	return; 
 }
 
-void mechanics_environment::detach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1I, Mechanics_Agent_PIMPL* pCell_2I )
+void mechanics_environment::detach_cells_as_spring( CoreEntityPIMPL* pCell_1I, CoreEntityPIMPL* pCell_2I )
 {
 	detach_cells_as_spring(
 		dynamic_cast<Mechanics_Agent*>(pCell_1I->get_mechanics_implementation()),
@@ -340,22 +340,22 @@ void mechanics_environment::detach_cells_as_spring( Mechanics_Agent* pCell_1, Me
 	return; 
 }
 
-void mechanics_environment::standard_add_basement_membrane_interactions( Mechanics_Agent_PIMPL* pCellI, double dt )
+void mechanics_environment::standard_add_basement_membrane_interactions( CoreEntityPIMPL* pCellI, double dt )
 {
 	models.standard_add_basement_membrane_interactions(pCellI, dt);
 }
 
-void mechanics_environment::standard_domain_edge_avoidance_interactions( Mechanics_Agent_PIMPL* pCellI, double dt )
+void mechanics_environment::standard_domain_edge_avoidance_interactions( CoreEntityPIMPL* pCellI, double dt )
 {
 	models.standard_domain_edge_avoidance_interactions(pCellI, dt);
 }
 
-double mechanics_environment::distance_to_domain_edge(Mechanics_Agent_PIMPL* pCellI)
+double mechanics_environment::distance_to_domain_edge(CoreEntityPIMPL* pCellI)
 {
 	return models.distance_to_domain_edge(pCellI);
 }
 
-void mechanics_environment::dynamic_spring_attachments( Mechanics_Agent_PIMPL* pCellI , double dt )
+void mechanics_environment::dynamic_spring_attachments( CoreEntityPIMPL* pCellI , double dt )
 {
 	models.dynamic_spring_attachments(pCellI, dt);
 }
@@ -365,7 +365,7 @@ void mechanics_environment::dynamic_spring_attachments( Mechanics_Agent* pCell ,
 	models.dynamic_spring_attachments(pCell, dt);
 }
 
-void mechanics_environment::standard_elastic_contact_function( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt )
+void mechanics_environment::standard_elastic_contact_function( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt )
 {
 	models.standard_elastic_contact_function(pC1I, pC2I, dt);
 }
@@ -375,47 +375,47 @@ void mechanics_environment::standard_elastic_contact_function( Mechanics_Agent* 
 	models.standard_elastic_contact_function(pC1, pC2, dt);
 }
 
-void mechanics_environment::standard_elastic_contact_function_confluent_rest_length( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt )
+void mechanics_environment::standard_elastic_contact_function_confluent_rest_length( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt )
 {
 	models.standard_elastic_contact_function_confluent_rest_length(pC1I, pC2I, dt);
 }
 
-void mechanics_environment::chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt )
+void mechanics_environment::chemotaxis_function( CoreEntityPIMPL* pCellI, double dt )
 {
 	models.chemotaxis_function(pCellI, dt);
 }
 
-void mechanics_environment::advanced_chemotaxis_function_normalized( Mechanics_Agent_PIMPL* pCellI, double dt )
+void mechanics_environment::advanced_chemotaxis_function_normalized( CoreEntityPIMPL* pCellI, double dt )
 {
 	models.advanced_chemotaxis_function_normalized(pCellI, dt);
 }
 
-void mechanics_environment::advanced_chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt )
+void mechanics_environment::advanced_chemotaxis_function( CoreEntityPIMPL* pCellI, double dt )
 {
 	models.advanced_chemotaxis_function(pCellI, dt);
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::agents_in_my_container( Mechanics_Agent_PIMPL* pCellI )
+std::vector<CoreEntityPIMPL*> mechanics_environment::agents_in_my_container( CoreEntityPIMPL* pCellI )
 {
 	return agents_in_my_container(dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation()));
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::agents_in_my_container( Mechanics_Agent* pCell )
+std::vector<CoreEntityPIMPL*> mechanics_environment::agents_in_my_container( Mechanics_Agent* pCell )
 {
-	std::vector<Mechanics_Agent_PIMPL*> result;
+	std::vector<CoreEntityPIMPL*> result;
 	for( Mechanics_Agent* a : agent_grid[pCell->get_current_mechanics_voxel_index()] )
 	{ result.push_back(a->pOwner); }
 	return result;
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_agents( Mechanics_Agent_PIMPL* pCellI )
+std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_agents( CoreEntityPIMPL* pCellI )
 {
 	return nearby_agents(dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation()));
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_agents( Mechanics_Agent* pCell )
+std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_agents( Mechanics_Agent* pCell )
 {
-	std::vector<Mechanics_Agent_PIMPL*> result;
+	std::vector<CoreEntityPIMPL*> result;
 
 	std::vector<Mechanics_Agent*>::iterator neighbor;
 	std::vector<Mechanics_Agent*>::iterator end =
@@ -442,20 +442,20 @@ std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_agents( Mechan
 	return result;
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_interacting_agents( Mechanics_Agent_PIMPL* pCellI )
+std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( CoreEntityPIMPL* pCellI )
 {
 	return nearby_interacting_agents(dynamic_cast<Mechanics_Agent*>(pCellI->get_mechanics_implementation()));
 }
 
-std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_interacting_agents( Mechanics_Agent* pCell )
+std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( Mechanics_Agent* pCell )
 {
-	std::vector<Mechanics_Agent_PIMPL*> result;
+	std::vector<CoreEntityPIMPL*> result;
 
 	std::vector<Mechanics_Agent*>::iterator neighbor;
 	std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->get_current_mechanics_voxel_index()].end();
 	for( neighbor = agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{
-		std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position();
+		std::vector<double> displacement = { (*neighbor)->position()[0] - pCell->position()[0], (*neighbor)->position()[1] - pCell->position()[1], (*neighbor)->position()[2] - pCell->position()[2] };
 		double distance = norm( displacement );
 		if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
 			+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius
@@ -477,7 +477,7 @@ std::vector<Mechanics_Agent_PIMPL*> mechanics_environment::nearby_interacting_ag
 		end = agent_grid[*neighbor_voxel_index].end();
 		for(neighbor = agent_grid[*neighbor_voxel_index].begin(); neighbor != end; ++neighbor)
 		{
-			std::vector<double> displacement = (*neighbor)->get_position() - pCell->get_position();
+			std::vector<double> displacement = { (*neighbor)->position()[0] - pCell->position()[0], (*neighbor)->position()[1] - pCell->position()[1], (*neighbor)->position()[2] - pCell->position()[2] };
 			double distance = norm( displacement );
 			if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
 				+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius

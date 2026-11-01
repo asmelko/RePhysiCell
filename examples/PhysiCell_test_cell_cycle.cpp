@@ -99,11 +99,11 @@ int write_test_report(std::vector<Cell*> all_cells, double timepoint)
     for(int i=0;i<all_cells.size();i++)
     {
         phenotype_code=all_cells[i]->phenotype.cycle.current_phase().code;
-        outputFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->position[0]<<"\t" << all_cells[i]->position[1] <<"\t"<< all_cells[i]->position[2]<<"\t";
+        outputFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->position()[0]<<"\t" << all_cells[i]->position()[1] <<"\t"<< all_cells[i]->position()[2]<<"\t";
         outputFile<<all_cells[i]->phenotype.geometry.radius()<<"\t"<<phenotype_code<< "\t"<< all_cells[i]->
         phenotype.cycle.data.elapsed_time_in_phase <<std::endl;
          
-        // std::cout<<"Cell ID #"<<all_cells[i]->ID<<" position: "<< all_cells[i]->position<<std::endl;
+        // std::cout<<"Cell ID #"<<all_cells[i]->ID<<" position: "<< all_cells[i]->position()<<std::endl;
     }
     outputFile.close();
     return 0;
@@ -257,8 +257,8 @@ int main( int argc, char* argv[] )
 		// std::cout<<__FILE__<<","<<__LINE__<<std::endl;
 
 	}
-	for(int i=0;i<all_basic_agents.size();i++){
-		all_basic_agents[i]->set_internal_uptake_constants(dt); 
+	for(int i=0;i<(*all_cells).size();i++){
+		(*all_cells)[i]->set_internal_uptake_constants(dt); 
 	}
 		
 	std::cout << (*all_cells).size() <<" agents created successfully." <<std::endl;

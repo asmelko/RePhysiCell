@@ -52,7 +52,6 @@
 
 namespace BioFVM{
 
-std::vector<Basic_Agent*> all_basic_agents(0); 
 
 static int max_basic_agent_ID = 0;
 
@@ -71,9 +70,7 @@ Basic_Agent::Basic_Agent()
 	
 	volume = 1.0; 
 
-	// default_position is initialized by Position_Entity default ctor (3 zeros).
-	// pos_entity starts pointing at the owned fallback.
-	pos_entity = &default_position;
+	position_ptr = default_position.data();
 
 	// link into the microenvironment, if one is defined 
 	secretion_rates= std::vector<double>(0);
@@ -109,9 +106,9 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 		// std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
 		return false;
 	}
-	pos_entity->position[0]=x;
-	pos_entity->position[1]=y;
-	pos_entity->position[2]=z;
+	position_ptr[0]=x;
+	position_ptr[1]=y;
+	position_ptr[2]=z;
 	update_voxel_index();
 	
 	// make sure the agent is not already registered
@@ -121,13 +118,13 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 
 void Basic_Agent::update_voxel_index()
 {
-	if( !get_microenvironment()->mesh.is_position_valid(pos_entity->position[0],pos_entity->position[1],pos_entity->position[2]))
+	if( !get_microenvironment()->mesh.is_position_valid(position_ptr[0],position_ptr[1],position_ptr[2]))
 	{	
 		current_voxel_index=-1;
 		is_active=false;
 		return;
 	}
-	current_voxel_index= microenvironment->nearest_voxel_index( pos_entity->position );
+	current_voxel_index= microenvironment->nearest_voxel_index( position_ptr );
 }
 
 int mycount = 0; 
@@ -239,50 +236,6 @@ void Basic_Agent::release_internalized_substrates( void )
 Microenvironment* Basic_Agent::get_microenvironment( void )
 { return microenvironment; }
 
-Basic_Agent* create_basic_agent( void )
-{
-	Basic_Agent* pNew; 
-	pNew = new Basic_Agent;	 
-	all_basic_agents.push_back( pNew ); 
-	pNew->index=all_basic_agents.size()-1;
-	return pNew; 
-}
-
-void delete_basic_agent( int index )
-{
-	// deregister agent in microenvironment
-	all_basic_agents[index]->get_microenvironment()->agent_container->remove_agent(all_basic_agents[index]);
-	// de-allocate (delete) the Basic_Agent; 
-	
-	delete all_basic_agents[index]; 
-
-	// next goal: remove this memory address. 
-
-	// performance goal: don't delete in the middle -- very expensive reallocation
-	// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
-
-	// move last item to index location  
-	all_basic_agents[ all_basic_agents.size()-1 ]->index=index;
-	all_basic_agents[index] = all_basic_agents[ all_basic_agents.size()-1 ];
-
-	// shrink the vector
-	all_basic_agents.pop_back();
-	
-	return; 
-}
-
-void delete_basic_agent( Basic_Agent* pDelete )
-{
-	// First, figure out the index of this agent. This is not efficient. 
-
-	// int delete_index = 0; 
-	// while( all_basic_agents[ delete_index ] != pDelete )
-	// { delete_index++; }
-
-	delete_basic_agent(pDelete->index);
-	return; 
-}
-
 int Basic_Agent::get_current_voxel_index( void )
 {
 	return current_voxel_index;
@@ -319,19 +272,14 @@ double& Basic_Agent::get_total_volume()
 
 // Implementation of interface methods
 
-const std::vector<double>& Basic_Agent::get_position() const
+double* Basic_Agent::position()
 {
-	return pos_entity->position;
+	return position_ptr;
 }
 
-void Basic_Agent::bind_position_entity(Position_Entity* pe)
+void Basic_Agent::bind_position(double* pos)
 {
-	pos_entity = pe;
-}
-
-Position_Entity* Basic_Agent::get_position_entity() noexcept
-{
-	return pos_entity;
+	position_ptr = pos;
 }
 
 int Basic_Agent::get_ID() const

@@ -91,25 +91,25 @@ public:
 	// Grid lifecycle helpers
 	// ========================================================================
 
-	virtual void add_agent_to_voxel(Mechanics_Agent_PIMPL* agent, int voxel_index) = 0;
-	virtual void remove_agent_from_voxel(Mechanics_Agent_PIMPL* agent, int voxel_index) = 0;
-	virtual void add_agent_to_outer_voxel(Mechanics_Agent_PIMPL* agent) = 0;
+	virtual void add_agent_to_voxel(CoreEntityPIMPL* agent, int voxel_index) = 0;
+	virtual void remove_agent_from_voxel(CoreEntityPIMPL* agent, int voxel_index) = 0;
+	virtual void add_agent_to_outer_voxel(CoreEntityPIMPL* agent) = 0;
 
-	virtual void register_agent(Mechanics_Agent_PIMPL* agent) = 0;
-	virtual void remove_agent(Mechanics_Agent_PIMPL* agent) = 0;
+	virtual void register_agent(CoreEntityPIMPL* agent) = 0;
+	virtual void remove_agent(CoreEntityPIMPL* agent) = 0;
 	virtual bool contain_any_cell(int voxel_index) = 0;
 
 
 
 
-	virtual void attach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1, Mechanics_Agent_PIMPL* pCell_2, bool attacking_spring = false ) = 0;
-	virtual void detach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1 , Mechanics_Agent_PIMPL* pCell_2 ) = 0;
+	virtual void attach_cells_as_spring( CoreEntityPIMPL* pCell_1, CoreEntityPIMPL* pCell_2, bool attacking_spring = false ) = 0;
+	virtual void detach_cells_as_spring( CoreEntityPIMPL* pCell_1 , CoreEntityPIMPL* pCell_2 ) = 0;
 
-	virtual bool is_neighbor_voxel(Mechanics_Agent_PIMPL* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index) = 0;
+	virtual bool is_neighbor_voxel(CoreEntityPIMPL* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index) = 0;
 
-	virtual std::vector<Mechanics_Agent_PIMPL*> agents_in_my_container( Mechanics_Agent_PIMPL* pCell ) = 0;
-	virtual std::vector<Mechanics_Agent_PIMPL*> nearby_agents( Mechanics_Agent_PIMPL* pCell ) = 0;
-	virtual std::vector<Mechanics_Agent_PIMPL*> nearby_interacting_agents( Mechanics_Agent_PIMPL* pCell ) = 0;
+	virtual std::vector<CoreEntityPIMPL*> agents_in_my_container( CoreEntityPIMPL* pCell ) = 0;
+	virtual std::vector<CoreEntityPIMPL*> nearby_agents( CoreEntityPIMPL* pCell ) = 0;
+	virtual std::vector<CoreEntityPIMPL*> nearby_interacting_agents( CoreEntityPIMPL* pCell ) = 0;
 
 };
 

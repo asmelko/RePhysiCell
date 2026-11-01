@@ -71,8 +71,8 @@
 #include "PhysiCell_constants.h"
 #include "PhysiCell_rules.h"
 #include "../BioFVM/BioFVM_vector.h"
-#include "../BioFVM/BioFVM_implementation.h"
-#include "../mechanics/PhysiCell_mechanics_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 
 #ifdef ADDON_PHYSIBOSS
 #include "../addons/PhysiBoSS/src/maboss_intracellular.h"
@@ -361,16 +361,8 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 	return; 
 }
 
-Cell::Cell() : Basic_Agent_PIMPL(BioFVM_implementation::get_instance()->create_basic_agent()), 
-			   Mechanics_Agent_PIMPL(Mechanics_implementation::get_instance()->create_mechanics_agent(this))
+Cell::Cell() : CoreEntityPIMPL(CoreImplementation::get_instance()->create_core_entity(this))
 {
-	// Redirect both the Basic_Agent and the Mechanics_Agent to use this
-	// Cell's own Position_Entity subobject as the canonical position storage.
-	// Mechanics_Agent::bind_position_entity also rebinds its wrapped Basic_Agent,
-	// so one call is sufficient.
-	Basic_Agent_PIMPL::bind_position_entity(static_cast<BioFVM::Position_Entity*>(this));
-	Mechanics_Agent_PIMPL::bind_position_entity(static_cast<BioFVM::Position_Entity*>(this));
-
 	// use the cell defaults; 
 	
 	set_type(cell_defaults.type); 
@@ -408,7 +400,7 @@ Cell::~Cell()
 	if( result != std::end(*all_cells) )
 	{
 		std::cout << "Warning: Cell was never removed from data structure " << std::endl ; 
-		std::cout << "I am of type " << this->get_type() << " at " << this->position << std::endl; 
+		std::cout << "I am of type " << this->get_type() << " at " << this->position() << std::endl; 
 
 		int temp_index = -1; 
 		bool found = false; 
@@ -598,18 +590,19 @@ Cell* Cell::divide( )
 
 	rand_vec *= phenotype.geometry.radius();
 
-	child->assign_position(position[0] + rand_vec[0],
-						   position[1] + rand_vec[1],
-						   position[2] + rand_vec[2]);
+	child->assign_position(position()[0] + rand_vec[0],
+						   position()[1] + rand_vec[1],
+						   position()[2] + rand_vec[2]);
 						 
 	//change my position to keep the center of mass intact 
 	// and then see if I need to update my voxel index
 	static double negative_one_half = -0.5; 
-	axpy( &position, negative_one_half , rand_vec ); // position = position - 0.5*rand_vec; 
+	for( int i = 0 ; i < 3 ; i++ )
+	{ position()[i] += negative_one_half * rand_vec[i]; } // position = position - 0.5*rand_vec; 
 
 	//If this cell has been moved outside of the boundaries, mark it as such.
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
-	if( !get_container()->get_underlying_mesh().is_position_valid(position[0], position[1], position[2]))
+	if( !get_container()->get_underlying_mesh().is_position_valid(position()[0], position()[1], position()[2]))
 	{
 		get_is_out_of_domain() = true;
 		set_is_active(false);
@@ -650,7 +643,7 @@ Cell* Cell::divide( )
 
 void Cell::set_total_volume(double volume)
 {
-	Basic_Agent_PIMPL::pImpl->set_total_volume(volume);
+	pImpl->set_total_volume(volume);
 	
 	// If the new volume is significantly different than the 
 	// current total volume, adjust all the sub-volumes 
@@ -1207,12 +1200,12 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// set new position at center of volume 
 			// x_new = (vol_B * x_B + vol_S * x_S ) / (vol_B + vol_S )
 		
-		std::vector<double> new_position = position; // x_B
+		std::vector<double> new_position( position(), position() + 3 ); // x_B
 		new_position *= phenotype.volume.total; // vol_B * x_B 
 		double total_volume = phenotype.volume.total; 
 		total_volume += pCell_to_fuse->phenotype.volume.total ;  
 
-		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->position ); // vol_B*x_B + vol_S*x_S
+		axpy( &new_position , pCell_to_fuse->phenotype.volume.total , pCell_to_fuse->position() ); // vol_B*x_B + vol_S*x_S
 		new_position /= total_volume; // (vol_B*x_B+vol_S*x_S)/(vol_B+vol_S);
 
 		static double xL = get_microenvironment_i()->get_mesh().bounding_box[0];		 
@@ -3098,9 +3091,9 @@ Cell* Cell::get_neighbor( int index )
 
 bool Cell::assign_position(double x, double y, double z)
 {
-	if (Mechanics_Agent_PIMPL::assign_position(x, y, z))
+	if (CoreEntityPIMPL::assign_position(x, y, z))
 	{
-		Basic_Agent_PIMPL::update_voxel_index();
+		CoreEntityPIMPL::update_voxel_index();
 		return true;
 	}
 	else
@@ -3111,9 +3104,9 @@ bool Cell::assign_position(double x, double y, double z)
 
 bool Cell::assign_position(const std::vector<double>& new_position)
 {
-	if (Mechanics_Agent_PIMPL::assign_position(new_position))
+	if (CoreEntityPIMPL::assign_position(new_position))
 	{
-		Basic_Agent_PIMPL::update_voxel_index();
+		CoreEntityPIMPL::update_voxel_index();
 		return true;
 	}
 	else

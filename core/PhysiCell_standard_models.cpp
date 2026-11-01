@@ -70,7 +70,7 @@
 #include "../modules/PhysiCell_pathology.h"
 #include "../BioFVM/BioFVM_microenvironment_interface.h"
 
-#include "../mechanics/PhysiCell_mechanics_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 
 namespace PhysiCell{
 	

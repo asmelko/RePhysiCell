@@ -197,11 +197,15 @@ class Microenvironment final : public Microenvironment_Interface
 	std::vector<unsigned int> cartesian_indices( int n ) const override; 
 	
 	int nearest_voxel_index( const std::vector<double>& position ) const override; 
+	int nearest_voxel_index( const double* position ) const override; 
 	std::vector<unsigned int> nearest_cartesian_indices( const std::vector<double>& position ) const override; 
+	std::vector<unsigned int> nearest_cartesian_indices( const double* position ) const override; 
 	Voxel& nearest_voxel( const std::vector<double>& position ) override; 
+	Voxel& nearest_voxel( const double* position ) override; 
 	Voxel& voxels( int voxel_index ) override;
 	const Voxel& voxels( int voxel_index ) const override;
 	double* nearest_density_vector( const std::vector<double>& position ) override;  
+	double* nearest_density_vector( const double* position ) override;  
 	double* nearest_density_vector( int voxel_index ) override;  
 
 	/*! access the density vector at  [ X(i),Y(j),Z(k) ] */
@@ -216,6 +220,7 @@ class Microenvironment final : public Microenvironment_Interface
 	std::vector<gradient>& gradient_vector(int n ) override;  
 	
 	std::vector<gradient>& nearest_gradient_vector( const std::vector<double>& position ) override;
+	std::vector<gradient>& nearest_gradient_vector( const double* position ) override;
 	void compute_all_gradient_vectors( void ) override; 
 	void compute_gradient_vector( int n ) override;  
 	void reset_all_gradient_vectors( void ) override; 
@@ -234,7 +239,6 @@ class Microenvironment final : public Microenvironment_Interface
 	void simulate_bulk_sources_and_sinks( double dt ) override; 
 	
 	// use the supplied list of cells
-	void simulate_cell_sources_and_sinks( std::vector<Basic_Agent*>& basic_agent_list , double dt ); 
 	// use the global list of cells 
 	void simulate_cell_sources_and_sinks( double dt ) override; 
 	

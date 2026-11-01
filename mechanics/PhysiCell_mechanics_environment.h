@@ -76,51 +76,51 @@ public:
 	virtual void update_positions(double dt) override;
 	virtual void update_container() override;
 
-	void add_agent_to_voxel(Mechanics_Agent_PIMPL* agent, int voxel_index) override;
+	void add_agent_to_voxel(CoreEntityPIMPL* agent, int voxel_index) override;
 	void add_agent_to_voxel(Mechanics_Agent* agent, int voxel_index);
-	void remove_agent_from_voxel(Mechanics_Agent_PIMPL* agent, int voxel_index) override;
+	void remove_agent_from_voxel(CoreEntityPIMPL* agent, int voxel_index) override;
 	void remove_agent_from_voxel(Mechanics_Agent* agent, int voxel_index);
-	void add_agent_to_outer_voxel(Mechanics_Agent_PIMPL* agent) override;
+	void add_agent_to_outer_voxel(CoreEntityPIMPL* agent) override;
 	void add_agent_to_outer_voxel(Mechanics_Agent* agent);
 
-	void register_agent( Mechanics_Agent_PIMPL* agent ) override;
+	void register_agent( CoreEntityPIMPL* agent ) override;
 	void register_agent( Mechanics_Agent* agent );
-	void remove_agent(Mechanics_Agent_PIMPL* agent ) override;
+	void remove_agent(CoreEntityPIMPL* agent ) override;
 	void remove_agent(Mechanics_Agent* agent );
 	bool contain_any_cell(int voxel_index) override;
 
 	int find_escaping_face_index(Mechanics_Agent* agent);
 
 
-	void attach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1, Mechanics_Agent_PIMPL* pCell_2, bool attacking_spring ) override;
+	void attach_cells_as_spring( CoreEntityPIMPL* pCell_1, CoreEntityPIMPL* pCell_2, bool attacking_spring ) override;
 	void attach_cells_as_spring( Mechanics_Agent* pCell_1, Mechanics_Agent* pCell_2, bool attacking_spring );
-	void detach_cells_as_spring( Mechanics_Agent_PIMPL* pCell_1 , Mechanics_Agent_PIMPL* pCell_2 ) override;
+	void detach_cells_as_spring( CoreEntityPIMPL* pCell_1 , CoreEntityPIMPL* pCell_2 ) override;
 	void detach_cells_as_spring( Mechanics_Agent* pCell_1 , Mechanics_Agent* pCell_2 );
 
-	bool is_neighbor_voxel(Mechanics_Agent_PIMPL* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index) override;
+	bool is_neighbor_voxel(CoreEntityPIMPL* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index) override;
 	bool is_neighbor_voxel(Mechanics_Agent* pCell, std::vector<double> my_voxel_center, std::vector<double> other_voxel_center, int other_voxel_index);
 
-	void standard_add_basement_membrane_interactions( Mechanics_Agent_PIMPL* pCell, double dt ) override;
-    void standard_domain_edge_avoidance_interactions( Mechanics_Agent_PIMPL* pCell, double dt ) override;
-    double distance_to_domain_edge(Mechanics_Agent_PIMPL* pCell) override;
+	void standard_add_basement_membrane_interactions( CoreEntityPIMPL* pCell, double dt ) override;
+    void standard_domain_edge_avoidance_interactions( CoreEntityPIMPL* pCell, double dt ) override;
+    double distance_to_domain_edge(CoreEntityPIMPL* pCell) override;
 
-    void dynamic_spring_attachments( Mechanics_Agent_PIMPL* pCell , double dt ) override;
+    void dynamic_spring_attachments( CoreEntityPIMPL* pCell , double dt ) override;
     void dynamic_spring_attachments( Mechanics_Agent* pCell , double dt );
-    void standard_elastic_contact_function( Mechanics_Agent_PIMPL* pC1, Mechanics_Agent_PIMPL* pC2, double dt ) override;
+    void standard_elastic_contact_function( CoreEntityPIMPL* pC1, CoreEntityPIMPL* pC2, double dt ) override;
     void standard_elastic_contact_function( Mechanics_Agent* pC1, Mechanics_Agent* pC2, double dt );
-    void standard_elastic_contact_function_confluent_rest_length( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt ) override;
+    void standard_elastic_contact_function_confluent_rest_length( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt ) override;
 
-    void chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt ) override;
-    void advanced_chemotaxis_function_normalized( Mechanics_Agent_PIMPL* pCellI, double dt ) override;
-    void advanced_chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt ) override; 
+    void chemotaxis_function( CoreEntityPIMPL* pCellI, double dt ) override;
+    void advanced_chemotaxis_function_normalized( CoreEntityPIMPL* pCellI, double dt ) override;
+    void advanced_chemotaxis_function( CoreEntityPIMPL* pCellI, double dt ) override; 
 
-	std::vector<Mechanics_Agent_PIMPL*> agents_in_my_container( Mechanics_Agent_PIMPL* pCell ) override;
-	std::vector<Mechanics_Agent_PIMPL*> nearby_agents( Mechanics_Agent_PIMPL* pCell ) override;
-	std::vector<Mechanics_Agent_PIMPL*> nearby_interacting_agents( Mechanics_Agent_PIMPL* pCell ) override;
+	std::vector<CoreEntityPIMPL*> agents_in_my_container( CoreEntityPIMPL* pCell ) override;
+	std::vector<CoreEntityPIMPL*> nearby_agents( CoreEntityPIMPL* pCell ) override;
+	std::vector<CoreEntityPIMPL*> nearby_interacting_agents( CoreEntityPIMPL* pCell ) override;
 
-	std::vector<Mechanics_Agent_PIMPL*> agents_in_my_container( Mechanics_Agent* pCell );
-	std::vector<Mechanics_Agent_PIMPL*> nearby_agents( Mechanics_Agent* pCell );
-	std::vector<Mechanics_Agent_PIMPL*> nearby_interacting_agents( Mechanics_Agent* pCell );
+	std::vector<CoreEntityPIMPL*> agents_in_my_container( Mechanics_Agent* pCell );
+	std::vector<CoreEntityPIMPL*> nearby_agents( Mechanics_Agent* pCell );
+	std::vector<CoreEntityPIMPL*> nearby_interacting_agents( Mechanics_Agent* pCell );
 
 };
 

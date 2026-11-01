@@ -1,3 +1,4 @@
+#include "../../core_interface/PhysiCell_legacy_core_entity.h"
 #include "PhysiMeSS_cell.h"
 #include "PhysiMeSS_fibre.h"
 #include "PhysiMeSS_environment.h"
@@ -19,7 +20,7 @@ PhysiMeSS_CellAgent::PhysiMeSS_CellAgent(Cell* pCell)
 void PhysiMeSS_CellAgent::register_fibre_voxels()
 {
     //a cell will be in one voxel
-    int voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(get_position());
+    int voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(position());
     physimess_voxels.push_back(voxel);
 
 }
@@ -35,7 +36,7 @@ void PhysiMeSS_CellAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* pFibre
 {
     Cell* pCell = get_cell();
     double distance = 0.0;
-    pFibre->nearest_point_on_fibre(get_position(), displacement);
+    pFibre->nearest_point_on_fibre(to_vector3(position()), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -120,7 +121,7 @@ void PhysiMeSS_CellAgent::degrade_fibre(PhysiMeSS_FibreAgent* pFibre)
 {
     Cell* pCell = get_cell();
     double distance = 0.0;
-    pFibre->nearest_point_on_fibre(get_position(), displacement);
+    pFibre->nearest_point_on_fibre(to_vector3(position()), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -200,10 +201,8 @@ void PhysiMeSS_CellAgent::force_update_motility_vector(double dt_) {
 PhysiMeSS_Cell::PhysiMeSS_Cell()
     : Cell()
 {
-    // Swap pImpl from default Mechanics_Agent to PhysiMeSS_CellAgent
-    delete Mechanics_Agent_PIMPL::pImpl;
-    Mechanics_Agent_PIMPL::pImpl = new PhysiMeSS_CellAgent(this);
-    Mechanics_Agent_PIMPL::pImpl->bind_position_entity(this);
+    // Swap the mechanics agent of the core entity from the default Mechanics_Agent to PhysiMeSS_CellAgent
+    static_cast<PhysiCell::LegacyCoreEntity*>(get_core_entity())->set_mechanics_agent(std::make_unique<PhysiMeSS_CellAgent>(this));
 }
 
 PhysiMeSS_CellAgent* PhysiMeSS_Cell::get_physimess_agent() const

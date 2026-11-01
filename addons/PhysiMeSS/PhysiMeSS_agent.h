@@ -32,7 +32,7 @@ class PhysiMeSS_Agent : public PhysiCell::Mechanics_Agent
     std::list<int> find_agent_voxels();
     void find_agent_neighbors();
 
-    /// Returns the owning Cell (safe: Cell inherits from Mechanics_Agent_PIMPL = pOwner).
+    /// Returns the owning Cell (safe: Cell inherits from CoreEntityPIMPL = pOwner).
     PhysiCell::Cell* get_cell() const;
 
     virtual bool is_fibre() const { return false; }

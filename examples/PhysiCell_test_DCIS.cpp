@@ -122,22 +122,22 @@ double distance_to_membrane_duct(Cell* pCell, Phenotype& phenotype, double dummy
 {
 	double epsillon= 1e-7;
 	//Note that this function assumes that duct cap center is located at <0, 0, 0>
-	if(pCell->position[0]>=0) // Cell is within the cylinder part of the duct
+	if(pCell->position()[0]>=0) // Cell is within the cylinder part of the duct
 	{
-		double distance_to_x_axis= sqrt(pCell->position[1]* pCell->position[1] + pCell->position[2]*pCell->position[2]);
+		double distance_to_x_axis= sqrt(pCell->position()[1]* pCell->position()[1] + pCell->position()[2]*pCell->position()[2]);
 		distance_to_x_axis = std::max(distance_to_x_axis, epsillon);		// prevents division by zero
 		// pCell->displacement[0]=0; 
-		// pCell->displacement[1]= -pCell->position[1]/ distance_to_x_axis; 
-		// pCell->displacement[2]= -pCell->position[2]/ distance_to_x_axis; 
+		// pCell->displacement[1]= -pCell->position()[1]/ distance_to_x_axis; 
+		// pCell->displacement[2]= -pCell->position()[2]/ distance_to_x_axis; 
 		return fabs(duct_radius- distance_to_x_axis);
 	}
 	
 	// Cell is inside the cap of the duct
-	double distance_to_origin= dist(pCell->position, {0.0,0.0,0.0});  // distance to the origin 
+	double distance_to_origin= dist(to_vector3(pCell->position()), {0.0,0.0,0.0});  // distance to the origin 
 	distance_to_origin = std::max(distance_to_origin, epsillon);			  // prevents division by zero
-	// pCell->displacement[0]= -pCell->position[0]/ distance_to_origin;
-	// pCell->displacement[1]= -pCell->position[1]/ distance_to_origin;
-	// pCell->displacement[2]= -pCell->position[2]/ distance_to_origin;
+	// pCell->displacement[0]= -pCell->position()[0]/ distance_to_origin;
+	// pCell->displacement[1]= -pCell->position()[1]/ distance_to_origin;
+	// pCell->displacement[2]= -pCell->position()[2]/ distance_to_origin;
 	return fabs(duct_radius- distance_to_origin);
 }
 
@@ -278,8 +278,8 @@ int main( int argc, char* argv[] )
 			pCell->phenotype.cycle.current_phase().entry_function( pCell, pCell->phenotype, dt);
 		// pCell->parameters.necrosis_type= PhysiCell_constants::deterministic_necrosis;
 	}
-	for(int i=0;i<all_basic_agents.size();i++){
-		all_basic_agents[i]->set_internal_uptake_constants(dt); 
+	for(int i=0;i<(*all_cells).size();i++){
+		(*all_cells)[i]->set_internal_uptake_constants(dt); 
 	}
 	
 	

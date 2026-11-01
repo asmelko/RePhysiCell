@@ -98,33 +98,33 @@ void fibre_agent_SVG(std::ofstream& os, PhysiCell::Cell* pC, double z_slice, std
 		int crosslinks = fibre_agent->X_crosslink_count;
         if (crosslinks >= 3){
 			// if fibre has cross-links different colour than if not
-			Write_SVG_line(os, (pC->position)[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
-							(pC->position)[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+			Write_SVG_line(os, (pC->position())[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+							(pC->position())[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
 							4.0, "darkblue");
 		}
 		else if (crosslinks == 2){
 			// if fibre has cross-links different colour than if not
-			Write_SVG_line(os, (pC->position)[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
-							(pC->position)[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+			Write_SVG_line(os, (pC->position())[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+							(pC->position())[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
 							4.0, "blue");
 		}
 		else if (crosslinks == 1){
 			// if fibre has cross-links different colour than if not
-			Write_SVG_line(os, (pC->position)[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
-							(pC->position)[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-							(pC->position)[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+			Write_SVG_line(os, (pC->position())[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+							(pC->position())[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+							(pC->position())[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
 							4.0, "steelblue");
 		}
 		else {
-    		Write_SVG_line(os, (pC->position)[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-						(pC->position)[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
-						(pC->position)[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
-						(pC->position)[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+    		Write_SVG_line(os, (pC->position())[0] - (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+						(pC->position())[1] - (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
+						(pC->position())[0] + (fibre_agent->mLength) * (pC->state.orientation)[0] - X_lower,
+						(pC->position())[1] + (fibre_agent->mLength) * (pC->state.orientation)[1] - Y_lower,
 						4.0, "lightskyblue");
 		}
 

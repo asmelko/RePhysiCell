@@ -370,8 +370,8 @@ void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 		if( pTestCell != pCell && pTestCell->get_type() != pMacrophage->type )
 		{
 			// calculate distance to the cell 
-			std::vector<double> displacement = pTestCell->position;
-			displacement -= pCell->position;
+			std::vector<double> displacement = to_vector3(pTestCell->position());
+			displacement -= to_vector3(pCell->position());
 			double distance = norm( displacement ); 
 			
 			double max_distance = pCell->phenotype.geometry.radius() + 
@@ -479,15 +479,15 @@ void avoid_boundaries( Cell* pCell )
 	
 	// near edge: 
 	bool near_edge = false; 
-	if( pCell->position[0] < Xmin + avoid_zone || pCell->position[0] > Xmax - avoid_zone )
+	if( pCell->position()[0] < Xmin + avoid_zone || pCell->position()[0] > Xmax - avoid_zone )
 	{ near_edge = true; } 
 	
-	if( pCell->position[1] < Ymin + avoid_zone || pCell->position[1] > Ymax - avoid_zone )
+	if( pCell->position()[1] < Ymin + avoid_zone || pCell->position()[1] > Ymax - avoid_zone )
 	{ near_edge = true; } 
 	
 	if( get_microenvironment_i()->simulate_2D() == false )
 	{
-		if( pCell->position[2] < Zmin + avoid_zone || pCell->position[2] > Zmax - avoid_zone )
+		if( pCell->position()[2] < Zmin + avoid_zone || pCell->position()[2] > Zmax - avoid_zone )
 		{ near_edge = true; } 
 	}
 	
@@ -496,7 +496,7 @@ void avoid_boundaries( Cell* pCell )
 		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 		for (int i=0; i < dims; i++ )
 		{
-			pCell->get_velocity()[i] = pCell->position[i]; // move towards origin
+			pCell->get_velocity()[i] = pCell->position()[i]; // move towards origin
 			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
 		}
 	}

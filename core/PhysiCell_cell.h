@@ -78,9 +78,7 @@
 
 #include "./PhysiCell_standard_models.h" 
 
-#include "../BioFVM/BioFVM_basic_agent_PIMPL.h"
-#include "../mechanics/PhysiCell_mechanics_agent_PIMPL.h"
-#include "../BioFVM/BioFVM_position_entity.h"
+#include "../core_interface/PhysiCell_core_entity_PIMPL.h"
 
 using namespace BioFVM; 
 
@@ -176,7 +174,7 @@ class Cell_State
 	Cell_State(); 
 };
 
-class Cell : public BioFVM::Position_Entity, public Basic_Agent_PIMPL, public Mechanics_Agent_PIMPL
+class Cell : public CoreEntityPIMPL
 {
  private: 
 	Cell_Container * container;
@@ -254,7 +252,6 @@ class Cell : public BioFVM::Position_Entity, public Basic_Agent_PIMPL, public Me
 	
 	bool assign_position(double x, double y, double z);
 	bool assign_position(const std::vector<double>& new_position);
-	// std::vector<double>& get_position();
 };
 
 Cell* create_cell( Cell* (*custom_instantiate)() = NULL );  

@@ -56,6 +56,7 @@
 #include "BioFVM_basic_agent.h"
 #include "../modules/PhysiCell_pugixml.h"
 #include "../core/PhysiCell_utilities.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 
 namespace BioFVM{
 
@@ -607,16 +608,28 @@ std::vector<unsigned int> Microenvironment::cartesian_indices( int n ) const
 int Microenvironment::nearest_voxel_index( const std::vector<double>& position ) const
 { return mesh.nearest_voxel_index( position ); }
 
+int Microenvironment::nearest_voxel_index( const double* position ) const
+{ return mesh.nearest_voxel_index( position ); }
+
 Voxel& Microenvironment::voxels( int voxel_index )
 { return mesh.voxels[voxel_index]; }
 
 std::vector<unsigned int> Microenvironment::nearest_cartesian_indices( const std::vector<double>& position ) const
 { return mesh.nearest_cartesian_indices( position ); }
+
+std::vector<unsigned int> Microenvironment::nearest_cartesian_indices( const double* position ) const
+{ return mesh.nearest_cartesian_indices( position ); }
  
 Voxel& Microenvironment::nearest_voxel( const std::vector<double>& position )
 { return mesh.nearest_voxel( position ); }
 
+Voxel& Microenvironment::nearest_voxel( const double* position )
+{ return mesh.nearest_voxel( position ); }
+
 double* Microenvironment::nearest_density_vector( const std::vector<double>& position )
+{ return (*p_density_vectors)[ mesh.nearest_voxel_index( position ) ].data(); }
+
+double* Microenvironment::nearest_density_vector( const double* position )
 { return (*p_density_vectors)[ mesh.nearest_voxel_index( position ) ].data(); }
 
 double* Microenvironment::nearest_density_vector( int voxel_index )
@@ -763,30 +776,25 @@ void Microenvironment::simulate_bulk_sources_and_sinks( double dt )
 	return; 
 }
 
-void Microenvironment::simulate_cell_sources_and_sinks( std::vector<Basic_Agent*>& basic_agent_list , double dt )
-{
-	auto itf_agent_list = (std::vector<Basic_Agent_Interface*>&) basic_agent_list;
-	#pragma omp parallel for
-	for( long long i=0 ; i < itf_agent_list.size() ; i++ )
-	{		
-		itf_agent_list[i]->simulate_secretion_and_uptake( dt ); 
-	}
-	
-	return; 
-}
-
 void Microenvironment::simulate_cell_sources_and_sinks( double dt )
 {
-	simulate_cell_sources_and_sinks(all_basic_agents, dt);
+	auto* cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
+	#pragma omp parallel for
+	for( long long i = 0; i < cells->size(); i++ )
+	{
+		((Basic_Agent_Interface*)(*cells)[i])->simulate_secretion_and_uptake( dt );
+	}
+
+	return;
 }
 
 void Microenvironment::update_container()
-{
-	auto itf_agent_list = (std::vector<Basic_Agent_Interface*>&) all_basic_agents;
+{	
+	auto* cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 	#pragma omp parallel for
-	for( long long i = 0; i < itf_agent_list.size(); i++ )
+	for( long long i = 0; i < cells->size(); i++ )
 	{
-		itf_agent_list[i]->update_voxel_index();
+		((Basic_Agent_Interface*)(*cells)[i])->update_voxel_index();
 	}
 }
 
@@ -848,6 +856,9 @@ std::vector<gradient>& Microenvironment::gradient_vector(int n )
 }
 	
 std::vector<gradient>& Microenvironment::nearest_gradient_vector( const std::vector<double>& position )
+{ return nearest_gradient_vector( position.data() ); }
+
+std::vector<gradient>& Microenvironment::nearest_gradient_vector( const double* position )
 {
 	int n = nearest_voxel_index( position );
 	if( gradient_vector_computed[n] == false )

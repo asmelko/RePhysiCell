@@ -69,7 +69,7 @@
 #include <sstream>
 #include "./custom.h"
 #include "../BioFVM/BioFVM.h"  
-#include "../mechanics/PhysiCell_mechanics_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 
 void create_cell_types( void )
 {
@@ -278,8 +278,8 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 void contact_function( Cell* pMe, Phenotype& phenoMe , Cell* pOther, Phenotype& phenoOther , double dt )
 { 
 
-	std::vector<double> displacement = pOther->position;
-	displacement -= pMe->position;
+	std::vector<double> displacement = to_vector3(pOther->position());
+	displacement -= to_vector3(pMe->position());
 	double distance = norm( displacement ); 
 			
 	double max_distance = pMe->phenotype.geometry.radius() + 
@@ -322,7 +322,7 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 	if ( dens > EPSILON )
 	{
 		// Distance between agent center and ECM voxel center
-		std::vector<double> displacement = pC->position - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
+		std::vector<double> displacement = to_vector3(pC->position()) - get_microenvironment_i()->get_mesh().voxels[index_voxel].center;
 		double distance = norm(displacement);
 		// Make sure that the distance is not zero
 		distance = std::max(distance, EPSILON);

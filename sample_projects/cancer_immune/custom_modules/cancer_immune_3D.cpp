@@ -200,7 +200,7 @@ void introduce_immune_cells( void )
 	// for the loop, deal with the (faster) norm squared 
 	for( int i=0; i < (*all_cells).size() ; i++ )
 	{
-		temp_radius = norm_squared( (*all_cells)[i]->position ); 
+		temp_radius = norm_squared( to_vector3((*all_cells)[i]->position()) ); 
 		if( temp_radius > tumor_radius )
 		{ tumor_radius = temp_radius; }
 	}
@@ -422,7 +422,7 @@ std::vector<std::string> cancer_immune_coloring_function( Cell* pCell )
 /*
 void add_elastic_velocity( Cell* pActingOn, Cell* pAttachedTo , double elastic_constant )
 {
-	std::vector<double> displacement = pAttachedTo->position - pActingOn->position; 
+	std::vector<double> displacement = pAttachedTo->position() - pActingOn->position(); 
 	axpy( &(pActingOn->velocity) , elastic_constant , displacement ); 
 	
 	return; 
@@ -574,7 +574,7 @@ bool immune_cell_attempt_attachment( Cell* pAttacker, Cell* pTarget , double dt 
 	
 	if( pTarget->custom_data[oncoprotein_i] > oncoprotein_threshold && pTarget->phenotype.death.dead == false )
 	{
-		std::vector<double> displacement = pTarget->position - pAttacker->position;
+		std::vector<double> displacement = to_vector3(pTarget->position()) - to_vector3(pAttacker->position());
 		double distance_scale = norm( displacement ); 
 		if( distance_scale > max_attachment_distance )
 		{ return false; } 
@@ -704,7 +704,7 @@ void immune_cell_rule( Cell* pCell, Phenotype& phenotype, double dt )
 
 void adhesion_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttachedTo, Phenotype& pat , double dt )
 {
-	std::vector<double> displacement = pAttachedTo->position - pActingOn->position;
+	std::vector<double> displacement = to_vector3(pAttachedTo->position()) - to_vector3(pActingOn->position());
 	
 	static double max_elastic_displacement = pao.geometry.radius() * pao.mechanics.relative_detachment_distance(); 
 	static double max_displacement_squared = max_elastic_displacement*max_elastic_displacement; 

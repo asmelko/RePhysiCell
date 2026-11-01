@@ -51,7 +51,6 @@
 
 #include <vector>
 
-#include "BioFVM_position_entity.h"
 
 namespace BioFVM{
 
@@ -79,10 +78,14 @@ public:
 	virtual int get_index() const = 0;
 	virtual void set_index(int new_index) = 0;
 	
-	virtual void bind_position_entity(Position_Entity* pe) = 0;
-	virtual Position_Entity* get_position_entity() noexcept = 0;
-	const std::vector<double>& get_position() { return get_position_entity()->position; }
-	
+	/**
+	 * @brief Pointer to the 3 position coordinates {x, y, z}.
+	 *
+	 * The storage is owned by the implementation (it may live in a contiguous array shared by
+	 * all agents), so the pointer must not be kept across operations which may add or remove agents.
+	 */
+	virtual double* position() = 0;
+
 	// Activity status
 	virtual bool get_is_active() const = 0;
 	virtual void set_is_active(bool active) = 0;

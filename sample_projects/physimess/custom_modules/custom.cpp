@@ -65,6 +65,7 @@
 ###############################################################################
 */
 
+#include "../../../core_interface/PhysiCell_legacy_core_entity.h"
 #include "./custom.h"
 
 PhysiMeSS_CellAgent_Custom_Degrade::PhysiMeSS_CellAgent_Custom_Degrade(Cell* pCell)
@@ -76,10 +77,8 @@ PhysiMeSS_CellAgent_Custom_Degrade::PhysiMeSS_CellAgent_Custom_Degrade(Cell* pCe
 PhysiMeSS_Cell_Custom_Degrade::PhysiMeSS_Cell_Custom_Degrade()
     : Cell()
 {
-    // Swap pImpl from default Mechanics_Agent to PhysiMeSS_CellAgent_Custom_Degrade
-    delete Mechanics_Agent_PIMPL::pImpl;
-    Mechanics_Agent_PIMPL::pImpl = new PhysiMeSS_CellAgent_Custom_Degrade(this);
-    Mechanics_Agent_PIMPL::pImpl->bind_position_entity(this);
+    // Swap the mechanics agent of the core entity from the default Mechanics_Agent to PhysiMeSS_CellAgent_Custom_Degrade
+    static_cast<PhysiCell::LegacyCoreEntity*>(get_core_entity())->set_mechanics_agent(std::make_unique<PhysiMeSS_CellAgent_Custom_Degrade>(this));
 }
 
 PhysiMeSS_CellAgent_Custom_Degrade* PhysiMeSS_Cell_Custom_Degrade::get_physimess_agent() const
@@ -332,7 +331,7 @@ void PhysiMeSS_CellAgent_Custom_Degrade::degrade_fibre(PhysiMeSS_FibreAgent* pFi
 	// Here this version of the degrade function takes cell pressure into account in the degradation rate
     double distance = 0.0;
     std::vector<double> displacement(3, 0.0);
-    pFibre->nearest_point_on_fibre(get_position(), displacement);
+    pFibre->nearest_point_on_fibre(to_vector3(position()), displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }

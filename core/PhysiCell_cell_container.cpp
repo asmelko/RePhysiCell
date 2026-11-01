@@ -65,8 +65,8 @@
 ###############################################################################
 */
 
-#include "../BioFVM/BioFVM_implementation.h"
-#include "../mechanics/PhysiCell_mechanics_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
+#include "../core_interface/PhysiCell_core_implementation.h"
 #include "PhysiCell_constants.h"
 #include "PhysiCell_cell.h"
 
@@ -81,7 +81,7 @@ std::vector<Cell*> *all_cells;
 
 Cell_Container::Cell_Container() : mechanics_env_(*get_mechanics_environment_i())
 {
-	all_cells = (std::vector<Cell*> *) BioFVM_implementation::get_instance()->get_all_basic_agents();
+	all_cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 	boundary_condition_for_pushed_out_agents= PhysiCell_constants::default_boundary_condition_for_pushed_out_agents;
 	std::vector<Cell*> cells_ready_to_divide;
 	std::vector<Cell*> cells_ready_to_die;
@@ -98,7 +98,7 @@ void Cell_Container::initialize(double x_start, double x_end, double y_start, do
 
 void Cell_Container::initialize(double x_start, double x_end, double y_start, double y_end, double z_start, double z_end , double dx, double dy, double dz)
 {
-	all_cells = (std::vector<Cell*> *) BioFVM_implementation::get_instance()->get_all_basic_agents();
+	all_cells = PhysiCell::CoreImplementation::get_instance()->get_all_cells();
 	boundary_condition_for_pushed_out_agents= PhysiCell_constants::default_boundary_condition_for_pushed_out_agents;
 	std::vector<Cell*> cells_ready_to_divide;
 	std::vector<Cell*> cells_ready_to_die;

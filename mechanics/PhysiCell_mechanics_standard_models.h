@@ -9,19 +9,19 @@ namespace PhysiCell {
 class Mechanics_Standard_Models : public Mechanics_Standard_Models_Interface
 {
 public:
-    void standard_add_basement_membrane_interactions( Mechanics_Agent_PIMPL* pCell, double dt ) override;
-    void standard_domain_edge_avoidance_interactions( Mechanics_Agent_PIMPL* pCell, double dt ) override;
-    double distance_to_domain_edge(Mechanics_Agent_PIMPL* pCell) override;
+    void standard_add_basement_membrane_interactions( CoreEntityPIMPL* pCell, double dt ) override;
+    void standard_domain_edge_avoidance_interactions( CoreEntityPIMPL* pCell, double dt ) override;
+    double distance_to_domain_edge(CoreEntityPIMPL* pCell) override;
 
-    void dynamic_spring_attachments( Mechanics_Agent_PIMPL* pCell , double dt ) override;
+    void dynamic_spring_attachments( CoreEntityPIMPL* pCell , double dt ) override;
     void dynamic_spring_attachments( Mechanics_Agent* pCell , double dt );
-    void standard_elastic_contact_function( Mechanics_Agent_PIMPL* pC1, Mechanics_Agent_PIMPL* pC2, double dt ) override;
+    void standard_elastic_contact_function( CoreEntityPIMPL* pC1, CoreEntityPIMPL* pC2, double dt ) override;
     void standard_elastic_contact_function( Mechanics_Agent* pC1, Mechanics_Agent* pC2, double dt );
-    void standard_elastic_contact_function_confluent_rest_length( Mechanics_Agent_PIMPL* pC1I, Mechanics_Agent_PIMPL* pC2I, double dt ) override;
+    void standard_elastic_contact_function_confluent_rest_length( CoreEntityPIMPL* pC1I, CoreEntityPIMPL* pC2I, double dt ) override;
 
-    void chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt ) override;
-    void advanced_chemotaxis_function_normalized( Mechanics_Agent_PIMPL* pCellI, double dt ) override;
-    void advanced_chemotaxis_function( Mechanics_Agent_PIMPL* pCellI, double dt ) override;
+    void chemotaxis_function( CoreEntityPIMPL* pCellI, double dt ) override;
+    void advanced_chemotaxis_function_normalized( CoreEntityPIMPL* pCellI, double dt ) override;
+    void advanced_chemotaxis_function( CoreEntityPIMPL* pCellI, double dt ) override;
 };
 
 }

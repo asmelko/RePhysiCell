@@ -485,7 +485,7 @@ void cargo_cell_phenotype_rule( Cell* pCell, Phenotype& phenotype, double dt )
 
 void biorobots_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttachedTo, Phenotype& pat , double dt )
 {
-	std::vector<double> displacement = pAttachedTo->position - pActingOn->position; 
+	std::vector<double> displacement = to_vector3(pAttachedTo->position()) - to_vector3(pActingOn->position()); 
 	
 	static double max_elastic_displacement = pao.geometry.radius() * pao.mechanics.relative_detachment_distance(); 
 	static double max_displacement_squared = max_elastic_displacement*max_elastic_displacement; 

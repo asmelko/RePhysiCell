@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "PhysiCell_mechanics_agent_interface.h"
-#include "PhysiCell_mechanics_agent_PIMPL.h"
+#include "../core_interface/PhysiCell_core_entity_PIMPL.h"
 #include "PhysiCell_mechanics_functions.h"
 
 #include "../core/PhysiCell_phenotype.h"
@@ -33,8 +33,8 @@ public:
 
 	std::vector<double> velocity;
 	bool is_movable = true;
-	std::vector<Mechanics_Agent_PIMPL*> neighbors;
-	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>> spring_attachments; 
+	std::vector<CoreEntityPIMPL*> neighbors;
+	std::vector<std::pair<CoreEntityPIMPL*, bool>> spring_attachments; 
 
 
 	// ========================================================================
@@ -79,7 +79,7 @@ public:
 	bool& get_is_movable() override
 	{ return is_movable; }
 
-	std::vector<Mechanics_Agent_PIMPL*>& get_neighbors() override
+	std::vector<CoreEntityPIMPL*>& get_neighbors() override
 	{ return neighbors; }
 
 	// ---- base_membrane_data ------------------------------------------------
@@ -157,7 +157,7 @@ public:
 	double* get_previous_velocity() override
 	{ return previous_velocity.data(); }
 
-	std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>>& get_springs() override
+	std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() override
 	{ return spring_attachments; }
 	
 	
@@ -174,20 +174,20 @@ public:
 	Mechanics_Agent(Cell* pCell);
 
 	// Non-owning pointer to the canonical position storage.
-	// Initialised from the wrapped Basic_Agent; rebound by Cell to point at
-	// the Cell's own Position_Entity subobject.
-	BioFVM::Position_Entity* pos_entity = nullptr;
+	// Points to default_position unless rebound by the owning core entity.
+	// The storage must stay at the same address for the lifetime of the agent.
+	double* position_ptr = nullptr;
 
-	void bind_position_entity(BioFVM::Position_Entity* pe) override;
+	void bind_position(double* pos);
 
-	Position_Entity*  get_position_entity() noexcept override;
+	double* position() const
+	{ return position_ptr; }
 
-	// Owned fallback used when no external Position_Entity is supplied
-	// (e.g. standalone Basic_Agent not embedded in a Cell).
-	Position_Entity default_position;
+	// Owned fallback used when no external position storage is supplied
+	std::vector<double> default_position = std::vector<double>(3, 0.0);
 
 
-	Mechanics_Agent_PIMPL* pOwner = nullptr;
+	CoreEntityPIMPL* pOwner = nullptr;
 
 	Mechanics_Functions functions;
 

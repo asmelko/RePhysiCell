@@ -255,8 +255,8 @@ for(int i=0;i<cell_positions.size();i++)
 		// pCell->parameters.necrosis_type= PhysiCell_constants::deterministic_necrosis;
 	}
 
-	for(int i=0;i<all_basic_agents.size();i++){
-		all_basic_agents[i]->set_internal_uptake_constants(dt); 
+	for(int i=0;i<(*all_cells).size();i++){
+		(*all_cells)[i]->set_internal_uptake_constants(dt); 
 	}
 	
 	std::cout << (*all_cells).size() <<" agents created successfully." <<std::endl;

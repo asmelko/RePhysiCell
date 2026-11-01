@@ -3,11 +3,10 @@
 
 #include <vector>
 
-#include "../BioFVM/BioFVM_position_entity.h"
 
 namespace PhysiCell {
 
-class Mechanics_Agent_PIMPL; // forward declaration
+class CoreEntityPIMPL; // forward declaration
 
 /**
  * @brief Abstract interface for agents that participate in mechanical interactions.
@@ -39,7 +38,7 @@ public:
 	virtual bool& get_is_out_of_domain() = 0;
 
 	/** @brief Neighbor agent indices (mechanics voxel adjacency list). */
-	virtual std::vector<Mechanics_Agent_PIMPL*>& get_neighbors() = 0;
+	virtual std::vector<CoreEntityPIMPL*>& get_neighbors() = 0;
 
 	// ========================================================================
 	// base_membrane_data
@@ -97,7 +96,7 @@ public:
 	virtual double* get_previous_velocity() = 0;
 
 	/** @brief Spring-attachment partner indices for this agent. */
-	virtual std::vector<std::pair<Mechanics_Agent_PIMPL*, bool>>& get_springs() = 0;
+	virtual std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() = 0;
 	
 	virtual double& get_relative_maximum_attachment_distance() = 0; 
 	virtual double& get_relative_detachment_distance() = 0; 
@@ -115,13 +114,8 @@ public:
 
 	virtual void update_voxel_in_container(void) = 0;
 
-	// Position entity binding — allows Cell to supply the canonical position storage.
-	virtual void bind_position_entity(BioFVM::Position_Entity* pe) = 0;
-	virtual BioFVM::Position_Entity*  get_position_entity() noexcept = 0;
-	
 	virtual bool assign_position(double x, double y, double z) = 0;
 	virtual bool assign_position(const std::vector<double>& new_position) = 0;
-	std::vector<double>& get_position() { return get_position_entity()->position; }
 };
 
 } // namespace PhysiCell

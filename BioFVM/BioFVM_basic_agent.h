@@ -70,10 +70,11 @@ class Basic_Agent final : public Basic_Agent_Interface
 	bool volume_is_changed;
 	int current_voxel_index;
 
-	// Non-owning pointer to the active position storage.
-	// Points to default_position by default; rebound to an external
-	// Position_Entity (e.g. Cell) via bind_position_entity().
-	Position_Entity* pos_entity;
+	// Non-owning pointer to the first of the 3 position coordinates.
+	// Points to default_position by default; rebound to external storage
+	// (e.g. the storage of a core entity) via bind_position(). The storage must
+	// stay at the same address for the lifetime of the agent.
+	double* position_ptr;
 	
  protected:
 	std::vector<double> cell_source_sink_solver_temp1;
@@ -119,15 +120,12 @@ class Basic_Agent final : public Basic_Agent_Interface
 	
 	bool assign_position(double x, double y, double z);
 	bool assign_position(std::vector<double> new_position);
-	const std::vector<double>& get_position() const;
+	double* position() override;
 
-	// Position entity binding
-	void bind_position_entity(Position_Entity* pe) override;
-	Position_Entity* get_position_entity() noexcept override;
+	void bind_position(double* pos);
 
-	// Owned fallback used when no external Position_Entity is supplied
-	// (e.g. standalone Basic_Agent not embedded in a Cell).
-	Position_Entity default_position;
+	// Owned fallback used when no external position storage is supplied
+	std::vector<double> default_position = std::vector<double>(3, 0.0);
 
 	void update_position( double dt );
 	
@@ -168,12 +166,7 @@ class Basic_Agent final : public Basic_Agent_Interface
 	std::vector<std::vector<double>>& nearest_gradient_vector( void ) override;
 };
 
-extern std::vector<Basic_Agent*> all_basic_agents; 
 
-Basic_Agent* create_basic_agent( void );
-void delete_basic_agent( int ); 
-void delete_basic_agent( Basic_Agent* ); 
-void save_all_basic_agents_to_matlab( std::string filename ); 
 
 };
 
