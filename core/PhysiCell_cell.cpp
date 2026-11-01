@@ -236,13 +236,8 @@ void Cell_Definition::sync_to_microenvironment( Microenvironment_Interface* pNew
 {
 	pMicroenvironment = pNew_Microenvironment; 
 	
-	secretion_rates.resize( pNew_Microenvironment->number_of_densities() );
-	uptake_rates.resize( pNew_Microenvironment->number_of_densities() );
-	saturation_densities.resize( pNew_Microenvironment->number_of_densities() );
-	net_export_rates.resize( pNew_Microenvironment->number_of_densities() );
-	internalized_total_substrates.resize( pNew_Microenvironment->number_of_densities() );
-	fraction_released_at_death.resize( pNew_Microenvironment->number_of_densities() );
-	fraction_transferred_when_ingested.resize( pNew_Microenvironment->number_of_densities() );
+	secretion_data.sync_to_microenvironment( pNew_Microenvironment );
+	molecular_data.sync_to_microenvironment( pNew_Microenvironment );
 	
 	mechanics_data.sync_to_cell_definitions();
 	motility_data.sync_to_current_microenvironment();

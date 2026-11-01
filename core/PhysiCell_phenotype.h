@@ -544,6 +544,20 @@ class Motility
 	Motility& operator=( const Motility& rhs );
 };
 
+class Secretion_Data
+{
+ public:
+	std::vector<double> secretion_rates;
+	std::vector<double> uptake_rates;
+	std::vector<double> saturation_densities;
+	std::vector<double> net_export_rates;
+
+	Secretion_Data();
+
+	void sync_to_current_microenvironment( void );
+	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment );
+};
+
 class Secretion
 {
  private:
@@ -585,6 +599,19 @@ class Secretion
 	double& uptake_rate( std::string name ); 
 	double& saturation_density( std::string name ); 
 	double& net_export_rate( std::string name );  	
+};
+
+class Molecular_Data
+{
+ public:
+	std::vector<double> internalized_total_substrates;
+	std::vector<double> fraction_released_at_death;
+	std::vector<double> fraction_transferred_when_ingested;
+
+	Molecular_Data();
+
+	void sync_to_current_microenvironment( void );
+	void sync_to_microenvironment( Microenvironment_Interface* pNew_Microenvironment );
 };
 
 class Cell_Functions

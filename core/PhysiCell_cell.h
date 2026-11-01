@@ -131,18 +131,8 @@ class Cell_Definition
 	Cell_Functions functions; 
 	Phenotype phenotype; 
 
-	// Cell Definition needs to own Secretion and Molecular data
-	// because this->phenotype.secretions and this->phenotype.molecular
-	// have just observer pointers to these data structures
-	// We have the vectors here so we can set defaults when a new cell is created
-	std::vector<double> secretion_rates;
-	std::vector<double> uptake_rates;
-	std::vector<double> saturation_densities;
-	std::vector<double> net_export_rates;
-	std::vector<double> internalized_total_substrates;
-	std::vector<double> fraction_released_at_death;
-	std::vector<double> fraction_transferred_when_ingested;
-
+	Secretion_Data secretion_data;
+	Molecular_Data molecular_data;
 	Mechanics_Data mechanics_data;
 	Motility_Data motility_data;
 	Radius_Data radius_data;
