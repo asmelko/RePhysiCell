@@ -306,7 +306,7 @@ void Cell::advance_bundled_phenotype_functions( double dt_ )
 		// The following line is needed in every volume 
 		// regulation method (it sets BioFVM total_volume)
 		
-		set_total_volume( phenotype.volume.total ); 
+		set_total_volume( phenotype.volume.total );
 	}
 	
 	// update geometry
@@ -380,7 +380,7 @@ Cell::Cell() : CoreEntityPIMPL(CoreImplementation::get_instance()->create_core_e
 	assign_orientation();
 	container = NULL;
 	
-	set_total_volume( phenotype.volume.total ); 
+	set_total_volume( phenotype.volume.total );
 	
 	return; 
 }
@@ -423,7 +423,7 @@ Cell::~Cell()
 			// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 			// move last item to index location  
-			(*all_cells)[ (*all_cells).size()-1 ]->set_index(temp_index);
+			(*all_cells)[ (*all_cells).size()-1 ]->index() = temp_index;
 			(*all_cells)[temp_index] = (*all_cells)[ (*all_cells).size()-1 ];
 			// shrink the vector
 			(*all_cells).pop_back();	
@@ -600,7 +600,7 @@ Cell* Cell::divide( )
 	if( !get_container()->get_underlying_mesh().is_position_valid(position()[0], position()[1], position()[2]))
 	{
 		get_is_out_of_domain() = true;
-		set_is_active(false);
+		is_active() = false;
 		get_is_movable() = false;
 	}	
 	 
@@ -719,7 +719,7 @@ void Cell::set_radius(double new_radius )
 	new_volume *= new_radius; 
 	new_volume *= new_radius; 
 	
-	this->set_total_volume( new_volume ); 
+	this->set_total_volume( new_volume );
 	return; 
 }
 
@@ -737,7 +737,7 @@ double& Cell::get_total_volume(void)
 
 void Cell::turn_off_reactions(double dt)
 {	
-	set_is_active(false);  
+	is_active() = false;
 
 	for(int i=0;i< phenotype.secretion.pMicroenvironment->number_of_densities();i++)
 	{
@@ -800,7 +800,7 @@ Cell* create_cell( Cell* (*custom_instantiate)())
 	}
 	
 	(*all_cells).push_back( pNew ); 
-	pNew->set_index((*all_cells).size()-1);
+	pNew->index() = (*all_cells).size()-1;
 	
 	// new usability enhancements in May 2017 
 	
@@ -812,7 +812,7 @@ Cell* create_cell( Cell* (*custom_instantiate)())
 	// All the phenotype and other data structures are already set 
 	// by virtue of the default Cell constructor. 
 	
-	pNew->set_total_volume( pNew->phenotype.volume.total ); 
+	pNew->set_total_volume( pNew->phenotype.volume.total );
 	
 	return pNew; 
 }
@@ -840,7 +840,7 @@ Cell* create_cell( Cell_Definition& cd )
 	
 	pNew->assign_orientation();
 	
-	pNew->set_total_volume( pNew->phenotype.volume.total ); 
+	pNew->set_total_volume( pNew->phenotype.volume.total );
 	
 	return pNew; 
 }
@@ -929,7 +929,7 @@ void delete_cell( int index )
 	// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 	// move last item to index location  
-	(*all_cells)[ (*all_cells).size()-1 ]->set_index(index);
+	(*all_cells)[ (*all_cells).size()-1 ]->index() = index;
 	(*all_cells)[index] = (*all_cells)[ (*all_cells).size()-1 ];
 	// shrink the vector
 	(*all_cells).pop_back();	
@@ -974,7 +974,7 @@ void delete_cell_original( int index ) // before June 11, 2020
 	// alternative: copy last element to index position, then shrink vector by 1 at the end O(constant)
 
 	// move last item to index location  
-	(*all_cells)[ (*all_cells).size()-1 ]->set_index(index);
+	(*all_cells)[ (*all_cells).size()-1 ]->index() = index;
 	(*all_cells)[index] = (*all_cells)[ (*all_cells).size()-1 ];
 	// shrink the vector
 	(*all_cells).pop_back();	
@@ -983,7 +983,7 @@ void delete_cell_original( int index ) // before June 11, 2020
 
 void delete_cell( Cell* pDelete )
 {
-	delete_cell(pDelete->get_index());
+	delete_cell(pDelete->index());
 	return; 
 }
 std::vector<Cell*> Cell::cells_in_my_container( void )
@@ -1053,7 +1053,7 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 
 		// set cell as unmovable and non-secreting 
 		pCell_to_eat->get_is_movable() = false; 
-		pCell_to_eat->set_is_active(false); 
+		pCell_to_eat->is_active() = false;
 
 		// absorb all the volume(s)
 
@@ -1098,8 +1098,8 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 			( phenotype.volume.nuclear_solid + 1e-16 );
 			
 		// update corresponding BioFVM parameters (self-consistency) 
-		set_total_volume( phenotype.volume.total ); 
-		pCell_to_eat->set_total_volume( 0.0 ); 
+		set_total_volume( phenotype.volume.total );
+		pCell_to_eat->set_total_volume( 0.0 );
 		
 		// absorb the internalized substrates 
 		
@@ -1272,8 +1272,8 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 			( phenotype.volume.nuclear_solid + 1e-16 );
 			
 		// update corresponding BioFVM parameters (self-consistency) 
-		set_total_volume( phenotype.volume.total ); 
-		pCell_to_fuse->set_total_volume( 0.0 ); 
+		this->set_total_volume( phenotype.volume.total );
+		pCell_to_fuse->set_total_volume( 0.0 );
 
 		// absorb the internalized substrates 
 		for ( int i = 0 ; i < pCell_to_fuse->phenotype.molecular.pMicroenvironment->number_of_densities() ; i++ )
@@ -1313,7 +1313,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		
 		// set cell as unmovable and non-secreting 
 		pCell_to_fuse->get_is_movable() = false; 
-		pCell_to_fuse->set_is_active(false); 
+		pCell_to_fuse->is_active() = false;
 
 	}
 
@@ -1353,11 +1353,11 @@ void Cell::lyse_cell( void )
 	remove_all_attached_cells(); 
 	
 	// set volume to zero 
-	set_total_volume( 0.0 ); 
+	set_total_volume( 0.0 );
 
 	// set cell as unmovable and non-secreting 
 	get_is_movable() = false; 
-	set_is_active(false); 	
+	is_active() = false;
 
 	return; 
 }

@@ -988,7 +988,7 @@ void SVG_plot_dark( std::string filename , Microenvironment& M, double z_slice ,
    
 			Colors = cell_coloring_function( pC ); 
 
-			os << "   <g id=\"cell" << pC->get_ID() << "\">" << std::endl; 
+			os << "   <g id=\"cell" << pC->ID() << "\">" << std::endl;
   
 			// figure out how much of the cell intersects with z = 0 
    

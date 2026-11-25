@@ -923,7 +923,7 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		for( int i=0; i < number_of_data_entries ; i++ )
 		{
 			auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
-			double ID_temp = (double) agent->get_ID();
+			double ID_temp = (double) agent->ID();
 			fwrite( (char*) &( ID_temp ) , sizeof(double) , 1 , fp ); 
 
 			fwrite( (char*) &( agent->position()[0] ) , sizeof(double) , 1 , fp );
@@ -971,7 +971,7 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
 		node = node.append_child( "cell" ); 
 		attrib = node.append_attribute( "ID" ); 
-		attrib.set_value( agent->get_ID() );
+		attrib.set_value( agent->ID() );
 		
 		node = node.append_child( "phenotype_dataset" ); 
 		node = node.append_child( "phenotype" ); // add a type? 

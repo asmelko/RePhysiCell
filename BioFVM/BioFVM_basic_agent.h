@@ -81,12 +81,12 @@ class Basic_Agent final : public Basic_Agent_Interface
 	std::vector<double> cell_source_sink_solver_temp2;
 	std::vector<double> cell_source_sink_solver_temp_export1; 
 	std::vector<double> cell_source_sink_solver_temp_export2; 	
-//	bool is_active;
+//	bool is_active_;
 	
 	std::vector<double> total_extracellular_substrate_change; 
 
  public:
-	bool is_active;
+	bool is_active_;
 
 	std::vector<double> secretion_rates; 
 	std::vector<double> saturation_densities; 
@@ -109,14 +109,12 @@ class Basic_Agent final : public Basic_Agent_Interface
 	Microenvironment* get_microenvironment( void );
 	Microenvironment_Interface* get_microenvironment_interface( void ) override; 
 
-	int ID; 
-	int index; 
+	int ID_;
+	int index_;
 	
 	// ID and type accessors
-	int get_ID() const override;
-	void set_ID(int new_ID) override;
-	int get_index() const override;
-	void set_index(int new_index) override;
+	int& ID() override;
+	int& index() override;
 	
 	bool assign_position(double x, double y, double z);
 	bool assign_position(std::vector<double> new_position);
@@ -130,8 +128,7 @@ class Basic_Agent final : public Basic_Agent_Interface
 	void update_position( double dt );
 	
 	// Activity status
-	bool get_is_active() const override;
-	void set_is_active(bool active) override;
+	bool& is_active() override;
 	
 	// Getter methods for vector pointers
 	double* get_secretion_rates() override;
@@ -171,4 +168,3 @@ class Basic_Agent final : public Basic_Agent_Interface
 };
 
 #endif
-

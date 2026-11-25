@@ -15,7 +15,7 @@ void remove_physimess_out_of_bounds_fibres()
         if (isFibre(cell) && static_cast<PhysiMeSS_Fibre*>(cell)->get_physimess_agent()->fail_count >= 10)
         {
             // std::cout << "I failed to place " << cell->type_name << " " 
-            //           << cell->get_ID() << " in the domain - I am deleting agent " 
+            //           << cell->ID() << " in the domain - I am deleting agent "
             //           << std::endl;
             delete_cell(cell);
         }

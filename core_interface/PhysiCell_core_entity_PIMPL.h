@@ -65,23 +65,14 @@ public:
 	BioFVM::Microenvironment_Interface* get_microenvironment_interface() override
 	{ return pImpl->get_microenvironment_interface(); }
 
-	int get_ID() const override
-	{ return pImpl->get_ID(); }
+	int& ID() override
+	{ return pImpl->ID(); }
 
-	void set_ID(int new_ID) override
-	{ pImpl->set_ID(new_ID); }
+	int& index() override
+	{ return pImpl->index(); }
 
-	int get_index() const override
-	{ return pImpl->get_index(); }
-
-	void set_index(int new_index) override
-	{ pImpl->set_index(new_index); }
-
-	bool get_is_active() const override
-	{ return pImpl->get_is_active(); }
-
-	void set_is_active(bool active) override
-	{ pImpl->set_is_active(active); }
+	bool& is_active() override
+	{ return pImpl->is_active(); }
 
 	double* get_secretion_rates() override
 	{ return pImpl->get_secretion_rates(); }

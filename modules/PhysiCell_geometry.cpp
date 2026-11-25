@@ -788,7 +788,7 @@ Cell* process_csv_v2_line( std::string line , std::vector<std::string> labels )
 			// volume 
 		if( labels[k] == "volume" && skip == false )
 		{ 
-			pCell->set_total_volume( dval ); 
+			pCell->set_total_volume( dval );
 			processed = true; 
 		}
 

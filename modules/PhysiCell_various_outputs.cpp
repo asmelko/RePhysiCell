@@ -133,7 +133,7 @@ int writeCellReport(std::vector<Cell*> all_cells, double timepoint)
 	{
 		phenotype_code = all_cells[i]->phenotype.cycle.current_phase().code;
 		// phenotype_code = phases.size()>0?all_cells[i]->phenotype.cycle.phases[all_cells[i]->phenotype.current_phase_index].code:-1;
-		povFile<<i<<"\t"<<all_cells[i]->get_ID()<<"\t"<<all_cells[i]->position()[0]<<"\t" << all_cells[i]->position()[1] <<"\t"<< all_cells[i]->position()[2]<<"\t";
+		povFile<<i<<"\t"<<all_cells[i]->ID()<<"\t"<<all_cells[i]->position()[0]<<"\t" << all_cells[i]->position()[1] <<"\t"<< all_cells[i]->position()[2]<<"\t";
 		povFile<<all_cells[i]->phenotype.geometry.radius()<<"\t"<<all_cells[i]->phenotype.volume.total<<"\t"<<all_cells[i]->phenotype.volume.nuclear_fluid
 		<<"\t"<<all_cells[i]->phenotype.volume.nuclear_solid<<"\t"<<all_cells[i]->phenotype.volume.cytoplasmic_fluid<<"\t"<<
 		all_cells[i]->phenotype.volume.cytoplasmic_solid<<"\t"<<all_cells[i]->phenotype.volume.calcified_fraction<<"\t"<<phenotype_code<< 

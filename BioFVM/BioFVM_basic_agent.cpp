@@ -63,10 +63,10 @@ void reset_max_basic_agent_ID( void )
 Basic_Agent::Basic_Agent()
 {
 	//give the agent a unique ID  
-	ID = max_basic_agent_ID; // 
+	ID_ = max_basic_agent_ID; //
 	max_basic_agent_ID++; 
 	// initialize position and velocity
-	is_active=true;
+	is_active_=true;
 	
 	volume = 1.0; 
 
@@ -103,7 +103,7 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 {
 	if( !get_microenvironment()->mesh.is_position_valid(x,y,z))
 	{	
-		// std::cout<<"Error: the new position for agent "<< ID << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
+		// std::cout<<"Error: the new position for agent "<< ID_ << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
 		return false;
 	}
 	position_ptr[0]=x;
@@ -121,7 +121,7 @@ void Basic_Agent::update_voxel_index()
 	if( !get_microenvironment()->mesh.is_position_valid(position_ptr[0],position_ptr[1],position_ptr[2]))
 	{	
 		current_voxel_index=-1;
-		is_active=false;
+		is_active_=false;
 		return;
 	}
 	current_voxel_index= microenvironment->nearest_voxel_index( position_ptr );
@@ -282,34 +282,19 @@ void Basic_Agent::bind_position(double* pos)
 	position_ptr = pos;
 }
 
-int Basic_Agent::get_ID() const
+int& Basic_Agent::ID()
 {
-	return ID;
+	return ID_;
 }
 
-void Basic_Agent::set_ID(int new_ID)
+int& Basic_Agent::index()
 {
-	ID = new_ID;
+	return index_;
 }
 
-int Basic_Agent::get_index() const
+bool& Basic_Agent::is_active()
 {
-	return index;
-}
-
-void Basic_Agent::set_index(int new_index)
-{
-	index = new_index;
-}
-
-bool Basic_Agent::get_is_active() const
-{
-	return is_active;
-}
-
-void Basic_Agent::set_is_active(bool active)
-{
-	is_active = active;
+	return is_active_;
 }
 
 double* Basic_Agent::get_secretion_rates()
@@ -389,7 +374,7 @@ Microenvironment_Interface* Basic_Agent::get_microenvironment_interface( void )
 
 void Basic_Agent::simulate_secretion_and_uptake( double dt )
 {
-	if(!is_active)
+	if(!is_active_)
 	{ return; }
 	
 	if( volume_is_changed )

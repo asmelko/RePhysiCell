@@ -787,7 +787,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		// fwrite( (char*) &( ID_temp ) , sizeof(double) , 1 , fp ); 
 
 		// name = "ID"; 
-		dTemp = (double) pCell->get_ID();
+		dTemp = (double) pCell->ID();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "position";    NOTE very different syntax for writing vectors!
         std::fwrite( pCell->position() , sizeof(double) , 3 , fp );
@@ -966,7 +966,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		Cell* pTarget = pCell->phenotype.cell_interactions.pAttackTarget; 
 		int AttackID = -1; 
 		if( pTarget )
-		{ AttackID = pTarget->get_ID(); }
+		{ AttackID = pTarget->ID(); }
 		dTemp = (double) AttackID; 
 		std::fwrite( &(dTemp) , sizeof(double) , 1 , fp ); 
  		// name = "attack_damage_rate"; 
@@ -1227,11 +1227,11 @@ void write_neighbor_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->get_ID() << ": " ; 
+		buffer << (*all_cells)[i]->ID() << ": " ;
 		int size = (*all_cells)[i]->get_neighbors_count(); 
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->get_neighbor(j)->get_ID(); 
+			buffer << (*all_cells)[i]->get_neighbor(j)->ID();
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1254,11 +1254,11 @@ void write_attached_cells_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->get_ID() << ": " ; 
+		buffer << (*all_cells)[i]->ID() << ": " ;
 		int size = (*all_cells)[i]->state.attached_cells.size(); 
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->state.attached_cells[j]->get_ID(); 
+			buffer << (*all_cells)[i]->state.attached_cells[j]->ID();
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1280,11 +1280,11 @@ void write_spring_attached_cells_graph( std::string filename )
 
 	for( int i=0 ; i < (*all_cells).size(); i++ )
 	{
-		buffer << (*all_cells)[i]->get_ID() << ": " ; 
+		buffer << (*all_cells)[i]->ID() << ": " ;
 		int size = (*all_cells)[i]->get_spring_attachments_count();
 		for( int j=0 ; j < size; j++ )
 		{
-			buffer << (*all_cells)[i]->get_spring_attachment(j)->get_ID(); 
+			buffer << (*all_cells)[i]->get_spring_attachment(j)->ID();
 			if( j != size-1 )
 			{ buffer << ","; }
 		}
@@ -1530,7 +1530,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             pCD = cell_definitions_by_type[cell_type];    // rwh: better?
             pCell = create_cell( *pCD );
 
-            pCell->set_ID(cell_ID);
+            pCell->ID() = cell_ID;
             pCell->set_type(cell_type);
             pCell->phenotype.volume.total = cell_vol;
 
@@ -2177,11 +2177,11 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
         {
             for (auto* cell : *all_cells)   // loop over all cells
             {
-                if (cell->get_ID() == pair.second)
+                if (cell->ID() == pair.second)
                 {
                     (pair.first)->phenotype.cell_interactions.pAttackTarget = cell;
                     if (debug_print)
-                    { std::cout << "    cell ID=" << (pair.first)->get_ID() << " attacking  cell ID=" << cell->get_ID() << std::endl; }
+                    { std::cout << "    cell ID=" << (pair.first)->ID() << " attacking  cell ID=" << cell->ID() << std::endl; }
                     break;
                 }
             }

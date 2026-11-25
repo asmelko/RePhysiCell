@@ -624,7 +624,7 @@ void SVG_plot(std::string filename, Microenvironment_Interface &M, double z_slic
 
 		if( fabs( (pC->position())[2] - z_slice ) < pC->phenotype.geometry.radius())
 		{
-			os << "   <g id=\"cell" << pC->get_ID() << "\" "
+			os << "   <g id=\"cell" << pC->ID() << "\" "
 			   << "type=\"" << pC->type_name << "\" "; // new April 2022
 			if( pC->phenotype.death.dead == true )
 			{ os << "dead=\"true\" " ; } 

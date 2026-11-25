@@ -73,10 +73,8 @@ public:
 	virtual Microenvironment_Interface* get_microenvironment_interface( void ) = 0;
 
 	// ID and type accessors
-	virtual int get_ID() const = 0;
-	virtual void set_ID(int new_ID) = 0;
-	virtual int get_index() const = 0;
-	virtual void set_index(int new_index) = 0;
+	virtual int& ID() = 0;
+	virtual int& index() = 0;
 	
 	/**
 	 * @brief Pointer to the 3 position coordinates {x, y, z}.
@@ -87,8 +85,7 @@ public:
 	virtual double* position() = 0;
 
 	// Activity status
-	virtual bool get_is_active() const = 0;
-	virtual void set_is_active(bool active) = 0;
+	virtual bool& is_active() = 0;
 	
 	// Getter methods for vector pointers
 	virtual double* get_secretion_rates() = 0;
@@ -123,4 +120,3 @@ public:
 };
 
 #endif
-
