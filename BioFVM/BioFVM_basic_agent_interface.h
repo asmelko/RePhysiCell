@@ -88,20 +88,13 @@ public:
 	virtual bool& is_active() = 0;
 	
 	// Getter methods for vector pointers
-	virtual double* get_secretion_rates() = 0;
-	virtual const double* get_secretion_rates() const = 0;
-	virtual double* get_saturation_densities() = 0;
-	virtual const double* get_saturation_densities() const = 0;
-	virtual double* get_uptake_rates() = 0;
-	virtual const double* get_uptake_rates() const = 0;
-	virtual double* get_net_export_rates() = 0;
-	virtual const double* get_net_export_rates() const = 0;
-	virtual double* get_internalized_total_substrates() = 0;
-	virtual const double* get_internalized_total_substrates() const = 0;
-	virtual double* get_fraction_released_at_death() = 0;
-	virtual const double* get_fraction_released_at_death() const = 0;
-	virtual double* get_fraction_transferred_when_ingested() = 0;
-	virtual const double* get_fraction_transferred_when_ingested() const = 0;
+	virtual double* secretion_rates() = 0;
+	virtual double* saturation_densities() = 0;
+	virtual double* uptake_rates() = 0;
+	virtual double* net_export_rates() = 0;
+	virtual double* internalized_total_substrates() = 0;
+	virtual double* fraction_released_at_death() = 0;
+	virtual double* fraction_transferred_when_ingested() = 0;
 	
 	virtual ~Basic_Agent_Interface(){};
 	

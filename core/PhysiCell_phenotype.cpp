@@ -1273,7 +1273,7 @@ Secretion::Secretion()
 double* Secretion::secretion_rates() const
 {
 	if (pCell)
-		return pCell->get_secretion_rates();
+		return pCell->secretion_rates();
 	if (pCD)
 		return pCD->secretion_data.secretion_rates.data();
 	return nullptr; // should never come here
@@ -1282,7 +1282,7 @@ double* Secretion::secretion_rates() const
 double* Secretion::uptake_rates() const
 {
 	if (pCell)
-		return pCell->get_uptake_rates();
+		return pCell->uptake_rates();
 	if (pCD)
 		return pCD->secretion_data.uptake_rates.data();
 	return nullptr; // should never come here
@@ -1291,7 +1291,7 @@ double* Secretion::uptake_rates() const
 double* Secretion::saturation_densities() const
 {
 	if (pCell)
-		return pCell->get_saturation_densities();
+		return pCell->saturation_densities();
 	if (pCD)
 		return pCD->secretion_data.saturation_densities.data();
 	return nullptr; // should never come here
@@ -1300,7 +1300,7 @@ double* Secretion::saturation_densities() const
 double* Secretion::net_export_rates() const
 {
 	if (pCell)
-		return pCell->get_net_export_rates();
+		return pCell->net_export_rates();
 	if (pCD)
 		return pCD->secretion_data.net_export_rates.data();
 	return nullptr; // should never come here
@@ -1489,7 +1489,7 @@ Molecular::Molecular()
 double* Molecular::internalized_total_substrates() const
 {
 	if (pCell)
-		return pCell->get_internalized_total_substrates();
+		return pCell->internalized_total_substrates();
 	if (pCD)
 		return pCD->molecular_data.internalized_total_substrates.data();
 	return nullptr; // should never come here
@@ -1498,7 +1498,7 @@ double* Molecular::internalized_total_substrates() const
 double* Molecular::fraction_released_at_death() const
 {
 	if (pCell)
-		return pCell->get_fraction_released_at_death();
+		return pCell->fraction_released_at_death();
 	if (pCD)
 		return pCD->molecular_data.fraction_released_at_death.data();
 	return nullptr; // should never come here
@@ -1507,7 +1507,7 @@ double* Molecular::fraction_released_at_death() const
 double* Molecular::fraction_transferred_when_ingested() const
 {
 	if (pCell)
-		return pCell->get_fraction_transferred_when_ingested();
+		return pCell->fraction_transferred_when_ingested();
 	if (pCD)
 		return pCD->molecular_data.fraction_transferred_when_ingested.data();
 	return nullptr; // should never come here

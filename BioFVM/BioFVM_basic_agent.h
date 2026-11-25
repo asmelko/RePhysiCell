@@ -88,18 +88,18 @@ class Basic_Agent final : public Basic_Agent_Interface
  public:
 	bool is_active_;
 
-	std::vector<double> secretion_rates; 
-	std::vector<double> saturation_densities; 
-	std::vector<double> uptake_rates;  
-	std::vector<double> net_export_rates; 
+	std::vector<double> secretion_rates_; 
+	std::vector<double> saturation_densities_; 
+	std::vector<double> uptake_rates_;  
+	std::vector<double> net_export_rates_; 
 	double& get_total_volume() override;
 	void set_total_volume(double) override;
 	void update_voxel_index() override;
 
 	/* new for internalized substrates in 1.5.0 */ 
-	std::vector<double> internalized_substrates; 
-	std::vector<double> fraction_released_at_death; 
-	std::vector<double> fraction_transferred_when_ingested; 
+	std::vector<double> internalized_substrates_; 
+	std::vector<double> fraction_released_at_death_; 
+	std::vector<double> fraction_transferred_when_ingested_; 
 	void release_internalized_substrates( void ) override; 
 
 	void set_internal_uptake_constants( double dt ) override; // any time you update the cell volume or rates, should call this function. 
@@ -131,20 +131,13 @@ class Basic_Agent final : public Basic_Agent_Interface
 	bool& is_active() override;
 	
 	// Getter methods for vector pointers
-	double* get_secretion_rates() override;
-	const double* get_secretion_rates() const override;
-	double* get_saturation_densities() override;
-	const double* get_saturation_densities() const override;
-	double* get_uptake_rates() override;
-	const double* get_uptake_rates() const override;
-	double* get_net_export_rates() override;
-	const double* get_net_export_rates() const override;
-	double* get_internalized_total_substrates() override;
-	const double* get_internalized_total_substrates() const override;
-	double* get_fraction_released_at_death() override;
-	const double* get_fraction_released_at_death() const override;
-	double* get_fraction_transferred_when_ingested() override;
-	const double* get_fraction_transferred_when_ingested() const override;
+	double* secretion_rates() override;
+	double* saturation_densities() override;
+	double* uptake_rates() override;
+	double* net_export_rates() override;
+	double* internalized_total_substrates() override;
+	double* fraction_released_at_death() override;
+	double* fraction_transferred_when_ingested() override;
 	
 	Basic_Agent(); 
 	virtual ~Basic_Agent(){};

@@ -74,47 +74,26 @@ public:
 	bool& is_active() override
 	{ return pImpl->is_active(); }
 
-	double* get_secretion_rates() override
-	{ return pImpl->get_secretion_rates(); }
+	double* secretion_rates() override
+	{ return pImpl->secretion_rates(); }
 
-	const double* get_secretion_rates() const override
-	{ return pImpl->get_secretion_rates(); }
+	double* saturation_densities() override
+	{ return pImpl->saturation_densities(); }
 
-	double* get_saturation_densities() override
-	{ return pImpl->get_saturation_densities(); }
+	double* uptake_rates() override
+	{ return pImpl->uptake_rates(); }
 
-	const double* get_saturation_densities() const override
-	{ return pImpl->get_saturation_densities(); }
+	double* net_export_rates() override
+	{ return pImpl->net_export_rates(); }
 
-	double* get_uptake_rates() override
-	{ return pImpl->get_uptake_rates(); }
+	double* internalized_total_substrates() override
+	{ return pImpl->internalized_total_substrates(); }
 
-	const double* get_uptake_rates() const override
-	{ return pImpl->get_uptake_rates(); }
+	double* fraction_released_at_death() override
+	{ return pImpl->fraction_released_at_death(); }
 
-	double* get_net_export_rates() override
-	{ return pImpl->get_net_export_rates(); }
-
-	const double* get_net_export_rates() const override
-	{ return pImpl->get_net_export_rates(); }
-
-	double* get_internalized_total_substrates() override
-	{ return pImpl->get_internalized_total_substrates(); }
-
-	const double* get_internalized_total_substrates() const override
-	{ return pImpl->get_internalized_total_substrates(); }
-
-	double* get_fraction_released_at_death() override
-	{ return pImpl->get_fraction_released_at_death(); }
-
-	const double* get_fraction_released_at_death() const override
-	{ return pImpl->get_fraction_released_at_death(); }
-
-	double* get_fraction_transferred_when_ingested() override
-	{ return pImpl->get_fraction_transferred_when_ingested(); }
-
-	const double* get_fraction_transferred_when_ingested() const override
-	{ return pImpl->get_fraction_transferred_when_ingested(); }
+	double* fraction_transferred_when_ingested() override
+	{ return pImpl->fraction_transferred_when_ingested(); }
 
 	void simulate_secretion_and_uptake(double dt) override
 	{ pImpl->simulate_secretion_and_uptake(dt); }
