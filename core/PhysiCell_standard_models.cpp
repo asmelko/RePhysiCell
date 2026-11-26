@@ -890,7 +890,7 @@ void standard_cell_cell_interactions( Cell* pCell, Phenotype& phenotype, double 
 	for( int n=0; n < pCell->get_neighbors_count(); n++ )
 	{
 		pTarget = pCell->get_neighbor(n); 
-		type = pTarget->get_type(); 
+		type = pTarget->type(); 
 		type_name = pTarget->type_name; 
 		
 		if( pTarget->phenotype.volume.total < 1e-15 )
@@ -1068,20 +1068,20 @@ void standard_asymmetric_division_function( Cell* pCell_parent, Cell* pCell_daug
 	double total = pCell_parent->phenotype.cycle.asymmetric_division.probabilities_total();
 	if (total > 1.0)
 	{
-		double sym_div_prob = pCell_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_parent->get_type()] + 1.0 - total;
+		double sym_div_prob = pCell_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_parent->type()] + 1.0 - total;
 		if (sym_div_prob < 0.0)
 		{ 
 			throw std::runtime_error("Error: Asymmetric division probabilities for " + pCD_parent->name + " sum to greater than 1.0 and cannot be normalized.");
 		}
-		pCell_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_parent->get_type()] = sym_div_prob;
-		pCell_daughter->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_daughter->get_type()] = sym_div_prob;
+		pCell_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_parent->type()] = sym_div_prob;
+		pCell_daughter->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[pCell_daughter->type()] = sym_div_prob;
 	}
 	double r = UniformRandom();
 	for( int i=0; i < pCD_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities.size(); i++ )
 	{
 		if( r <= pCell_parent->phenotype.cycle.asymmetric_division.asymmetric_division_probabilities[i] )
 		{
-			if (i != pCell_daughter->get_type()) // only convert if the daughter is not already the correct type
+			if (i != pCell_daughter->type()) // only convert if the daughter is not already the correct type
 			{ pCell_daughter->convert_to_cell_definition( *cell_definitions_by_index[i] ); }
 			return;
 		}

@@ -116,107 +116,104 @@ public:
 
 	// ---- Mechanics_Agent_Interface -------------------------------------------
 
-	int get_type() const override
-	{ return mechanics_agent_->get_type(); }
+	int& type() override
+	{ return mechanics_agent_->type(); }
 
-	void set_type(int new_type) override
-	{ mechanics_agent_->set_type(new_type); }
+	double* velocity() override
+	{ return mechanics_agent_->velocity(); }
 
-	double* get_velocity() override
-	{ return mechanics_agent_->get_velocity(); }
+	double& radius() override
+	{ return mechanics_agent_->radius(); }
 
-	double& get_radius() override
-	{ return mechanics_agent_->get_radius(); }
+	bool& is_movable() override
+	{ return mechanics_agent_->is_movable(); }
 
-	bool& get_is_movable() override
-	{ return mechanics_agent_->get_is_movable(); }
+	bool& is_out_of_domain() override
+	{ return mechanics_agent_->is_out_of_domain(); }
 
-	bool& get_is_out_of_domain() override
-	{ return mechanics_agent_->get_is_out_of_domain(); }
+	std::vector<CoreEntityPIMPL*>& neighbors() override
+	{ return mechanics_agent_->neighbors(); }
 
-	std::vector<CoreEntityPIMPL*>& get_neighbors() override
-	{ return mechanics_agent_->get_neighbors(); }
+	double& cell_BM_adhesion_strength() override
+	{ return mechanics_agent_->cell_BM_adhesion_strength(); }
 
-	double& get_cell_BM_adhesion_strength() override
-	{ return mechanics_agent_->get_cell_BM_adhesion_strength(); }
+	double& cell_BM_repulsion_strength() override
+	{ return mechanics_agent_->cell_BM_repulsion_strength(); }
 
-	double& get_cell_BM_repulsion_strength() override
-	{ return mechanics_agent_->get_cell_BM_repulsion_strength(); }
+	bool& is_motile() override
+	{ return mechanics_agent_->is_motile(); }
 
-	bool& get_is_motile() override
-	{ return mechanics_agent_->get_is_motile(); }
+	double& persistence_time() override
+	{ return mechanics_agent_->persistence_time(); }
 
-	double& get_persistence_time() override
-	{ return mechanics_agent_->get_persistence_time(); }
+	double& migration_speed() override
+	{ return mechanics_agent_->migration_speed(); }
 
-	double& get_migration_speed() override
-	{ return mechanics_agent_->get_migration_speed(); }
+	double* migration_bias_direction() override
+	{ return mechanics_agent_->migration_bias_direction(); }
 
-	double* get_migration_bias_direction() override
-	{ return mechanics_agent_->get_migration_bias_direction(); }
+	double& migration_bias() override
+	{ return mechanics_agent_->migration_bias(); }
 
-	double& get_migration_bias() override
-	{ return mechanics_agent_->get_migration_bias(); }
+	double* motility_vector() override
+	{ return mechanics_agent_->motility_vector(); }
 
-	double* get_motility_vector() override
-	{ return mechanics_agent_->get_motility_vector(); }
+	bool& restrict_to_2d() override
+	{ return mechanics_agent_->restrict_to_2d(); }
 
-	bool& get_restrict_to_2d() override
-	{ return mechanics_agent_->get_restrict_to_2d(); }
+	int& chemotaxis_index() override
+	{ return mechanics_agent_->chemotaxis_index(); }
 
-	int& get_chemotaxis_index() override
-	{ return mechanics_agent_->get_chemotaxis_index(); }
+	int& chemotaxis_direction() override
+	{ return mechanics_agent_->chemotaxis_direction(); }
 
-	int& get_chemotaxis_direction() override
-	{ return mechanics_agent_->get_chemotaxis_direction(); }
+	double* chemotactic_sensitivities() override
+	{ return mechanics_agent_->chemotactic_sensitivities(); }
 
-	double* get_chemotactic_sensitivities() override
-	{ return mechanics_agent_->get_chemotactic_sensitivities(); }
+	double& cell_cell_adhesion_strength() override
+	{ return mechanics_agent_->cell_cell_adhesion_strength(); }
 
-	double& get_cell_cell_adhesion_strength() override
-	{ return mechanics_agent_->get_cell_cell_adhesion_strength(); }
+	double& cell_cell_repulsion_strength() override
+	{ return mechanics_agent_->cell_cell_repulsion_strength(); }
 
-	double& get_cell_cell_repulsion_strength() override
-	{ return mechanics_agent_->get_cell_cell_repulsion_strength(); }
+	double* cell_adhesion_affinities() override
+	{ return mechanics_agent_->cell_adhesion_affinities(); }
 
-	double* get_cell_adhesion_affinities() override
-	{ return mechanics_agent_->get_cell_adhesion_affinities(); }
+	double& relative_maximum_adhesion_distance() override
+	{ return mechanics_agent_->relative_maximum_adhesion_distance(); }
 
-	double& get_relative_maximum_adhesion_distance() override
-	{ return mechanics_agent_->get_relative_maximum_adhesion_distance(); }
+	int& maximum_number_of_attachments() override
+	{ return mechanics_agent_->maximum_number_of_attachments(); }
 
-	int& get_maximum_number_of_attachments() override
-	{ return mechanics_agent_->get_maximum_number_of_attachments(); }
+	double& attachment_elastic_constant() override
+	{ return mechanics_agent_->attachment_elastic_constant(); }
 
-	double& get_attachment_elastic_constant() override
-	{ return mechanics_agent_->get_attachment_elastic_constant(); }
+	double& attachment_rate() override
+	{ return mechanics_agent_->attachment_rate(); }
 
-	double& get_attachment_rate() override
-	{ return mechanics_agent_->get_attachment_rate(); }
+	double& detachment_rate() override
+	{ return mechanics_agent_->detachment_rate(); }
 
-	double& get_detachment_rate() override
-	{ return mechanics_agent_->get_detachment_rate(); }
+	double& simple_pressure() override
+	{ return mechanics_agent_->simple_pressure(); }
 
-	double& get_simple_pressure() override
-	{ return mechanics_agent_->get_simple_pressure(); }
+	double* previous_velocity() override
+	{ return mechanics_agent_->previous_velocity(); }
 
-	double* get_previous_velocity() override
-	{ return mechanics_agent_->get_previous_velocity(); }
+	std::vector<std::pair<CoreEntityPIMPL*, bool>>& springs() override
+	{ return mechanics_agent_->springs(); }
 
-	std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() override
-	{ return mechanics_agent_->get_springs(); }
+	double& relative_maximum_attachment_distance() override
+	{ return mechanics_agent_->relative_maximum_attachment_distance(); }
 
-	double& get_relative_maximum_attachment_distance() override
-	{ return mechanics_agent_->get_relative_maximum_attachment_distance(); }
+	double& relative_detachment_distance() override
+	{ return mechanics_agent_->relative_detachment_distance(); }
 
-	double& get_relative_detachment_distance() override
-	{ return mechanics_agent_->get_relative_detachment_distance(); }
+	double& maximum_attachment_rate() override
+	{ return mechanics_agent_->maximum_attachment_rate(); }
 
-	double& get_maximum_attachment_rate() override
-	{ return mechanics_agent_->get_maximum_attachment_rate(); }
-
-	int get_current_mechanics_voxel_index() override
-	{ return mechanics_agent_->get_current_mechanics_voxel_index(); }
+	int current_mechanics_voxel_index() override
+	{ return mechanics_agent_->current_mechanics_voxel_index(); }
 
 	void remove_self_from_all_neighbors() override
 	{ mechanics_agent_->remove_self_from_all_neighbors(); }

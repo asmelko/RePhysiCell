@@ -31,9 +31,9 @@ public:
 	// mech_agent_data — direct fields
 	// ========================================================================
 
-	std::vector<double> velocity;
-	bool is_movable = true;
-	std::vector<CoreEntityPIMPL*> neighbors;
+	std::vector<double> velocity_;
+	bool is_movable_ = true;
+	std::vector<CoreEntityPIMPL*> neighbors_;
 	std::vector<std::pair<CoreEntityPIMPL*, bool>> spring_attachments; 
 
 
@@ -57,69 +57,68 @@ public:
 
 	// std::function<void(double*)> update_migration_bias_direction;
 
-	double simple_pressure = 0.0;
-	std::vector<double> previous_velocity;
+	double simple_pressure_ = 0.0;
+	std::vector<double> previous_velocity_;
 
 	// ========================================================================
 	// Mechanics_Agent_Interface implementations
 	// ========================================================================
 	
-	int type;
-	int get_type() const override;
-	void set_type(int new_type) override;
+	int type_;
+	int& type() override;
 
 	// ---- mech_agent_data — direct fields -----------------------------------
 
-	double* get_velocity() override
-	{ return velocity.data(); }
+	double* velocity() override
+	{ return velocity_.data(); }
 
-	double& get_radius() override
+	double& radius() override
 	{ return radius_data.radius; }
 
-	bool& get_is_movable() override
-	{ return is_movable; }
+	bool& is_movable() override
+	{ return is_movable_; }
 
-	std::vector<CoreEntityPIMPL*>& get_neighbors() override
-	{ return neighbors; }
+	std::vector<CoreEntityPIMPL*>& neighbors() override
+	{ return neighbors_; }
 
 	// ---- base_membrane_data ------------------------------------------------
 
-	double& get_cell_BM_adhesion_strength() override
+	double& cell_BM_adhesion_strength() override
 	{ return mechanics_data.cell_BM_adhesion_strength; }
 
-	double& get_cell_BM_repulsion_strength() override
+	double& cell_BM_repulsion_strength() override
 	{ return mechanics_data.cell_BM_repulsion_strength; }
 
 	// ---- base_motility_data ------------------------------------------------
 
-	bool& get_is_motile() override
+	bool& is_motile() override
 	{ return motility_data.is_motile; }
 
-	double& get_persistence_time() override
+	double& persistence_time() override
 	{ return motility_data.persistence_time; }
 
-	double& get_migration_speed() override
+	double& migration_speed() override
 	{ return motility_data.migration_speed; }
 
-	double* get_migration_bias_direction() override
+	double* migration_bias_direction() override
 	{ return motility_data.migration_bias_direction.data(); }
 
-	double& get_migration_bias() override
+	double& migration_bias() override
 	{ return motility_data.migration_bias; }
 
-	double* get_motility_vector() override
+	double* motility_vector() override
 	{ return motility_data.motility_vector.data(); }
 
-	bool& get_restrict_to_2d() override
+	bool& restrict_to_2d() override
 	{ return motility_data.restrict_to_2D; }
 
-	int& get_chemotaxis_index() override
+	int& chemotaxis_index() override
 	{ return motility_data.chemotaxis_index; }
 
-	int& get_chemotaxis_direction() override
+	int& chemotaxis_direction() override
 	{ return motility_data.chemotaxis_direction; }
 
-	double* get_chemotactic_sensitivities() override
+	double* chemotactic_sensitivities() override
 	{ return motility_data.chemotactic_sensitivities.data(); }
 
 	// std::function<void(double*)>& get_update_migration_bias_direction() override
@@ -127,48 +126,48 @@ public:
 
 	// ---- base_potential_data -----------------------------------------------
 
-	double& get_cell_cell_adhesion_strength() override
+	double& cell_cell_adhesion_strength() override
 	{ return mechanics_data.cell_cell_adhesion_strength; }
 
-	double& get_cell_cell_repulsion_strength() override
+	double& cell_cell_repulsion_strength() override
 	{ return mechanics_data.cell_cell_repulsion_strength; }
 
-	double* get_cell_adhesion_affinities() override
+	double* cell_adhesion_affinities() override
 	{ return mechanics_data.cell_adhesion_affinities.data(); }
 
-	double& get_relative_maximum_adhesion_distance() override
+	double& relative_maximum_adhesion_distance() override
 	{ return mechanics_data.relative_maximum_adhesion_distance; }
 
-	int& get_maximum_number_of_attachments() override
+	int& maximum_number_of_attachments() override
 	{ return mechanics_data.maximum_number_of_attachments; }
 
-	double& get_attachment_elastic_constant() override
+	double& attachment_elastic_constant() override
 	{ return mechanics_data.attachment_elastic_constant; }
 
-	double& get_attachment_rate() override
+	double& attachment_rate() override
 	{ return mechanics_data.attachment_rate; }
 
-	double& get_detachment_rate() override
+	double& detachment_rate() override
 	{ return mechanics_data.detachment_rate; }
 
-	double& get_simple_pressure() override
-	{ return simple_pressure; }
+	double& simple_pressure() override
+	{ return simple_pressure_; }
 
-	double* get_previous_velocity() override
-	{ return previous_velocity.data(); }
+	double* previous_velocity() override
+	{ return previous_velocity_.data(); }
 
-	std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() override
+	std::vector<std::pair<CoreEntityPIMPL*, bool>>& springs() override
 	{ return spring_attachments; }
 	
 	
 	
-	double& get_relative_maximum_attachment_distance() override
+	double& relative_maximum_attachment_distance() override
 	{ return mechanics_data.relative_maximum_attachment_distance; }
 
-	double& get_relative_detachment_distance() override
+	double& relative_detachment_distance() override
 	{ return mechanics_data.relative_detachment_distance; }
 
-	double& get_maximum_attachment_rate() override
+	double& maximum_attachment_rate() override
 	{ return mechanics_data.maximum_attachment_rate; }
 
 	Mechanics_Agent(Cell* pCell);
@@ -192,13 +191,13 @@ public:
 	Mechanics_Functions functions;
 
 
-	bool is_out_of_domain = false;
-	int current_mechanics_voxel_index = -1;
+	bool is_out_of_domain_ = false;
+	int current_mechanics_voxel_index_ = -1;
 	int updated_current_mechanics_voxel_index = 0; // keeps the updated voxel index for later adjusting of current voxel index
 
 	void update_motility_vector( double dt_ );
 	void add_potentials(Mechanics_Agent*);       // Add repulsive and adhesive forces.
-	int get_current_mechanics_voxel_index() override;
+	int current_mechanics_voxel_index() override;
 	bool assign_position(const std::vector<double>& new_position) override;
 	bool assign_position(double, double, double) override;
 
@@ -215,8 +214,8 @@ public:
 	void remove_all_spring_attachments( void ) override; // done 
 
 	
-	bool& get_is_out_of_domain() override
-	{ return is_out_of_domain; }
+	bool& is_out_of_domain() override
+	{ return is_out_of_domain_; }
 };
 
 

@@ -794,7 +794,7 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
 		// name = "total_volume"; 
 		std::fwrite( &( pCell->phenotype.volume.total ) , sizeof(double) , 1 , fp ); 
 		// name = "cell_type"; 
-		dTemp = (double) pCell->get_type();
+		dTemp = (double) pCell->type();
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
 		// name = "cycle_model"; 
 		dTemp = (double) pCell->phenotype.cycle.model().code; 
@@ -820,9 +820,9 @@ void add_PhysiCell_cells_to_open_xml_pugi_v2( pugi::xml_document& xml_dom, std::
  /* state variables to save */ 
 // state
 		// name = "velocity"; 
-		std::fwrite( pCell->get_velocity() , sizeof(double) , 3 , fp ); 
+		std::fwrite( pCell->velocity() , sizeof(double) , 3 , fp ); 
 		// name = "pressure"; 
-		std::fwrite( &( pCell->get_simple_pressure() ) , sizeof(double) , 1 , fp ); 
+		std::fwrite( &( pCell->simple_pressure() ) , sizeof(double) , 1 , fp ); 
 		// name = "number_of_nuclei"; 
 		dTemp = (double) pCell->state.number_of_nuclei; 
 		std::fwrite( &( dTemp ) , sizeof(double) , 1 , fp ); 
@@ -1531,7 +1531,7 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
             pCell = create_cell( *pCD );
 
             pCell->ID() = cell_ID;
-            pCell->set_type(cell_type);
+            pCell->type() = cell_type;
             pCell->phenotype.volume.total = cell_vol;
 
             pCell->assign_position(position[0], position[1], position[2]);
@@ -1614,16 +1614,16 @@ int recreate_sim_state(std::string filename, Microenvironment_Interface& M,
         { std::cout << "velocity= " << velocity[0]<<", "<<velocity[1]<<", " << velocity[2]  << std::endl; }
         if (create_cells)
         {
-			pCell->get_velocity()[0] = velocity[0];
-			pCell->get_velocity()[1] = velocity[1];
-			pCell->get_velocity()[2] = velocity[2];
+			pCell->velocity()[0] = velocity[0];
+			pCell->velocity()[1] = velocity[1];
+			pCell->velocity()[2] = velocity[2];
         }
         
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)
         { std::cout << "state.simple_pressure= " << dTemp  << std::endl; }
         if (create_cells)
-        { pCell->get_simple_pressure() = dTemp; }
+        { pCell->simple_pressure() = dTemp; }
         
         fread(&dTemp, sizeof(double), 1, fp);
         if (debug_print)

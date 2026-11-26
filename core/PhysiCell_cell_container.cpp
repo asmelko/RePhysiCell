@@ -124,7 +124,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_cells).size(); i++ )
 	{
-		if( (*all_cells)[i]->get_is_out_of_domain() == false )
+		if( (*all_cells)[i]->is_out_of_domain() == false )
 		{
 			(*all_cells)[i]->phenotype.secretion.advance( (*all_cells)[i], (*all_cells)[i]->phenotype , diffusion_dt_ );
 		}
@@ -141,7 +141,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 	#pragma omp parallel for 
 	for( int i=0; i < (*all_cells).size(); i++ )
 	{
-		if( (*all_cells)[i]->get_is_out_of_domain() == false && initialzed ) {
+		if( (*all_cells)[i]->is_out_of_domain() == false && initialzed ) {
 
 			if( (*all_cells)[i]->phenotype.intracellular != NULL  && (*all_cells)[i]->phenotype.intracellular->need_update())
 			{
@@ -172,7 +172,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		#pragma omp parallel for 
 		for( int i=0; i < (*all_cells).size(); i++ )
 		{
-			if( (*all_cells)[i]->get_is_out_of_domain() == false )
+			if( (*all_cells)[i]->is_out_of_domain() == false )
 			{
 				(*all_cells)[i]->advance_bundled_phenotype_functions( time_since_last_cycle ); 
 			}
@@ -216,7 +216,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		for( int i=0; i < (*all_cells).size(); i++ )
 		{
 			Cell* pC = (*all_cells)[i]; 
-			if( pC->functions.contact_function && pC->get_is_out_of_domain() == false )
+			if( pC->functions.contact_function && pC->is_out_of_domain() == false )
 			{ evaluate_interactions( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
 		
@@ -227,7 +227,7 @@ void Cell_Container::update_all_cells(double t, double phenotype_dt_ , double me
 		{
 			Cell* pC = (*all_cells)[i]; 
 						
-			if( pC->functions.custom_cell_rule && pC->get_is_out_of_domain() == false )
+			if( pC->functions.custom_cell_rule && pC->is_out_of_domain() == false )
 			{ pC->functions.custom_cell_rule( pC,pC->phenotype,time_since_last_mechanics ); }
 		}
 		

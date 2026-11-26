@@ -233,7 +233,7 @@ void PhysiMeSS_FibreAgent::add_potentials_from_cell(PhysiMeSS_CellAgent* agent)
                 temp_r += 1.0;
                 temp_r *= temp_r;
                 // add the relative pressure contribution NOT SURE IF NEEDED
-                simple_pressure += (temp_r / simple_pressure_scale);
+                simple_pressure_ += (temp_r / simple_pressure_scale);
 
                 double effective_repulsion = sqrt(mechanics_data.cell_cell_repulsion_strength *
                                                       agent->mechanics_data.cell_cell_repulsion_strength);
@@ -241,7 +241,7 @@ void PhysiMeSS_FibreAgent::add_potentials_from_cell(PhysiMeSS_CellAgent* agent)
 
                 if (fabs(temp_r) < 1e-16) { return; }
                 temp_r /= distance;
-                naxpy(&velocity, temp_r, displacement);
+                naxpy(&velocity_, temp_r, displacement);
             }
 
             // fibre rotation turned on (2D)

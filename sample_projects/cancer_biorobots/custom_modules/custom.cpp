@@ -321,7 +321,7 @@ std::vector<std::string> cancer_biorobots_coloring_function( Cell* pCell )
 	static Cell_Definition* pCD_worker = find_cell_definition( "worker cell"); 
 	
 	// cargo cell 
-	if( pCell->get_type() == pCD_cargo->type )
+	if( pCell->type() == pCD_cargo->type )
 	{
 		output[0] = "blue";
 		output[1] = "blue";
@@ -331,7 +331,7 @@ std::vector<std::string> cancer_biorobots_coloring_function( Cell* pCell )
 	}
 	
 	// worker cell 
-	if( pCell->get_type() == pCD_worker->type )
+	if( pCell->type() == pCD_worker->type )
 	{
 		output[0] = "red";
 		output[1] = "red";
@@ -498,7 +498,7 @@ void biorobots_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttache
 		return; 
 	}
 	
-	axpy( pActingOn->get_velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
+	axpy( pActingOn->velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
 	
 	return; 
 }

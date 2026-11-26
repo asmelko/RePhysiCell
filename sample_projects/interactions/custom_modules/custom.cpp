@@ -480,7 +480,7 @@ void macrophage_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		{ num_dead++; }
 		else
 		{ 
-			if( pC->get_type() == bacteria_type )
+			if( pC->type() == bacteria_type )
 			{ num_bacteria++; }
 		}
 	}
@@ -678,11 +678,11 @@ void stem_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 		{ num_dead++; }
 		else
 		{ 
-			if( pC->get_type() == stem_type )
+			if( pC->type() == stem_type )
 			{ num_stem++; }
-			if( pC->get_type() == num_differentiated )
+			if( pC->type() == num_differentiated )
 			{ num_differentiated++; }
-			if( pC->get_type() == bacteria_type )
+			if( pC->type() == bacteria_type )
 			{ num_bacteria++; }
 		}
 	}
@@ -765,7 +765,7 @@ void differentiated_cell_phenotype( Cell* pCell, Phenotype& phenotype, double dt
 	double hill = 0.0; 
 
 	// pressure reduces proliferation 
-	signal = pCell->get_simple_pressure();  
+	signal = pCell->simple_pressure();  
 	static double pressure_halfmax = pCD->custom_data["cycling_pressure_halfmax"]; // 0.5 
 	hill = Hill_response_function( signal, pressure_halfmax , 1.5 );  
 	double base_val = pCD->phenotype.cycle.data.exit_rate(0); 

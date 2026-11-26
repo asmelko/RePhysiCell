@@ -104,9 +104,9 @@ int writePov(std::vector<Cell*> all_cells, double timepoint, double scale)
 			else
 				_nameCore="MISC";
 		}
-		else if(all_cells[i]->get_type()==TUMOR_TYPE)
+		else if(all_cells[i]->type()==TUMOR_TYPE)
 			_nameCore="LIVE";
-		else if(all_cells[i]->get_type()==VESSEL_TYPE)
+		else if(all_cells[i]->type()==VESSEL_TYPE)
 			_nameCore="ENDO";
 		else
 			_nameCore="MISC";

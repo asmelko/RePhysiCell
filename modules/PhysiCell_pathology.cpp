@@ -1740,8 +1740,8 @@ std::vector<std::string> paint_by_number_cell_coloring( Cell* pCell )
 	// paint by number -- by cell type 
 	
 	std::string interior_color = "white"; 
-	if( pCell->get_type() < 13 )
-	{ interior_color = colors[ pCell->get_type() ]; }
+	if( pCell->type() < 13 )
+	{ interior_color = colors[ pCell->type() ]; }
 	
 	output[0] = interior_color; // set cytoplasm color 
 	

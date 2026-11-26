@@ -798,7 +798,7 @@ std::vector<double> get_signals( Cell* pCell )
 
 	// mechanical pressure 
 	static int pressure_ind = find_signal_index( "pressure"); 
-	signals[pressure_ind] = pCell->get_simple_pressure();
+	signals[pressure_ind] = pCell->simple_pressure();
 
 	// cell volume 
 	static int volume_ind = find_signal_index( "volume"); 
@@ -828,7 +828,7 @@ std::vector<double> get_signals( Cell* pCell )
 		} 
 		else
 		{ live_cells++; } 
-		int nCT = cell_definition_indices_by_type[pC->get_type()]; 
+		int nCT = cell_definition_indices_by_type[pC->type()]; 
 		signals[contact_ind+nCT] += 1; 
 	}
 	other_dead_cells = dead_cells - apop_cells - necro_cells; 
@@ -950,7 +950,7 @@ std::vector<double> get_cell_contact_signals( Cell* pCell )
 		} 
 		else
 		{ live_cells++; } 
-		int nCT = cell_definition_indices_by_type[pC->get_type()]; 
+		int nCT = cell_definition_indices_by_type[pC->type()]; 
 		output[nCT] += 1; 
 	}
     other_dead_cells = dead_cells - apop_cells - necro_cells; 
@@ -1049,7 +1049,7 @@ double get_single_signal( Cell* pCell, int index )
 	static int pressure_ind = find_signal_index( "pressure" ); 
 	if( index == pressure_ind )
 	{
-		out = pCell->get_simple_pressure();
+		out = pCell->simple_pressure();
 		out /= signal_scales[index]; 
 		return out; 
 	}
@@ -1090,7 +1090,7 @@ double get_single_signal( Cell* pCell, int index )
 			} 
 			else
 			{ live_cells++; } 
-			int nCT = cell_definition_indices_by_type[pC->get_type()]; 
+			int nCT = cell_definition_indices_by_type[pC->type()]; 
 			counts[nCT] += 1; 
 		}
 		other_dead_cells = dead_cells - apop_cells - necro_cells; 		
@@ -1433,9 +1433,9 @@ void set_behaviors( Cell* pCell , std::vector<double> parameters )
 	// set cell to movable / not movable 
 	static int movable_ind = find_behavior_index( "is_movable"); 
 	if( parameters[movable_ind] > 0.5 )
-	{ pCell->get_is_movable() = true; }
+	{ pCell->is_movable() = true; }
 	else
-	{ pCell->get_is_movable() = false; }
+	{ pCell->is_movable() = false; }
 
 	// vector of immunogenicity signals 
 	static int start_immunogenicity_ind = find_behavior_index( "immunogenicity to " + cell_definitions_by_type[0]->name ); 
@@ -1640,9 +1640,9 @@ void set_single_behavior( Cell* pCell, int index , double parameter )
 	if( index == movable_ind )
 	{
 		if( parameter > 0.5 )
-		{ pCell->get_is_movable() = true; }
+		{ pCell->is_movable() = true; }
 		else
-		{ pCell->get_is_movable() = false; }
+		{ pCell->is_movable() = false; }
 	}
 
     // immunogenicity to each cell type 
@@ -1853,7 +1853,7 @@ std::vector<double> get_behaviors( Cell* pCell )
 
 	// is the cell movable / not movable 
 	static int movable_ind = find_behavior_index( "is_movable"); 
-	if( pCell->get_is_movable() == true )
+	if( pCell->is_movable() == true )
 	{ parameters[movable_ind] = 1; }
 	else
 	{ parameters[movable_ind] = 0; }
@@ -2065,7 +2065,7 @@ double get_single_behavior( Cell* pCell , int index )
 	static int movable_ind = find_behavior_index( "is_movable"); 
 	if( index == movable_ind )
 	{
-		if( pCell->get_is_movable() == true )
+		if( pCell->is_movable() == true )
 		{ return 1.0; }
 		else
 		{ return 0.0; }

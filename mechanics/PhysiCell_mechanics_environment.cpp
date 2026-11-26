@@ -58,31 +58,31 @@ void mechanics_environment::compute_velocities(double dt)
 	{
 		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
 
-		if ((*all_agents)[i]->functions.update_velocity != standard_update_cell_velocity || pCell->is_out_of_domain || !pCell->is_movable)
+		if ((*all_agents)[i]->functions.update_velocity != standard_update_cell_velocity || pCell->is_out_of_domain_ || !pCell->is_movable_)
 			continue;
 
 		pCell->functions.add_cell_basement_membrane_interactions(dt);
 
-		pCell->simple_pressure = 0.0; 
-		pCell->neighbors.clear(); // new 1.8.0
+		pCell->simple_pressure_ = 0.0; 
+		pCell->neighbors_.clear(); // new 1.8.0
 		
 		//First check the neighbors in my current voxel
 		std::vector<Mechanics_Agent*>::iterator neighbor;
-		std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-		for(neighbor = agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
+		std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->current_mechanics_voxel_index()].end();
+		for(neighbor = agent_grid[pCell->current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 		{
 			pCell->add_potentials(*neighbor);
 		}
 		std::vector<int>::iterator neighbor_voxel_index;
 		std::vector<int>::iterator neighbor_voxel_index_end = 
-			mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+			mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].end();
 
 		for( neighbor_voxel_index = 
-			mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
+			mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].begin();
 			neighbor_voxel_index != neighbor_voxel_index_end; 
 			++neighbor_voxel_index )
 		{
-			if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+			if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
 				continue;
 			end = agent_grid[*neighbor_voxel_index].end();
 			for(neighbor = agent_grid[*neighbor_voxel_index].begin();neighbor != end; ++neighbor)
@@ -92,7 +92,7 @@ void mechanics_environment::compute_velocities(double dt)
 		}
 		
 		pCell->update_motility_vector(dt); 
-		pCell->velocity += pCell->motility_data.motility_vector; 
+		pCell->velocity_ += pCell->motility_data.motility_vector; 
 	}
 	return; 
 }
@@ -111,7 +111,7 @@ void mechanics_environment::compute_spring_attachments(double dt)
 		for( int i=0; i < (*all_agents).size(); i++ )
 		{
 			Mechanics_Agent* pC = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
-			if( pC->get_is_movable() )
+			if( pC->is_movable() )
 			{
 				for( int j=0; j < pC->spring_attachments.size(); j++ )
 				{
@@ -130,7 +130,7 @@ void mechanics_environment::update_positions(double dt)
 	for( int i=0; i < (*all_agents).size(); i++ )
 	{
 		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
-		if( pCell->get_is_out_of_domain() == false && pCell->get_is_movable() )
+		if( pCell->is_out_of_domain() == false && pCell->is_movable() )
 		{ pCell->update_position(dt); }
 	}
 }
@@ -140,7 +140,7 @@ void mechanics_environment::update_container()
 	for( int i=0; i < (*all_agents).size(); i++ )
 	{
 		Mechanics_Agent* pCell = dynamic_cast<Mechanics_Agent*>((*all_agents)[i]->get_mechanics_implementation()); 
-		if(!pCell->get_is_out_of_domain() && pCell->get_is_movable())
+		if(!pCell->is_out_of_domain() && pCell->is_movable())
 			pCell->update_voxel_in_container();
 	}
 }
@@ -212,7 +212,7 @@ void mechanics_environment::add_agent_to_outer_voxel(Mechanics_Agent* agent)
 {
 	int escaping_face= find_escaping_face_index(agent);
 	agents_in_outer_voxels[escaping_face].push_back(agent);
-	agent->is_out_of_domain=true;
+	agent->is_out_of_domain_=true;
 	return; 
 }
 
@@ -224,7 +224,7 @@ void mechanics_environment::register_agent( CoreEntityPIMPL* agent )
 
 void mechanics_environment::register_agent( Mechanics_Agent* agent )
 {
-	agent_grid[agent->get_current_mechanics_voxel_index()].push_back(agent);
+	agent_grid[agent->current_mechanics_voxel_index()].push_back(agent);
 	return; 
 }
 
@@ -235,7 +235,7 @@ void mechanics_environment::remove_agent(CoreEntityPIMPL* agent )
 
 void mechanics_environment::remove_agent(Mechanics_Agent* agent )
 {
-	remove_agent_from_voxel(agent, agent->get_current_mechanics_voxel_index());
+	remove_agent_from_voxel(agent, agent->current_mechanics_voxel_index());
 	return; 
 }
 
@@ -403,7 +403,7 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::agents_in_my_container( Cor
 std::vector<CoreEntityPIMPL*> mechanics_environment::agents_in_my_container( Mechanics_Agent* pCell )
 {
 	std::vector<CoreEntityPIMPL*> result;
-	for( Mechanics_Agent* a : agent_grid[pCell->get_current_mechanics_voxel_index()] )
+	for( Mechanics_Agent* a : agent_grid[pCell->current_mechanics_voxel_index()] )
 	{ result.push_back(a->pOwner); }
 	return result;
 }
@@ -419,20 +419,20 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_agents( Mechanics_Ag
 
 	std::vector<Mechanics_Agent*>::iterator neighbor;
 	std::vector<Mechanics_Agent*>::iterator end =
-		agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for( neighbor = agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
+		agent_grid[pCell->current_mechanics_voxel_index()].end();
+	for( neighbor = agent_grid[pCell->current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{ result.push_back((*neighbor)->pOwner); }
 
 	std::vector<int>::iterator neighbor_voxel_index;
 	std::vector<int>::iterator neighbor_voxel_index_end =
-		mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+		mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].end();
 
 	for( neighbor_voxel_index =
-		mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
+		mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].begin();
 		neighbor_voxel_index != neighbor_voxel_index_end;
 		++neighbor_voxel_index )
 	{
-		if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+		if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
 			continue;
 		end = agent_grid[*neighbor_voxel_index].end();
 		for(neighbor = agent_grid[*neighbor_voxel_index].begin(); neighbor != end; ++neighbor)
@@ -452,8 +452,8 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( 
 	std::vector<CoreEntityPIMPL*> result;
 
 	std::vector<Mechanics_Agent*>::iterator neighbor;
-	std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->get_current_mechanics_voxel_index()].end();
-	for( neighbor = agent_grid[pCell->get_current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
+	std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->current_mechanics_voxel_index()].end();
+	for( neighbor = agent_grid[pCell->current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{
 		std::vector<double> displacement = { (*neighbor)->position()[0] - pCell->position()[0], (*neighbor)->position()[1] - pCell->position()[1], (*neighbor)->position()[2] - pCell->position()[2] };
 		double distance = norm( displacement );
@@ -465,14 +465,14 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( 
 
 	std::vector<int>::iterator neighbor_voxel_index;
 	std::vector<int>::iterator neighbor_voxel_index_end =
-		mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].end();
+		mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].end();
 
 	for( neighbor_voxel_index =
-		mechanics_mesh.moore_connected_voxel_indices[pCell->get_current_mechanics_voxel_index()].begin();
+		mechanics_mesh.moore_connected_voxel_indices[pCell->current_mechanics_voxel_index()].begin();
 		neighbor_voxel_index != neighbor_voxel_index_end;
 		++neighbor_voxel_index )
 	{
-		if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->get_current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
+		if(!is_neighbor_voxel(pCell, mechanics_mesh.voxels[pCell->current_mechanics_voxel_index()].center, mechanics_mesh.voxels[*neighbor_voxel_index].center, *neighbor_voxel_index))
 			continue;
 		end = agent_grid[*neighbor_voxel_index].end();
 		for(neighbor = agent_grid[*neighbor_voxel_index].begin(); neighbor != end; ++neighbor)

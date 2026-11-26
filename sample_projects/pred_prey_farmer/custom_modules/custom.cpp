@@ -252,13 +252,13 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 	static Cell_Definition* pPreyDef = find_cell_definition( "prey" ); 
 	static Cell_Definition* pPredDef = find_cell_definition( "predator" ); 
 	
-	if( pCell->get_type() == pFarmerDef->type )
+	if( pCell->type() == pFarmerDef->type )
 	{ return { "grey", "black", "grey", "grey" }; } 
 	
-	if( pCell->get_type() == pPreyDef->type )
+	if( pCell->type() == pPreyDef->type )
 	{ return { "blue", "black", "blue", "blue" }; } 
 
-	if( pCell->get_type() == pPredDef->type )
+	if( pCell->type() == pPredDef->type )
 	{ return { "orange", "black", "orange", "orange" }; } 
 
 	return paint_by_number_cell_coloring(pCell); 
@@ -327,8 +327,8 @@ void avoid_boundaries( Cell* pCell )
 		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 		for (int i=0; i < dims; i++ )
 		{
-			pCell->get_velocity()[i] = pCell->position()[i]; // move towards origin
-			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
+			pCell->velocity()[i] = pCell->position()[i]; // move towards origin
+			pCell->velocity()[i] *= avoid_speed; // move towards origin
 		}
 	}
 	
@@ -476,7 +476,7 @@ void predator_phenotype_function( Cell* pCell, Phenotype& phenotype, double dt )
 		Cell* pC = nearby[i]; 
 		// is it prey ? 
 		
-		if( pC->get_type() == pPreyDef->type )
+		if( pC->type() == pPreyDef->type )
 		{
 			bool eat_it = true; 
 			// in range? 

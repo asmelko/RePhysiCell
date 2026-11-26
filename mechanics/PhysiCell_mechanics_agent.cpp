@@ -15,9 +15,9 @@ namespace PhysiCell {
 Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell) 
 {
 	pOwner = pCell;
-	velocity.resize(3, 0.0);
-	previous_velocity.resize(3, 0.0);
-	neighbors.clear();
+	velocity_.resize(3, 0.0);
+	previous_velocity_.resize(3, 0.0);
+	neighbors_.clear();
 
 	position_ptr = default_position.data();
 
@@ -25,14 +25,9 @@ Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell)
 	motility_data.sync_to_current_microenvironment();
 }
 
-int Mechanics_Agent::get_type() const
+int& Mechanics_Agent::type()
 {
-	return type;
-}
-
-void Mechanics_Agent::set_type(int new_type)
-{
-	type = new_type;
+	return type_;
 }
 
 void Mechanics_Agent::update_motility_vector( double dt_ )
@@ -107,15 +102,15 @@ bool Mechanics_Agent::assign_position(double x, double y, double z)
 	{ position_ptr[2] = z; }
 	
 	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index= get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position_ptr );
+	current_mechanics_voxel_index_= get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position_ptr );
 
     // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
 	// which was not initialized at cell creation
-	if( get_mechanics_environment().max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
+	if( get_mechanics_environment().max_cell_interactive_distance_in_voxel[current_mechanics_voxel_index_] <
 		radius_data.radius * mechanics_data.relative_maximum_adhesion_distance )
 	{
-		// get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
-		get_mechanics_environment().max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] = radius_data.radius
+		// get_container()->max_cell_interactive_distance_in_voxel[current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
+		get_mechanics_environment().max_cell_interactive_distance_in_voxel[current_mechanics_voxel_index_] = radius_data.radius
 			* mechanics_data.relative_maximum_adhesion_distance;
 	}
 
@@ -123,8 +118,8 @@ bool Mechanics_Agent::assign_position(double x, double y, double z)
 	
 	if( !get_mechanics_environment().mechanics_mesh.is_position_valid(x,y,z) )
 	{	
-		is_out_of_domain = true; 
-		is_movable = false; 
+		is_out_of_domain_ = true; 
+		is_movable_ = false; 
 		
 		return false;
 	}
@@ -154,7 +149,7 @@ void Mechanics_Agent::update_position( double dt )
 	
 	// new AUgust 2017
 	if( get_microenvironment_i()->simulate_2D() == true )
-	{ velocity[2] = 0.0; }
+	{ velocity_[2] = 0.0; }
 	
 	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 
@@ -162,16 +157,16 @@ void Mechanics_Agent::update_position( double dt )
 	for ( int i = 0 ; i < dims ; i++ )
 	{
 		position_ptr[i] +=
-			( d1 * get_velocity()[i] + d2 * get_previous_velocity()[i] );
+			( d1 * velocity()[i] + d2 * previous_velocity()[i] );
 	}
 	// overwrite previous_velocity for future use 
 	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius())
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
 	
 		
-	previous_velocity = velocity; 
+	previous_velocity_ = velocity_; 
 	
-	velocity[0]=0; velocity[1]=0; velocity[2]=0;
+	velocity_[0]=0; velocity_[1]=0; velocity_[2]=0;
 	if(get_mechanics_environment().mechanics_mesh.is_position_valid(position_ptr[0],position_ptr[1],position_ptr[2]))
 	{
 		updated_current_mechanics_voxel_index=get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position_ptr );
@@ -180,15 +175,15 @@ void Mechanics_Agent::update_position( double dt )
 	{
 		updated_current_mechanics_voxel_index=-1;
 		
-		is_out_of_domain = true; 
-		is_movable = false; 
+		is_out_of_domain_ = true; 
+		is_movable_ = false; 
 	}
 	return; 
 }
 
-int Mechanics_Agent::get_current_mechanics_voxel_index()
+int Mechanics_Agent::current_mechanics_voxel_index()
 {
-	return current_mechanics_voxel_index;
+	return current_mechanics_voxel_index_;
 }
 
 void Mechanics_Agent::update_voxel_in_container()
@@ -200,28 +195,28 @@ void Mechanics_Agent::update_voxel_in_container()
 	if(updated_current_mechanics_voxel_index==-1)// updated_current_mechanics_voxel_index is updated in update_position
 	{
 		// check if this agent has a valid voxel index, if so, remove it from previous voxel
-		if( get_current_mechanics_voxel_index() >= 0)
+		if( current_mechanics_voxel_index() >= 0)
 		{
-			{get_mechanics_environment().remove_agent_from_voxel(this, get_current_mechanics_voxel_index());}
+			{get_mechanics_environment().remove_agent_from_voxel(this, current_mechanics_voxel_index());}
 		}
 		{get_mechanics_environment().add_agent_to_outer_voxel(this);}
 		// std::cout<<"cell out of boundary..."<< __LINE__<<" "<<ID<<std::endl;
-		current_mechanics_voxel_index=-1;
-		is_out_of_domain=true;
+		current_mechanics_voxel_index_=-1;
+		is_out_of_domain_=true;
 		return;
 	}
 	
-	// temp_current_voxel_index= get_current_mechanics_voxel_index();
+	// temp_current_voxel_index= current_mechanics_voxel_index();
 	// updated_current_mechanics_voxel_index=get_container()->underlying_mesh.nearest_voxel_index( position );
 	
 	// update mesh indices (if needed)
-	if(updated_current_mechanics_voxel_index!= get_current_mechanics_voxel_index())
+	if(updated_current_mechanics_voxel_index!= current_mechanics_voxel_index())
 	{
 		{
-			get_mechanics_environment().remove_agent_from_voxel(this, get_current_mechanics_voxel_index());
+			get_mechanics_environment().remove_agent_from_voxel(this, current_mechanics_voxel_index());
 			get_mechanics_environment().add_agent_to_voxel(this, updated_current_mechanics_voxel_index);
 		}
-		current_mechanics_voxel_index=updated_current_mechanics_voxel_index;
+		current_mechanics_voxel_index_=updated_current_mechanics_voxel_index;
 	}
 	
 	return; 
@@ -278,7 +273,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 		temp_r *= temp_r; // (1-d/R)^2 
 		
 		// add the relative pressure contribution 
-		simple_pressure += ( temp_r / simple_pressure_scale ); // New July 2017 
+		simple_pressure_ += ( temp_r / simple_pressure_scale ); // New July 2017 
 	}
 	
 	// August 2017 - back to the original if both have same coefficient 
@@ -307,8 +302,8 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 		
 		// August 2017 - back to the original if both have same coefficient 
 		// May 2022 - back to oriinal if both affinities are 1
-		int ii = find_cell_definition_index( this->get_type() ); 
-		int jj = find_cell_definition_index( other_agent->get_type() ); 
+		int ii = find_cell_definition_index( this->type() ); 
+		int jj = find_cell_definition_index( other_agent->type() ); 
 
 		double adhesion_ii = mechanics_data.cell_cell_adhesion_strength * mechanics_data.cell_adhesion_affinities[jj]; 
 		double adhesion_jj = other_agent->mechanics_data.cell_cell_adhesion_strength * other_agent->mechanics_data.cell_adhesion_affinities[ii]; 
@@ -319,7 +314,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 		
 		temp_r -= temp_a;
 
-		neighbors.push_back(other_agent->pOwner); // move here in 1.10.2 so non-adhesive cells also added. 
+		neighbors_.push_back(other_agent->pOwner); // move here in 1.10.2 so non-adhesive cells also added. 
 	}
 	/////////////////////////////////////////////////////////////////
 	if( fabs(temp_r) < 1e-16 )
@@ -329,7 +324,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 	// {
 	//	velocity[i] += displacement[i] * temp_r; 
 	// }
-	axpy( &(velocity) , temp_r , displacement ); 
+	axpy( &velocity_, temp_r, displacement ); 
 	
 	
 	// state.neighbors.push_back(other_agent); // new 1.8.0
@@ -384,23 +379,23 @@ void Mechanics_Agent::remove_self_from_all_neighbors( void )
 	Mechanics_Agent* pCell = this; 
 	// go through all neighbors (pN) of this (pC)
 
-	for( int j = 0 ; j < pCell->neighbors.size(); j++ )
+	for( int j = 0 ; j < pCell->neighbors_.size(); j++ )
 	{
-	 	Mechanics_Agent* pN = dynamic_cast<Mechanics_Agent*>(pCell->neighbors[j]->get_mechanics_implementation()); 
+	 	Mechanics_Agent* pN = dynamic_cast<Mechanics_Agent*>(pCell->neighbors_[j]->get_mechanics_implementation()); 
 
 		// for each pN, remove pC from list of neighbors 
 			// find pC in neighbors 
 
 
 			auto SearchResult = std::find( 
-				pN->neighbors.begin(),pN->neighbors.end(),pCell->pOwner );  		
+				pN->neighbors_.begin(),pN->neighbors_.end(),pCell->pOwner );  		
 
 			// if pC is indeed found, remove it  
 			// erase pC from neighbors 
-			if( SearchResult != pN->neighbors.end() )
+			if( SearchResult != pN->neighbors_.end() )
 			{
 				// if the target is found, set the appropriate rate 
-				pN->neighbors.erase( SearchResult ); 
+				pN->neighbors_.erase( SearchResult ); 
 			}
 			else
 			{ /* future error message */  }

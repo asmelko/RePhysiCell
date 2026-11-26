@@ -367,7 +367,7 @@ std::vector<std::string> cancer_immune_coloring_function( Cell* pCell )
 	// immune are black
 	std::vector< std::string > output( 4, "black" ); 
 	
-	if( pCell->get_type() == 1 )
+	if( pCell->type() == 1 )
 	{ 
 		output[0] = "lime";
 		output[1] = "lime";
@@ -423,7 +423,7 @@ std::vector<std::string> cancer_immune_coloring_function( Cell* pCell )
 void add_elastic_velocity( Cell* pActingOn, Cell* pAttachedTo , double elastic_constant )
 {
 	std::vector<double> displacement = pAttachedTo->position() - pActingOn->position(); 
-	axpy( &(pActingOn->velocity) , elastic_constant , displacement ); 
+	axpy( &(pActingOn->velocity()) , elastic_constant , displacement );
 	
 	return; 
 }
@@ -717,7 +717,7 @@ void adhesion_contact_function( Cell* pActingOn, Phenotype& pao, Cell* pAttached
 		return; 
 	}
 	
-	axpy( pActingOn->get_velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
+	axpy( pActingOn->velocity() , pao.mechanics.attachment_elastic_constant() , displacement ); 
 	
 	return; 
 }

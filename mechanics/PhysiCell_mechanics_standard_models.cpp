@@ -41,7 +41,7 @@ void Mechanics_Standard_Models::standard_add_basement_membrane_interactions( Cor
 	if( fabs( temp_r ) < 1e-16 )
 	{ return; }
 	
-	axpy( &( pCell->velocity ) , temp_r , pCell->displacement ); 
+	axpy( &( pCell->velocity_ ) , temp_r , pCell->displacement ); 
 	return;	
 }
 
@@ -64,7 +64,7 @@ void Mechanics_Standard_Models::standard_domain_edge_avoidance_interactions( Cor
 	if( fabs( temp_r ) < 1e-16 )
 	{ return; }
 	
-	axpy( &( pCell->velocity ) , temp_r , pCell->displacement ); 
+	axpy( &( pCell->velocity_ ) , temp_r , pCell->displacement ); 
 	return;
 }
 
@@ -297,16 +297,16 @@ void Mechanics_Standard_Models::standard_elastic_contact_function( Mechanics_Age
 	displacement -= to_vector3( pC1->position() ); 
 
 	// update May 2022 - effective adhesion 
-	int ii = find_cell_definition_index( pC1->get_type() ); 
-	int jj = find_cell_definition_index( pC2->get_type() ); 
+	int ii = find_cell_definition_index( pC1->type() ); 
+	int jj = find_cell_definition_index( pC2->type() ); 
 
 	double adhesion_ii = pC1->mechanics_data.attachment_elastic_constant * pC1->mechanics_data.cell_adhesion_affinities[jj]; 
 	double adhesion_jj = pC2->mechanics_data.attachment_elastic_constant * pC2->mechanics_data.cell_adhesion_affinities[ii]; 
 
 	double effective_attachment_elastic_constant = sqrt( adhesion_ii*adhesion_jj ); 
 
-	// axpy( &(pC1->velocity) , p1.mechanics.attachment_elastic_constant , displacement ); 
-	axpy( &(pC1->velocity) , effective_attachment_elastic_constant , displacement ); 
+	// axpy( &(pC1->velocity_) , p1.mechanics.attachment_elastic_constant , displacement ); 
+	axpy( &(pC1->velocity_) , effective_attachment_elastic_constant , displacement ); 
 	return; 
 }
 
@@ -319,14 +319,14 @@ void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest
 	displacement -= to_vector3( pC1->position() ); 
 
 	// update May 2022 - effective adhesion 
-	int ii = find_cell_definition_index( pC1->get_type() ); 
-	int jj = find_cell_definition_index( pC2->get_type() ); 
+	int ii = find_cell_definition_index( pC1->type() ); 
+	int jj = find_cell_definition_index( pC2->type() ); 
 
 	double adhesion_ii = pC1->mechanics_data.attachment_elastic_constant * pC1->mechanics_data.cell_adhesion_affinities[jj]; 
 	double adhesion_jj = pC2->mechanics_data.attachment_elastic_constant * pC2->mechanics_data.cell_adhesion_affinities[ii]; 
 
 	double effective_attachment_elastic_constant = sqrt( adhesion_ii*adhesion_jj ); 
-	// axpy( &(pC1->velocity) , effective_attachment_elastic_constant , displacement ); 
+	// axpy( &(pC1->velocity_) , effective_attachment_elastic_constant , displacement ); 
 
 	// have the adhesion strength taper away at this rest lenght
 	// set the rest length = confluent cell-cell spacing 
@@ -335,7 +335,7 @@ void Mechanics_Standard_Models::standard_elastic_contact_function_confluent_rest
 
 	double strength = ( norm(displacement) - rest_length )*effective_attachment_elastic_constant;
 	normalize( &displacement );
-	axpy( &(pC1->velocity) , strength , displacement ); 
+	axpy( &(pC1->velocity_) , strength , displacement ); 
 
 	return; 
 }
@@ -371,14 +371,14 @@ void Mechanics_Standard_Models::dynamic_spring_attachments( Mechanics_Agent* pCe
     double attachment_probability = pCell->mechanics_data.attachment_rate * dt; 
     bool done = false; 
     int j = 0; 
-    while( done == false && j < pCell->neighbors.size() )
+    while( done == false && j < pCell->neighbors_.size() )
     {
-        Mechanics_Agent* pTest = dynamic_cast<Mechanics_Agent*>(pCell->neighbors[j]->get_mechanics_implementation());
+        Mechanics_Agent* pTest = dynamic_cast<Mechanics_Agent*>(pCell->neighbors_[j]->get_mechanics_implementation());
 		if( pTest->spring_attachments.size() < pTest->mechanics_data.maximum_number_of_attachments )
 		{
 			// std::string search_string = "adhesive affinity to " + pTest->type_name; 
 			// double affinity = get_single_behavior( pCell , search_string );
-			double affinity = pCell->mechanics_data.cell_adhesion_affinities[cell_definition_indices_by_type[pTest->get_type()]];
+			double affinity = pCell->mechanics_data.cell_adhesion_affinities[cell_definition_indices_by_type[pTest->type()]];
 
             double prob = attachment_probability * affinity; 
             if( UniformRandom() <= prob )

@@ -112,107 +112,104 @@ public:
 
 	// ---- Mechanics_Agent_Interface -------------------------------------------
 
-	int get_type() const override
-	{ return pImpl->get_type(); }
+	int& type() override
+	{ return pImpl->type(); }
 
-	void set_type(int new_type) override
-	{ pImpl->set_type(new_type); }
+	double* velocity() override
+	{ return pImpl->velocity(); }
 
-	double* get_velocity() override
-	{ return pImpl->get_velocity(); }
+	double& radius() override
+	{ return pImpl->radius(); }
 
-	double& get_radius() override
-	{ return pImpl->get_radius(); }
+	bool& is_movable() override
+	{ return pImpl->is_movable(); }
 
-	bool& get_is_movable() override
-	{ return pImpl->get_is_movable(); }
+	bool& is_out_of_domain() override
+	{ return pImpl->is_out_of_domain(); }
 
-	bool& get_is_out_of_domain() override
-	{ return pImpl->get_is_out_of_domain(); }
+	std::vector<CoreEntityPIMPL*>& neighbors() override
+	{ return pImpl->neighbors(); }
 
-	std::vector<CoreEntityPIMPL*>& get_neighbors() override
-	{ return pImpl->get_neighbors(); }
+	double& cell_BM_adhesion_strength() override
+	{ return pImpl->cell_BM_adhesion_strength(); }
 
-	double& get_cell_BM_adhesion_strength() override
-	{ return pImpl->get_cell_BM_adhesion_strength(); }
+	double& cell_BM_repulsion_strength() override
+	{ return pImpl->cell_BM_repulsion_strength(); }
 
-	double& get_cell_BM_repulsion_strength() override
-	{ return pImpl->get_cell_BM_repulsion_strength(); }
+	bool& is_motile() override
+	{ return pImpl->is_motile(); }
 
-	bool& get_is_motile() override
-	{ return pImpl->get_is_motile(); }
+	double& persistence_time() override
+	{ return pImpl->persistence_time(); }
 
-	double& get_persistence_time() override
-	{ return pImpl->get_persistence_time(); }
+	double& migration_speed() override
+	{ return pImpl->migration_speed(); }
 
-	double& get_migration_speed() override
-	{ return pImpl->get_migration_speed(); }
+	double* migration_bias_direction() override
+	{ return pImpl->migration_bias_direction(); }
 
-	double* get_migration_bias_direction() override
-	{ return pImpl->get_migration_bias_direction(); }
+	double& migration_bias() override
+	{ return pImpl->migration_bias(); }
 
-	double& get_migration_bias() override
-	{ return pImpl->get_migration_bias(); }
+	double* motility_vector() override
+	{ return pImpl->motility_vector(); }
 
-	double* get_motility_vector() override
-	{ return pImpl->get_motility_vector(); }
+	bool& restrict_to_2d() override
+	{ return pImpl->restrict_to_2d(); }
 
-	bool& get_restrict_to_2d() override
-	{ return pImpl->get_restrict_to_2d(); }
+	int& chemotaxis_index() override
+	{ return pImpl->chemotaxis_index(); }
 
-	int& get_chemotaxis_index() override
-	{ return pImpl->get_chemotaxis_index(); }
+	int& chemotaxis_direction() override
+	{ return pImpl->chemotaxis_direction(); }
 
-	int& get_chemotaxis_direction() override
-	{ return pImpl->get_chemotaxis_direction(); }
+	double* chemotactic_sensitivities() override
+	{ return pImpl->chemotactic_sensitivities(); }
 
-	double* get_chemotactic_sensitivities() override
-	{ return pImpl->get_chemotactic_sensitivities(); }
+	double& cell_cell_adhesion_strength() override
+	{ return pImpl->cell_cell_adhesion_strength(); }
 
-	double& get_cell_cell_adhesion_strength() override
-	{ return pImpl->get_cell_cell_adhesion_strength(); }
+	double& cell_cell_repulsion_strength() override
+	{ return pImpl->cell_cell_repulsion_strength(); }
 
-	double& get_cell_cell_repulsion_strength() override
-	{ return pImpl->get_cell_cell_repulsion_strength(); }
+	double* cell_adhesion_affinities() override
+	{ return pImpl->cell_adhesion_affinities(); }
 
-	double* get_cell_adhesion_affinities() override
-	{ return pImpl->get_cell_adhesion_affinities(); }
+	double& relative_maximum_adhesion_distance() override
+	{ return pImpl->relative_maximum_adhesion_distance(); }
 
-	double& get_relative_maximum_adhesion_distance() override
-	{ return pImpl->get_relative_maximum_adhesion_distance(); }
+	int& maximum_number_of_attachments() override
+	{ return pImpl->maximum_number_of_attachments(); }
 
-	int& get_maximum_number_of_attachments() override
-	{ return pImpl->get_maximum_number_of_attachments(); }
+	double& attachment_elastic_constant() override
+	{ return pImpl->attachment_elastic_constant(); }
 
-	double& get_attachment_elastic_constant() override
-	{ return pImpl->get_attachment_elastic_constant(); }
+	double& attachment_rate() override
+	{ return pImpl->attachment_rate(); }
 
-	double& get_attachment_rate() override
-	{ return pImpl->get_attachment_rate(); }
+	double& detachment_rate() override
+	{ return pImpl->detachment_rate(); }
 
-	double& get_detachment_rate() override
-	{ return pImpl->get_detachment_rate(); }
+	double& simple_pressure() override
+	{ return pImpl->simple_pressure(); }
 
-	double& get_simple_pressure() override
-	{ return pImpl->get_simple_pressure(); }
+	double* previous_velocity() override
+	{ return pImpl->previous_velocity(); }
 
-	double* get_previous_velocity() override
-	{ return pImpl->get_previous_velocity(); }
+	std::vector<std::pair<CoreEntityPIMPL*, bool>>& springs() override
+	{ return pImpl->springs(); }
 
-	std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() override
-	{ return pImpl->get_springs(); }
+	double& relative_maximum_attachment_distance() override
+	{ return pImpl->relative_maximum_attachment_distance(); }
 
-	double& get_relative_maximum_attachment_distance() override
-	{ return pImpl->get_relative_maximum_attachment_distance(); }
+	double& relative_detachment_distance() override
+	{ return pImpl->relative_detachment_distance(); }
 
-	double& get_relative_detachment_distance() override
-	{ return pImpl->get_relative_detachment_distance(); }
+	double& maximum_attachment_rate() override
+	{ return pImpl->maximum_attachment_rate(); }
 
-	double& get_maximum_attachment_rate() override
-	{ return pImpl->get_maximum_attachment_rate(); }
-
-	int get_current_mechanics_voxel_index() override
-	{ return pImpl->get_current_mechanics_voxel_index(); }
+	int current_mechanics_voxel_index() override
+	{ return pImpl->current_mechanics_voxel_index(); }
 
 	void remove_self_from_all_neighbors() override
 	{ pImpl->remove_self_from_all_neighbors(); }

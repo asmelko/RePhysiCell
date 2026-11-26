@@ -277,7 +277,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 
 	// color live C 
 		
-	if( pCell->get_type() == A_type )
+	if( pCell->type() == A_type )
 	{
 		 output[0] = parameters.strings("A_color");  
 		 output[2] = parameters.strings("A_color");  
@@ -285,7 +285,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 	
 	// color live B
 
-	if( pCell->get_type() == B_type )
+	if( pCell->type() == B_type )
 	{
 		 output[0] = parameters.strings("B_color");  
 		 output[2] = parameters.strings("B_color");  
@@ -293,7 +293,7 @@ std::vector<std::string> regular_colors( Cell* pCell )
 	
 	// color live C
 
-	if( pCell->get_type() == C_type )
+	if( pCell->type() == C_type )
 	{
 		 output[0] = parameters.strings("C_color");  
 		 output[2] = parameters.strings("C_color");  
@@ -342,7 +342,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 
 	// color live A
 		
-	if( pCell->get_type() == A_type )
+	if( pCell->type() == A_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates()[nA] 
 			/ ( 0.001 + pCD_A->phenotype.secretion.secretion_rates()[nA] ) ;
@@ -355,7 +355,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 	
 	// color live B
 
-	if( pCell->get_type() == B_type )
+	if( pCell->type() == B_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates()[nB] 
 			/ ( 0.001 + pCD_B->phenotype.secretion.secretion_rates()[nB] ); 
@@ -367,7 +367,7 @@ std::vector<std::string> pseudo_fluorescence( Cell* pCell )
 	
 	// color live C
 
-	if( pCell->get_type() == C_type )
+	if( pCell->type() == C_type )
 	{
 		value = pCell->phenotype.secretion.secretion_rates()[nC] 
 			/ ( 0.001 + pCD_C->phenotype.secretion.secretion_rates()[nC] ); 
@@ -507,7 +507,7 @@ void A_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->get_simple_pressure(); 
+	double p = pCell->simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];
@@ -627,7 +627,7 @@ void B_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->get_simple_pressure(); 
+	double p = pCell->simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];
@@ -747,7 +747,7 @@ void C_phenotype( Cell* pCell, Phenotype& phenotype, double dt )
 	double B = pCell->nearest_density_vector()[nB];
 	double C = pCell->nearest_density_vector()[nC];
 	double R = pCell->nearest_density_vector()[nR];
-	double p = pCell->get_simple_pressure(); 
+	double p = pCell->simple_pressure(); 
 
 	// necrotic death rate 
 	static double base_necrosis_rate = pCD->phenotype.death.rates[nNecrosis];

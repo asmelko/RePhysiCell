@@ -19,7 +19,7 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
         Cell* pCell = (*all_agents)[i];
 		PhysiMeSS_Agent* agent = dynamic_cast<PhysiMeSS_Agent*>(pCell->get_mechanics_implementation()); 
 
-        if (pCell->functions.update_velocity != physimess_update_cell_velocity || agent->is_out_of_domain || !agent->is_movable)
+        if (pCell->functions.update_velocity != physimess_update_cell_velocity || agent->is_out_of_domain_ || !agent->is_movable_)
 			continue;
             
         double movement_threshold = pCell->custom_data["fibre_stuck_threshold"];
@@ -28,7 +28,7 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
             // Here I changed this, because here we don't have access to the old position, and I didn't want to track the old position
             // So I'm using the previous velocity, which is not exactly the same (because of Adams-Bashforth), but is a good proxy
             // if (dist(pCell->old_position, pCell->position()) < movement_threshold) {
-            if (norm(agent->previous_velocity)*mechanics_dt < movement_threshold) {
+            if (norm(agent->previous_velocity_)*mechanics_dt < movement_threshold) {
                 static_cast<PhysiMeSS_Cell*>(pCell)->get_physimess_agent()->stuck_counter++;
             } else {
                 static_cast<PhysiMeSS_Cell*>(pCell)->get_physimess_agent()->stuck_counter = 0;
@@ -40,8 +40,8 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
             pCell->functions.add_cell_basement_membrane_interactions(pCell, pCell->phenotype,dt);
         }
         
-        agent->simple_pressure = 0.0;
-        agent->neighbors.clear(); // new 1.8.0
+        agent->simple_pressure_ = 0.0;
+        agent->neighbors_.clear(); // new 1.8.0
         
         if (!isFibre(pCell)) {
             //First check the neighbors in my current voxel
@@ -106,11 +106,11 @@ void PhysiMeSS_Environment::compute_velocities(double dt)
                 << PhysiCell_globals.current_time << std::endl;*/
                 cellAgent->unstuck_counter++;
                 cellAgent->force_update_motility_vector(dt);
-                cellAgent->velocity += cellAgent->motility_data.motility_vector;
+                cellAgent->velocity_ += cellAgent->motility_data.motility_vector;
             }
             else {
                 cellAgent->update_motility_vector(dt);
-                cellAgent->velocity += cellAgent->motility_data.motility_vector;
+                cellAgent->velocity_ += cellAgent->motility_data.motility_vector;
             }
 
             if(cellAgent->unstuck_counter == unstuck_threshold+1){

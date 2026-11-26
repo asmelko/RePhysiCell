@@ -25,51 +25,50 @@ public:
 	// mech_agent_data — direct fields
 	// ========================================================================
 	
-	virtual int get_type() const = 0;
-	virtual void set_type(int new_type) = 0;
+	virtual int& type() = 0;
 
 	/** @brief Pointer to the start of this agent's velocity components. */
-	virtual double* get_velocity() = 0;
+	virtual double* velocity() = 0;
 
-	virtual double& get_radius() = 0;
+	virtual double& radius() = 0;
 
-	virtual bool& get_is_movable() = 0;
+	virtual bool& is_movable() = 0;
 
-	virtual bool& get_is_out_of_domain() = 0;
+	virtual bool& is_out_of_domain() = 0;
 
 	/** @brief Neighbor agent indices (mechanics voxel adjacency list). */
-	virtual std::vector<CoreEntityPIMPL*>& get_neighbors() = 0;
+	virtual std::vector<CoreEntityPIMPL*>& neighbors() = 0;
 
 	// ========================================================================
 	// base_membrane_data
 	// ========================================================================
 
-	virtual double& get_cell_BM_adhesion_strength() = 0;
-	virtual double& get_cell_BM_repulsion_strength() = 0;
+	virtual double& cell_BM_adhesion_strength() = 0;
+	virtual double& cell_BM_repulsion_strength() = 0;
 
 	// ========================================================================
 	// base_motility_data
 	// ========================================================================
 
-	virtual bool& get_is_motile() = 0;
-	virtual double& get_persistence_time() = 0;
-	virtual double& get_migration_speed() = 0;
+	virtual bool& is_motile() = 0;
+	virtual double& persistence_time() = 0;
+	virtual double& migration_speed() = 0;
 
 	/** @brief Pointer to the start of this agent's migration-bias-direction components. */
-	virtual double* get_migration_bias_direction() = 0;
+	virtual double* migration_bias_direction() = 0;
 
-	virtual double& get_migration_bias() = 0;
+	virtual double& migration_bias() = 0;
 
 	/** @brief Pointer to the start of this agent's motility-vector components. */
-	virtual double* get_motility_vector() = 0;
+	virtual double* motility_vector() = 0;
 
-	virtual bool& get_restrict_to_2d() = 0;
+	virtual bool& restrict_to_2d() = 0;
 
-	virtual int& get_chemotaxis_index() = 0;
-	virtual int& get_chemotaxis_direction() = 0;
+	virtual int& chemotaxis_index() = 0;
+	virtual int& chemotaxis_direction() = 0;
 
 	/** @brief Pointer to the start of this agent's chemotactic-sensitivity values (one per substrate). */
-	virtual double* get_chemotactic_sensitivities() = 0;
+	virtual double* chemotactic_sensitivities() = 0;
 
 	// virtual std::function<void(double*)>& get_update_migration_bias_direction() = 0;
 
@@ -77,36 +76,36 @@ public:
 	// base_potential_data
 	// ========================================================================
 
-	virtual double& get_cell_cell_adhesion_strength() = 0;
-	virtual double& get_cell_cell_repulsion_strength() = 0;
+	virtual double& cell_cell_adhesion_strength() = 0;
+	virtual double& cell_cell_repulsion_strength() = 0;
 
 	/** @brief Pointer to the start of this agent's per-cell-definition adhesion affinities. */
-	virtual double* get_cell_adhesion_affinities() = 0;
+	virtual double* cell_adhesion_affinities() = 0;
 
-	virtual double& get_relative_maximum_adhesion_distance() = 0;
+	virtual double& relative_maximum_adhesion_distance() = 0;
 
-	virtual int& get_maximum_number_of_attachments() = 0;
-	virtual double& get_attachment_elastic_constant() = 0;
-	virtual double& get_attachment_rate() = 0;
-	virtual double& get_detachment_rate() = 0;
+	virtual int& maximum_number_of_attachments() = 0;
+	virtual double& attachment_elastic_constant() = 0;
+	virtual double& attachment_rate() = 0;
+	virtual double& detachment_rate() = 0;
 
-	virtual double& get_simple_pressure() = 0;
+	virtual double& simple_pressure() = 0;
 
 	/** @brief Pointer to the start of this agent's previous-velocity components. */
-	virtual double* get_previous_velocity() = 0;
+	virtual double* previous_velocity() = 0;
 
 	/** @brief Spring-attachment partner indices for this agent. */
-	virtual std::vector<std::pair<CoreEntityPIMPL*, bool>>& get_springs() = 0;
+	virtual std::vector<std::pair<CoreEntityPIMPL*, bool>>& springs() = 0;
 	
-	virtual double& get_relative_maximum_attachment_distance() = 0; 
-	virtual double& get_relative_detachment_distance() = 0; 
-	virtual double& get_maximum_attachment_rate() = 0; 
+	virtual double& relative_maximum_attachment_distance() = 0; 
+	virtual double& relative_detachment_distance() = 0; 
+	virtual double& maximum_attachment_rate() = 0; 
 
 
 
 
 
-	virtual int get_current_mechanics_voxel_index() = 0;
+	virtual int current_mechanics_voxel_index() = 0;
 
 
 	virtual void remove_self_from_all_neighbors( void ) = 0; 

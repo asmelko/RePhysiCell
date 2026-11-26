@@ -41,7 +41,7 @@ void physimess_mechanics( double dt )
             Cell* pC = (*all_cells)[i];
             PhysiMeSS_Agent* agent = dynamic_cast<PhysiMeSS_Agent*>(pC->get_mechanics_implementation());
             agent->physimess_voxels.clear();
-            if( !pC->get_is_out_of_domain() )
+            if( !pC->is_out_of_domain() )
             {
                 agent->register_fibre_voxels();
             }
@@ -56,7 +56,7 @@ void physimess_mechanics( double dt )
             if (isFibre(pC)) {
                 dynamic_cast<PhysiMeSS_FibreAgent*>(agent)->fibres_crosslinkers.clear();
             }
-            if( !pC->get_is_out_of_domain() )
+            if( !pC->is_out_of_domain() )
             {
                 agent->find_agent_neighbors();
             }
@@ -68,7 +68,7 @@ void physimess_mechanics( double dt )
         {
             Cell* pC = (*all_cells)[i];
             PhysiMeSS_Agent* agent = dynamic_cast<PhysiMeSS_Agent*>(pC->get_mechanics_implementation());
-            if( !pC->get_is_out_of_domain() )
+            if( !pC->is_out_of_domain() )
             {
                 agent->deregister_fibre_voxels();
             }

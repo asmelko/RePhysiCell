@@ -227,7 +227,7 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 	
 	std::vector<std::string> output = false_cell_coloring_cytometry(pCell); 
 		
-	if( pCell->phenotype.death.dead == false && pCell->get_type() == 1 )
+	if( pCell->phenotype.death.dead == false && pCell->type() == 1 )
 	{
 		 output[0] = "black"; 
 		 output[2] = "black"; 
@@ -257,7 +257,7 @@ std::vector<std::string> viral_coloring_function( Cell* pCell )
 		 return output; 
 	}
 	
-	if( pCell->get_type() != pMacrophage->type )
+	if( pCell->type() != pMacrophage->type )
 	{
 		output[0] = "blue"; 
 		output[2] = "darkblue"; 
@@ -306,7 +306,7 @@ std::vector<std::string> viral_coloring_function_bar( Cell* pCell )
 		 return output; 
 	}
 	
-	if( pCell->get_type() != pMacrophage->type )
+	if( pCell->type() != pMacrophage->type )
 	{
 		output[0] = "blue"; 
 		output[2] = "darkblue"; 
@@ -367,7 +367,7 @@ void macrophage_function( Cell* pCell, Phenotype& phenotype, double dt )
 	{
 		pTestCell = neighbors[n]; 
 		// if it is not me and not a macrophage 
-		if( pTestCell != pCell && pTestCell->get_type() != pMacrophage->type )
+		if( pTestCell != pCell && pTestCell->type() != pMacrophage->type )
 		{
 			// calculate distance to the cell 
 			std::vector<double> displacement = to_vector3(pTestCell->position());
@@ -496,8 +496,8 @@ void avoid_boundaries( Cell* pCell )
 		int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 		for (int i=0; i < dims; i++ )
 		{
-			pCell->get_velocity()[i] = pCell->position()[i]; // move towards origin
-			pCell->get_velocity()[i] *= avoid_speed; // move towards origin
+			pCell->velocity()[i] = pCell->position()[i]; // move towards origin
+			pCell->velocity()[i] *= avoid_speed; // move towards origin
 		}
 	}
 	

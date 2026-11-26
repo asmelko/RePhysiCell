@@ -360,7 +360,7 @@ Cell::Cell() : CoreEntityPIMPL(CoreImplementation::get_instance()->create_core_e
 {
 	// use the cell defaults; 
 	
-	set_type(cell_defaults.type); 
+	type() = cell_defaults.type;
 	type_name = cell_defaults.name; 
 	
 	custom_data = cell_defaults.custom_data; 
@@ -395,7 +395,7 @@ Cell::~Cell()
 	if( result != std::end(*all_cells) )
 	{
 		std::cout << "Warning: Cell was never removed from data structure " << std::endl ; 
-		std::cout << "I am of type " << this->get_type() << " at " << this->position() << std::endl; 
+		std::cout << "I am of type " << this->type() << " at " << this->position() << std::endl; 
 
 		int temp_index = -1; 
 		bool found = false; 
@@ -599,9 +599,9 @@ Cell* Cell::divide( )
 	//(If the child cell is outside of the boundaries, that has been taken care of in the assign_position function.)
 	if( !get_container()->get_underlying_mesh().is_position_valid(position()[0], position()[1], position()[2]))
 	{
-		get_is_out_of_domain() = true;
+		is_out_of_domain() = true;
 		is_active() = false;
-		get_is_movable() = false;
+		is_movable() = false;
 	}	
 	 
 	update_voxel_in_container();
@@ -653,18 +653,18 @@ void Cell::set_total_volume(double volume)
 	
 	phenotype.geometry.update( this, phenotype, 0.0 ); 
 	// phenotype.update_radius();
-	//if( get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()] < 
+	//if( get_container()->max_cell_interactive_distance_in_voxel[current_mechanics_voxel_index()] < 
 	//	phenotype.geometry.radius() * parameters.max_interaction_distance_factor )
 
     	
 	// Here the current mechanics voxel index may not be initialized, when position is still unknown. 
-	if (get_current_mechanics_voxel_index() >= 0)
+	if (current_mechanics_voxel_index() >= 0)
     {
-        if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
+        if( get_container()->get_max_cell_interactive_distance_in_voxel()[current_mechanics_voxel_index()] < 
             phenotype.geometry.radius() * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
-            // get_container()->max_cell_interactive_distance_in_voxel[get_current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
-            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius()
+            // get_container()->max_cell_interactive_distance_in_voxel[current_mechanics_voxel_index()]= phenotype.geometry.radius()*parameters.max_interaction_distance_factor;
+            get_container()->get_max_cell_interactive_distance_in_voxel()[current_mechanics_voxel_index()] = phenotype.geometry.radius()
                 * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
@@ -769,7 +769,7 @@ void Cell::die()
 void Cell::copy_data(Cell* copy_me)
 {
 	// phenotype=copyMe->phenotype; //it is taken care in set_phenotype
-	set_type(copy_me->get_type()); 
+	type() = copy_me->type();
 	type_name = copy_me->type_name; 
 	
 	custom_data = copy_me->custom_data; 
@@ -778,7 +778,7 @@ void Cell::copy_data(Cell* copy_me)
 	int dims = get_microenvironment_i()->simulate_2D() ? 2 : 3;
 	
 	for ( int i = 0 ; i < dims ; i++ )
-	{ get_velocity()[i] = copy_me->get_velocity()[i]; }
+	{ velocity()[i] = copy_me->velocity()[i]; }
 	
 	return; 
 }
@@ -824,7 +824,7 @@ Cell* create_cell( Cell_Definition& cd )
 	Cell* pNew = create_cell(cd.functions.instantiate_cell); 
 	
 	// use the cell defaults; 
-	pNew->set_type(cd.type); 
+	pNew->type() = cd.type;
 	pNew->type_name = cd.name; 
 	
 	pNew->custom_data = cd.custom_data; 
@@ -835,8 +835,8 @@ Cell* create_cell( Cell_Definition& cd )
 	if (pNew->phenotype.intracellular)
 		pNew->phenotype.intracellular->start();
 
-	pNew->get_is_movable() = cd.is_movable; //  true;
-	pNew->get_is_out_of_domain() = false;
+	pNew->is_movable() = cd.is_movable; //  true;
+	pNew->is_out_of_domain() = false;
 	
 	pNew->assign_orientation();
 	
@@ -852,7 +852,7 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	Molecular cell_molecular = phenotype.molecular;
 	Custom_Cell_Data cell_custom_data = custom_data;
 	// use the cell defaults; 
-	set_type(cd.type); 
+	type() = cd.type;
 	type_name = cd.name; 
 	
 	custom_data = cd.custom_data; // this is kinda risky since users may want to be updating custom_data throughout
@@ -895,12 +895,12 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 	*/
 
 	// Here the current mechanics voxel index may not be initialized, when position is still unknown. 
-	if (get_current_mechanics_voxel_index() >= 0)
+	if (current_mechanics_voxel_index() >= 0)
     {
-        if( get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] < 
+        if( get_container()->get_max_cell_interactive_distance_in_voxel()[current_mechanics_voxel_index()] < 
             phenotype.geometry.radius() * phenotype.mechanics.relative_maximum_adhesion_distance() )
         {
-            get_container()->get_max_cell_interactive_distance_in_voxel()[get_current_mechanics_voxel_index()] = phenotype.geometry.radius()
+            get_container()->get_max_cell_interactive_distance_in_voxel()[current_mechanics_voxel_index()] = phenotype.geometry.radius()
                 * phenotype.mechanics.relative_maximum_adhesion_distance();
         }
 	}
@@ -1052,7 +1052,7 @@ void Cell::ingest_cell( Cell* pCell_to_eat )
 		pCell_to_eat->functions.volume_update_function = NULL; 
 
 		// set cell as unmovable and non-secreting 
-		pCell_to_eat->get_is_movable() = false; 
+		pCell_to_eat->is_movable() = false; 
 		pCell_to_eat->is_active() = false;
 
 		// absorb all the volume(s)
@@ -1312,7 +1312,7 @@ void Cell::fuse_cell( Cell* pCell_to_fuse )
 		// pCell_to_eat->remove_all_attached_cells();
 		
 		// set cell as unmovable and non-secreting 
-		pCell_to_fuse->get_is_movable() = false; 
+		pCell_to_fuse->is_movable() = false; 
 		pCell_to_fuse->is_active() = false;
 
 	}
@@ -1356,7 +1356,7 @@ void Cell::lyse_cell( void )
 	set_total_volume( 0.0 );
 
 	// set cell as unmovable and non-secreting 
-	get_is_movable() = false; 
+	is_movable() = false; 
 	is_active() = false;
 
 	return; 
@@ -3066,22 +3066,22 @@ void Cell::remove_all_attached_cells( void )
 
 int Cell::get_spring_attachments_count()
 {
-	return get_springs().size();
+	return springs().size();
 }
 
 Cell* Cell::get_spring_attachment( int index )
 {
-	return static_cast<Cell*>(get_springs()[index].first);
+	return static_cast<Cell*>(springs()[index].first);
 }
 
 int Cell::get_neighbors_count()
 {
-	return get_neighbors().size();
+	return neighbors().size();
 }
 
 Cell* Cell::get_neighbor( int index )
 {
-	return static_cast<Cell*>(get_neighbors()[index]);
+	return static_cast<Cell*>(neighbors()[index]);
 }
 
 bool Cell::assign_position(double x, double y, double z)

@@ -253,7 +253,7 @@ void custom_function( Cell* pCell, Phenotype& phenotype , double dt )
 	int ecm_index = BioFVM::microenvironment.find_density_index("ecm");
 	if ( ecm_index >= 0 ){
 		add_ecm_interaction( pCell, ecm_index, pCell->get_current_voxel_index() );
-		//add_TGFbeta_interaction(pCell, pCell->get_current_mechanics_voxel_index());
+		//add_TGFbeta_interaction(pCell, pCell->current_mechanics_voxel_index());
 		std::vector<int>::iterator neighbor_voxel_index;
 		std::vector<int>::iterator neighbor_voxel_index_end = 
 		microenvironment.mesh.moore_connected_voxel_indices[pCell->get_current_voxel_index()].end();
@@ -375,7 +375,7 @@ void add_ecm_interaction(Cell* pC, int index_ecm, int index_voxel )
 			return;
 		tmp_r/=distance;
 
-		axpy( pC->get_velocity() , tmp_r , displacement ); 
+		axpy( pC->velocity() , tmp_r , displacement ); 
 	}
 
 }

@@ -193,18 +193,18 @@ int main( int argc, char* argv[] )
 	pCell1->functions.update_velocity(pCell1,pCell1->phenotype, dt);
 	pCell2->functions.update_velocity(pCell2,pCell2->phenotype, dt);
 
-	pCell1->get_previous_velocity()[0] = pCell1->get_velocity()[0];
-	pCell1->get_previous_velocity()[1] = pCell1->get_velocity()[1];
-	pCell1->get_previous_velocity()[2] = pCell1->get_velocity()[2];
+	pCell1->previous_velocity()[0] = pCell1->velocity()[0];
+	pCell1->previous_velocity()[1] = pCell1->velocity()[1];
+	pCell1->previous_velocity()[2] = pCell1->velocity()[2];
 
-	pCell2->get_previous_velocity()[0] = pCell2->get_velocity()[0];
-	pCell2->get_previous_velocity()[1] = pCell2->get_velocity()[1];
-	pCell2->get_previous_velocity()[2] = pCell2->get_velocity()[2];
+	pCell2->previous_velocity()[0] = pCell2->velocity()[0];
+	pCell2->previous_velocity()[1] = pCell2->velocity()[1];
+	pCell2->previous_velocity()[2] = pCell2->velocity()[2];
 	
 	for(int i=0;i<10;i++)
 	{
-		{ const auto& p = pCell1->position(); double* v = pCell1->get_velocity(); pCell1->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
-		{ const auto& p = pCell2->position(); double* v = pCell2->get_velocity(); pCell2->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
+		{ const auto& p = pCell1->position(); double* v = pCell1->velocity(); pCell1->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
+		{ const auto& p = pCell2->position(); double* v = pCell2->velocity(); pCell2->assign_position( p[0]+(dt/10.0)*v[0], p[1]+(dt/10.0)*v[1], p[2]+(dt/10.0)*v[2] ); }
 		t+=dt/10.0;
 	}
 	std::cout<<"time: "<< t<<std::endl;

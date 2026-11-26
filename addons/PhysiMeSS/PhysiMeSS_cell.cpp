@@ -71,7 +71,7 @@ void PhysiMeSS_CellAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* pFibre
         temp_r *= temp_r; // (1-d/R)^2
 
         // add the relative pressure contribution NOT SURE IF NEEDED
-        simple_pressure += (temp_r / simple_pressure_scale);
+        simple_pressure_ += (temp_r / simple_pressure_scale);
 
         double effective_repulsion = sqrt(mechanics_data.cell_cell_repulsion_strength *
                                          pFibre->mechanics_data.cell_cell_repulsion_strength);
@@ -81,13 +81,13 @@ void PhysiMeSS_CellAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* pFibre
     if (fabs(temp_r) < 1e-16) { return; }
     temp_r /= distance;
 
-    axpy(&velocity, temp_r, displacement);
+    axpy(&velocity_, temp_r, displacement);
 
     //Then additional repulsion/adhesion as per Cicely's code
     double fibre_adhesion = 0;
     double fibre_repulsion = 0;
     if (distance < max_interactive_distance) {
-        const std::vector<double> previous_velocity = this->previous_velocity;
+        const std::vector<double> previous_velocity = this->previous_velocity_;
         double cell_velocity_dot_fibre_direction = 0.;
         for (unsigned int j = 0; j < 3; j++) {
             cell_velocity_dot_fibre_direction += pFibre->get_cell()->state.orientation[j] * previous_velocity[j];
@@ -109,8 +109,8 @@ void PhysiMeSS_CellAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* pFibre
 
         fibre_repulsion = pCell->custom_data["vel_contact"] * xiq;
 
-        axpy(&velocity, fibre_adhesion, pFibre->get_cell()->state.orientation);
-        naxpy(&velocity, fibre_repulsion, previous_velocity);
+        axpy(&velocity_, fibre_adhesion, pFibre->get_cell()->state.orientation);
+        naxpy(&velocity_, fibre_repulsion, previous_velocity);
 
         degrade_fibre(pFibre);
     }

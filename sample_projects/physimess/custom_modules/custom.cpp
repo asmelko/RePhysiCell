@@ -277,7 +277,7 @@ void setup_tissue( void )
 std::vector<std::string> paint_by_cell_pressure( Cell* pCell ){
 
 	std::vector< std::string > output( 0);
-	int color = (int) round( ((pCell->get_simple_pressure()) / 10) * 255 );
+	int color = (int) round( ((pCell->simple_pressure()) / 10) * 255 );
 	if(color > 255){
 		color = 255;
 	}
@@ -342,7 +342,7 @@ void PhysiMeSS_CellAgent_Custom_Degrade::degrade_fibre(PhysiMeSS_FibreAgent* pFi
         double stuck_threshold = pCell->custom_data["fibre_stuck_time"];
         double pressure_threshold = pCell->custom_data["fibre_pressure_threshold"];
         if (pCell->custom_data["fibre_degradation"] > 0.5 && (stuck_counter >= stuck_threshold
-                                                        || get_simple_pressure() > pressure_threshold)) {
+                                                        || simple_pressure() > pressure_threshold)) {
             // if (stuck_counter >= stuck_threshold){
             //     std::cout << "Cell " << ID << " is stuck at time " << PhysiCell::PhysiCell_globals.current_time
             //                 << " near fibre " << pFibre->ID  << std::endl;;
@@ -356,8 +356,8 @@ void PhysiMeSS_CellAgent_Custom_Degrade::degrade_fibre(PhysiMeSS_FibreAgent* pFi
             if (dotproduct >= 0) {
                 double rand_degradation = PhysiCell::UniformRandom();
                 double prob_degradation = pCell->custom_data["fibre_degradation_rate"];
-                if (get_simple_pressure() > pressure_threshold){
-                    prob_degradation *= get_simple_pressure();
+                if (simple_pressure() > pressure_threshold){
+                    prob_degradation *= simple_pressure();
                 }
                 if (rand_degradation <= prob_degradation) {
                     //std::cout << " --------> fibre " << (*other_agent).ID << " is flagged for degradation " << std::endl;
