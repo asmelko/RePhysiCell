@@ -9,8 +9,8 @@
 using namespace PhysiCell;
 using namespace BioFVM;
 
-PhysiMeSS_CellAgent::PhysiMeSS_CellAgent(Cell* pCell)
-    : PhysiMeSS_Agent(pCell)
+PhysiMeSS_CellAgent::PhysiMeSS_CellAgent(Cell* pCell, std::vector<double>& position)
+    : PhysiMeSS_Agent(pCell, position)
 {
     stuck_counter = 0;
     unstuck_counter = 0;
@@ -20,7 +20,7 @@ PhysiMeSS_CellAgent::PhysiMeSS_CellAgent(Cell* pCell)
 void PhysiMeSS_CellAgent::register_fibre_voxels()
 {
     //a cell will be in one voxel
-    int voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(position());
+    int voxel = physimess_environment.mechanics_mesh.nearest_voxel_index(position);
     physimess_voxels.push_back(voxel);
 
 }
@@ -36,7 +36,7 @@ void PhysiMeSS_CellAgent::add_potentials_from_fibre(PhysiMeSS_FibreAgent* pFibre
 {
     Cell* pCell = get_cell();
     double distance = 0.0;
-    pFibre->nearest_point_on_fibre(to_vector3(position()), displacement);
+    pFibre->nearest_point_on_fibre(position, displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -121,7 +121,7 @@ void PhysiMeSS_CellAgent::degrade_fibre(PhysiMeSS_FibreAgent* pFibre)
 {
     Cell* pCell = get_cell();
     double distance = 0.0;
-    pFibre->nearest_point_on_fibre(to_vector3(position()), displacement);
+    pFibre->nearest_point_on_fibre(position, displacement);
     for (int index = 0; index < 3; index++) {
         distance += displacement[index] * displacement[index];
     }
@@ -202,7 +202,8 @@ PhysiMeSS_Cell::PhysiMeSS_Cell()
     : Cell()
 {
     // Swap the mechanics agent of the core entity from the default Mechanics_Agent to PhysiMeSS_CellAgent
-    static_cast<PhysiCell::LegacyCoreEntity*>(get_core_entity())->set_mechanics_agent(std::make_unique<PhysiMeSS_CellAgent>(this));
+    auto* core_entity = static_cast<PhysiCell::LegacyCoreEntity*>(get_core_entity());
+    core_entity->set_mechanics_agent(std::make_unique<PhysiMeSS_CellAgent>(this, core_entity->position_vector()));
 }
 
 PhysiMeSS_CellAgent* PhysiMeSS_Cell::get_physimess_agent() const

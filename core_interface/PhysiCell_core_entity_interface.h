@@ -16,8 +16,13 @@ namespace PhysiCell
 class CoreEntity :  public BioFVM::Basic_Agent_Interface, public Mechanics_Agent_Interface
 {
 public:
-    /// The single source of truth for the position of the entity, see Basic_Agent_Interface::position().
-    double* position() override = 0;
+    /**
+     * @brief Pointer to the entity's 3 position coordinates {x, y, z}.
+     *
+     * The storage is owned by the implementation and may be relocated when agents
+     * are added or removed, so the pointer must not be kept across those operations.
+     */
+    virtual double* position() = 0;
 
     /**
      * @brief The object implementing the mechanics interface, for implementation-specific downcasts.

@@ -6,8 +6,8 @@
 
 using namespace PhysiCell;
 
-PhysiMeSS_Agent::PhysiMeSS_Agent(Cell* pCell)
-    : Mechanics_Agent(pCell)
+PhysiMeSS_Agent::PhysiMeSS_Agent(Cell* pCell, std::vector<double>& position)
+    : Mechanics_Agent(pCell, position)
 {
     physimess_neighbors.clear();
     physimess_voxels.clear();

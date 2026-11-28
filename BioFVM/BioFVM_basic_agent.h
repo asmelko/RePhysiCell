@@ -70,11 +70,8 @@ class Basic_Agent final : public Basic_Agent_Interface
 	bool volume_is_changed;
 	int current_voxel_index;
 
-	// Non-owning pointer to the first of the 3 position coordinates.
-	// Points to default_position by default; rebound to external storage
-	// (e.g. the storage of a core entity) via bind_position(). The storage must
-	// stay at the same address for the lifetime of the agent.
-	double* position_ptr;
+	// The vector must outlive the agent and retain at least three coordinates.
+	std::vector<double>& position;
 	
  protected:
 	std::vector<double> cell_source_sink_solver_temp1;
@@ -118,12 +115,6 @@ class Basic_Agent final : public Basic_Agent_Interface
 	
 	bool assign_position(double x, double y, double z);
 	bool assign_position(std::vector<double> new_position);
-	double* position() override;
-
-	void bind_position(double* pos);
-
-	// Owned fallback used when no external position storage is supplied
-	std::vector<double> default_position = std::vector<double>(3, 0.0);
 
 	void update_position( double dt );
 	
@@ -139,7 +130,7 @@ class Basic_Agent final : public Basic_Agent_Interface
 	double* fraction_released_at_death() override;
 	double* fraction_transferred_when_ingested() override;
 	
-	Basic_Agent(); 
+	explicit Basic_Agent(std::vector<double>& position);
 	virtual ~Basic_Agent(){};
 	// simulate secretion and uptake at the nearest voxel at the indicated microenvironment.
 	// if no microenvironment indicated, use the currently selected microenvironment. 

@@ -50,6 +50,8 @@
 #include "BioFVM_agent_container.h"
 #include "BioFVM_vector.h" 
 
+#include <stdexcept>
+
 namespace BioFVM{
 
 
@@ -60,8 +62,12 @@ void reset_max_basic_agent_ID( void )
 	max_basic_agent_ID = 0;
 }
 
-Basic_Agent::Basic_Agent()
+Basic_Agent::Basic_Agent(std::vector<double>& position) : position(position)
 {
+	if (position.size() < 3)
+	{
+		throw std::invalid_argument("Basic_Agent requires at least three position coordinates");
+	}
 	//give the agent a unique ID  
 	ID_ = max_basic_agent_ID; //
 	max_basic_agent_ID++; 
@@ -69,8 +75,6 @@ Basic_Agent::Basic_Agent()
 	is_active_=true;
 	
 	volume = 1.0; 
-
-	position_ptr = default_position.data();
 
 	// link into the microenvironment, if one is defined 
 	secretion_rates_= std::vector<double>(0);
@@ -106,9 +110,9 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 		// std::cout<<"Error: the new position for agent "<< ID_ << " is invalid: "<<x<<","<<y<<","<<"z"<<std::endl;
 		return false;
 	}
-	position_ptr[0]=x;
-	position_ptr[1]=y;
-	position_ptr[2]=z;
+	position[0]=x;
+	position[1]=y;
+	position[2]=z;
 	update_voxel_index();
 	
 	// make sure the agent is not already registered
@@ -118,13 +122,13 @@ bool Basic_Agent::assign_position(double x, double y, double z)
 
 void Basic_Agent::update_voxel_index()
 {
-	if( !get_microenvironment()->mesh.is_position_valid(position_ptr[0],position_ptr[1],position_ptr[2]))
+	if( !get_microenvironment()->mesh.is_position_valid(position[0],position[1],position[2]))
 	{	
 		current_voxel_index=-1;
 		is_active_=false;
 		return;
 	}
-	current_voxel_index= microenvironment->nearest_voxel_index( position_ptr );
+	current_voxel_index= microenvironment->nearest_voxel_index( position.data() );
 }
 
 int mycount = 0; 
@@ -271,16 +275,6 @@ double& Basic_Agent::get_total_volume()
 }
 
 // Implementation of interface methods
-
-double* Basic_Agent::position()
-{
-	return position_ptr;
-}
-
-void Basic_Agent::bind_position(double* pos)
-{
-	position_ptr = pos;
-}
 
 int& Basic_Agent::ID()
 {

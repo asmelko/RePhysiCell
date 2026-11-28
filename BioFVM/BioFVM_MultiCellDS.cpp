@@ -922,7 +922,7 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 		// storing data as cols 
 		for( int i=0; i < number_of_data_entries ; i++ )
 		{
-			auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
+			auto* agent = (*cells)[i];
 			double ID_temp = (double) agent->ID();
 			fwrite( (char*) &( ID_temp ) , sizeof(double) , 1 , fp ); 
 
@@ -968,7 +968,7 @@ void add_BioFVM_agents_to_open_xml_pugi( pugi::xml_document& xml_dom, std::strin
 	root = node; 
 	for( unsigned int i=0; i < cells->size(); i++ )
 	{
-		auto* agent = static_cast<Basic_Agent_Interface*>((*cells)[i]);
+		auto* agent = (*cells)[i];
 		node = node.append_child( "cell" ); 
 		attrib = node.append_attribute( "ID" ); 
 		attrib.set_value( agent->ID() );

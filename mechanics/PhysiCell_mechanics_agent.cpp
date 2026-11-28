@@ -8,18 +8,23 @@
 
 #include "PhysiCell_mechanics_functions.h"
 
+#include <stdexcept>
+
 using namespace BioFVM;
 
 namespace PhysiCell {
 
-Mechanics_Agent::Mechanics_Agent(Cell* pCell) : functions(pCell) 
+Mechanics_Agent::Mechanics_Agent(Cell* pCell, std::vector<double>& position)
+	: position(position), functions(pCell)
 {
+	if (position.size() < 3)
+	{
+		throw std::invalid_argument("Mechanics_Agent requires at least three position coordinates");
+	}
 	pOwner = pCell;
 	velocity_.resize(3, 0.0);
 	previous_velocity_.resize(3, 0.0);
 	neighbors_.clear();
-
-	position_ptr = default_position.data();
 
 	mechanics_data.sync_to_cell_definitions();
 	motility_data.sync_to_current_microenvironment();
@@ -89,20 +94,15 @@ bool Mechanics_Agent::assign_position(const std::vector<double>& new_position)
 	return assign_position(new_position[0], new_position[1], new_position[2]);
 }
 
-void Mechanics_Agent::bind_position(double* pos)
-{
-	position_ptr = pos;
-}
-
 bool Mechanics_Agent::assign_position(double x, double y, double z)
 {
-	position_ptr[0] = x;
-	position_ptr[1] = y;
+	position[0] = x;
+	position[1] = y;
 	if ( !get_microenvironment_i()->simulate_2D() )
-	{ position_ptr[2] = z; }
+	{ position[2] = z; }
 	
 	// update current_mechanics_voxel_index
-	current_mechanics_voxel_index_= get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position_ptr );
+	current_mechanics_voxel_index_= get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position.data() );
 
     // Since it is most likely our first position, we update the max_cell_interactive_distance_in_voxel
 	// which was not initialized at cell creation
@@ -156,7 +156,7 @@ void Mechanics_Agent::update_position( double dt )
 	// std::vector<double> old_position = position;
 	for ( int i = 0 ; i < dims ; i++ )
 	{
-		position_ptr[i] +=
+		position[i] +=
 			( d1 * velocity()[i] + d2 * previous_velocity()[i] );
 	}
 	// overwrite previous_velocity for future use 
@@ -167,9 +167,9 @@ void Mechanics_Agent::update_position( double dt )
 	previous_velocity_ = velocity_; 
 	
 	velocity_[0]=0; velocity_[1]=0; velocity_[2]=0;
-	if(get_mechanics_environment().mechanics_mesh.is_position_valid(position_ptr[0],position_ptr[1],position_ptr[2]))
+	if(get_mechanics_environment().mechanics_mesh.is_position_valid(position[0],position[1],position[2]))
 	{
-		updated_current_mechanics_voxel_index=get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position_ptr );
+		updated_current_mechanics_voxel_index=get_mechanics_environment().mechanics_mesh.nearest_voxel_index( position.data() );
 	}
 	else
 	{
@@ -240,7 +240,7 @@ void Mechanics_Agent::add_potentials(Mechanics_Agent* other_agent)
 	double distance = 0; 
 	for( int i = 0 ; i < 3 ; i++ ) 
 	{ 
-		displacement[i] = position_ptr[i] - (*other_agent).position_ptr[i]; 
+		displacement[i] = position[i] - (*other_agent).position[i];
 		distance += displacement[i] * displacement[i]; 
 	}
 	// Make sure that the distance is not zero

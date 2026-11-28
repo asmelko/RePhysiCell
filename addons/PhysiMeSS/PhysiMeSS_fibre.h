@@ -30,7 +30,7 @@ public:
     int X_crosslink_count;
     int fail_count;
 
-    explicit PhysiMeSS_FibreAgent(PhysiCell::Cell* pCell);
+    PhysiMeSS_FibreAgent(PhysiCell::Cell* pCell, std::vector<double>& position);
     virtual ~PhysiMeSS_FibreAgent() {};
     void assign_fibre_orientation() ;
 

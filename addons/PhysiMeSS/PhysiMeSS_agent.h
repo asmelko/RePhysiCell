@@ -23,7 +23,7 @@ class PhysiMeSS_Agent : public PhysiCell::Mechanics_Agent
     std::vector<PhysiMeSS_Agent*> physimess_neighbors;
     std::list<int> physimess_voxels;
 
-    explicit PhysiMeSS_Agent(PhysiCell::Cell* pCell);
+    PhysiMeSS_Agent(PhysiCell::Cell* pCell, std::vector<double>& position);
     virtual ~PhysiMeSS_Agent(){};
 
     virtual void register_fibre_voxels() {};

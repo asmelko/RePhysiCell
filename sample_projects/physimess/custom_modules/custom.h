@@ -100,7 +100,7 @@ Cell* instantiate_physimess_cell_custom_degrade();
 class PhysiMeSS_CellAgent_Custom_Degrade : public PhysiMeSS_CellAgent
 {
   public:  
-  explicit PhysiMeSS_CellAgent_Custom_Degrade(PhysiCell::Cell* pCell);
+  PhysiMeSS_CellAgent_Custom_Degrade(PhysiCell::Cell* pCell, std::vector<double>& position);
   virtual ~PhysiMeSS_CellAgent_Custom_Degrade() = default;
   void degrade_fibre(PhysiMeSS_FibreAgent* pFibre);
 };

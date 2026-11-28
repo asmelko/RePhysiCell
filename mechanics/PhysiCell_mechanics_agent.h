@@ -170,21 +170,17 @@ public:
 	double& maximum_attachment_rate() override
 	{ return mechanics_data.maximum_attachment_rate; }
 
-	Mechanics_Agent(Cell* pCell);
+	Mechanics_Agent(Cell* pCell, std::vector<double>& position);
 
-	// Non-owning pointer to the canonical position storage.
-	// Points to default_position unless rebound by the owning core entity.
-	// The storage must stay at the same address for the lifetime of the agent.
-	double* position_ptr = nullptr;
+private:
 
-	void bind_position(double* pos);
+public:
+	// The vector must outlive the agent and retain at least three coordinates.
+	std::vector<double>& position;
 
-	double* position() const
-	{ return position_ptr; }
 
-	// Owned fallback used when no external position storage is supplied
-	std::vector<double> default_position = std::vector<double>(3, 0.0);
-
+	bool uses_position(const std::vector<double>& position) const
+	{ return &position == &position; }
 
 	CoreEntityPIMPL* pOwner = nullptr;
 

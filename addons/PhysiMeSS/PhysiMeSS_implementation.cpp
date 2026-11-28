@@ -26,5 +26,7 @@ CoreEntity* PhysiMeSS_core_implementation::create_core_entity(Cell* pCell)
 {
     // the actual agent type is allocated in the Cell subclass (PhysiMeSS_Cell or PhysiMeSS_Fibre) constructor
     // lets just allocate a generic PhysiMeSS_Agent here to satisfy the interface
-    return new LegacyCoreEntity(std::make_unique<PhysiMeSS_Agent>(pCell));
+    return new LegacyCoreEntity([pCell](std::vector<double>& position) {
+        return std::make_unique<PhysiMeSS_Agent>(pCell, position);
+    });
 }

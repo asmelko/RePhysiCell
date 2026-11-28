@@ -188,17 +188,17 @@ void mechanics_environment::remove_agent_from_voxel(
 
 int mechanics_environment::find_escaping_face_index(Mechanics_Agent* agent)
 {
-	if(agent->position()[0] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
+	if(agent->position[0] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_x_index])
 	{ return PhysiCell_constants::mesh_lx_face_index; }
-	if(agent->position()[0] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
+	if(agent->position[0] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_x_index])
 	{ return PhysiCell_constants::mesh_ux_face_index; }
-	if(agent->position()[1] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
+	if(agent->position[1] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_y_index])
 	{ return PhysiCell_constants::mesh_ly_face_index; }
-	if(agent->position()[1] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
+	if(agent->position[1] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_y_index])
 	{ return PhysiCell_constants::mesh_uy_face_index; }
-	if(agent->position()[2] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
+	if(agent->position[2] <= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_min_z_index])
 	{ return PhysiCell_constants::mesh_lz_face_index; }
-	if(agent->position()[2] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
+	if(agent->position[2] >= mechanics_mesh.bounding_box[PhysiCell_constants::mesh_max_z_index])
 	{ return PhysiCell_constants::mesh_uz_face_index; }
 	return -1; 
 }
@@ -272,7 +272,7 @@ bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent* pCell, std::vecto
 	if(comparing_dimension != -1) 
 	{ //then it is an immediate neighbor (through side faces)
 		double surface_coord= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
-		if(std::fabs(pCell->position()[comparing_dimension] - surface_coord) > max_interactive_distance)
+		if(std::fabs(pCell->position[comparing_dimension] - surface_coord) > max_interactive_distance)
 		{ return false; }
 		return true;
 	}
@@ -294,15 +294,15 @@ bool mechanics_environment::is_neighbor_voxel(Mechanics_Agent* pCell, std::vecto
 	{
 		double line_coord1= 0.5*(my_voxel_center[comparing_dimension] + other_voxel_center[comparing_dimension]);
 		double line_coord2= 0.5*(my_voxel_center[comparing_dimension2] + other_voxel_center[comparing_dimension2]);
-		double distance_squared= std::pow( pCell->position()[comparing_dimension] - line_coord1,2)+ std::pow( pCell->position()[comparing_dimension2] - line_coord2,2);
+		double distance_squared= std::pow( pCell->position[comparing_dimension] - line_coord1,2)+ std::pow( pCell->position[comparing_dimension2] - line_coord2,2);
 		if(distance_squared > max_interactive_distance * max_interactive_distance)
 		{ return false; }
 		return true;
 	}
 	std::vector<double> corner_point= 0.5*(my_voxel_center+other_voxel_center);
-	double distance_squared= (corner_point[0]-pCell->position()[0])*(corner_point[0]-pCell->position()[0])
-		+(corner_point[1]-pCell->position()[1])*(corner_point[1]-pCell->position()[1]) 
-		+(corner_point[2]-pCell->position()[2]) * (corner_point[2]-pCell->position()[2]);
+	double distance_squared= (corner_point[0]-pCell->position[0])*(corner_point[0]-pCell->position[0])
+		+(corner_point[1]-pCell->position[1])*(corner_point[1]-pCell->position[1])
+		+(corner_point[2]-pCell->position[2]) * (corner_point[2]-pCell->position[2]);
 	if(distance_squared > max_interactive_distance * max_interactive_distance)
 	{ return false; }
 	return true;
@@ -455,7 +455,7 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( 
 	std::vector<Mechanics_Agent*>::iterator end = agent_grid[pCell->current_mechanics_voxel_index()].end();
 	for( neighbor = agent_grid[pCell->current_mechanics_voxel_index()].begin(); neighbor != end; ++neighbor)
 	{
-		std::vector<double> displacement = { (*neighbor)->position()[0] - pCell->position()[0], (*neighbor)->position()[1] - pCell->position()[1], (*neighbor)->position()[2] - pCell->position()[2] };
+		std::vector<double> displacement = { (*neighbor)->position[0] - pCell->position[0], (*neighbor)->position[1] - pCell->position[1], (*neighbor)->position[2] - pCell->position[2] };
 		double distance = norm( displacement );
 		if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
 			+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius
@@ -477,7 +477,7 @@ std::vector<CoreEntityPIMPL*> mechanics_environment::nearby_interacting_agents( 
 		end = agent_grid[*neighbor_voxel_index].end();
 		for(neighbor = agent_grid[*neighbor_voxel_index].begin(); neighbor != end; ++neighbor)
 		{
-			std::vector<double> displacement = { (*neighbor)->position()[0] - pCell->position()[0], (*neighbor)->position()[1] - pCell->position()[1], (*neighbor)->position()[2] - pCell->position()[2] };
+			std::vector<double> displacement = { (*neighbor)->position[0] - pCell->position[0], (*neighbor)->position[1] - pCell->position[1], (*neighbor)->position[2] - pCell->position[2] };
 			double distance = norm( displacement );
 			if( distance <= pCell->mechanics_data.relative_maximum_adhesion_distance * pCell->radius_data.radius
 				+ (*neighbor)->mechanics_data.relative_maximum_adhesion_distance * (*neighbor)->radius_data.radius

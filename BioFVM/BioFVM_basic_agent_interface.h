@@ -76,14 +76,6 @@ public:
 	virtual int& ID() = 0;
 	virtual int& index() = 0;
 	
-	/**
-	 * @brief Pointer to the 3 position coordinates {x, y, z}.
-	 *
-	 * The storage is owned by the implementation (it may live in a contiguous array shared by
-	 * all agents), so the pointer must not be kept across operations which may add or remove agents.
-	 */
-	virtual double* position() = 0;
-
 	// Activity status
 	virtual bool& is_active() = 0;
 	

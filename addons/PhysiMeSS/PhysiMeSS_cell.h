@@ -20,7 +20,7 @@ class PhysiMeSS_CellAgent : public PhysiMeSS_Agent
     int stuck_counter;
     int unstuck_counter;
 
-    explicit PhysiMeSS_CellAgent(PhysiCell::Cell* pCell);
+    PhysiMeSS_CellAgent(PhysiCell::Cell* pCell, std::vector<double>& position);
     virtual ~PhysiMeSS_CellAgent() = default;
 
     bool is_fibre() const override { return false; }

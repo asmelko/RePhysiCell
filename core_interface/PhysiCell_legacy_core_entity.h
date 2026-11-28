@@ -1,7 +1,7 @@
 #ifndef __PhysiCell_legacy_core_entity_h__
 #define __PhysiCell_legacy_core_entity_h__
 
-#include <array>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -22,18 +22,22 @@ class Cell;
  */
 class LegacyCoreEntity : public CoreEntity
 {
-	std::array<double, 3> position_ = {0.0, 0.0, 0.0};
+	std::vector<double> position_ = {0.0, 0.0, 0.0};
 	std::unique_ptr<BioFVM::Basic_Agent> basic_agent_;
 	std::unique_ptr<Mechanics_Agent> mechanics_agent_;
 
 public:
 	explicit LegacyCoreEntity(Cell* pCell);
-	/** @brief Use a custom mechanics agent (e.g. an extension of Mechanics_Agent) instead of the default one. */
-	LegacyCoreEntity(std::unique_ptr<Mechanics_Agent> mechanics_agent);
+	/** @brief Create a custom mechanics agent using this entity's position storage. */
+	LegacyCoreEntity(std::function<std::unique_ptr<Mechanics_Agent>(std::vector<double>&)> mechanics_factory);
 	~LegacyCoreEntity() override;
 
 	double* position() override
 	{ return position_.data(); }
+
+	/** @brief Position storage; retain at least three coordinates for the entity's lifetime. */
+	std::vector<double>& position_vector()
+	{ return position_; }
 
 	BioFVM::Basic_Agent* get_basic_agent()
 	{ return basic_agent_.get(); }
@@ -43,7 +47,7 @@ public:
 
 	Mechanics_Agent_Interface* get_mechanics_implementation() override;
 
-	/** @brief Replace the mechanics agent; the new one is bound to this entity's position. */
+	/** @brief Replace the mechanics agent, which must already use this entity's position. */
 	void set_mechanics_agent(std::unique_ptr<Mechanics_Agent> mechanics_agent);
 
 	// ---- BioFVM::Basic_Agent_Interface ---------------------------------------
